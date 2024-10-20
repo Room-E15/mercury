@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../settings/settings_view.dart';
+import '../profile/profile_view.dart';
 import 'group.dart';
 
 class HomeView extends StatelessWidget {
@@ -8,25 +10,61 @@ class HomeView extends StatelessWidget {
       Group(1, "Cal Poly Software", 36, 12, 0),
       Group(2, "Cal Poly Architecture", 36, 24, 0),
       Group(3, "U Chicago", 36, 36, 0),
-      Group(3, "That Group", 36, 12, 1)
+      Group(4, "That Group", 36, 12, 1)
     ],
+    required this.logo,
   });
 
   static const routeName = '/';
 
   final List<Group> groups;
+  final Widget logo;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('MERCURY'),
-        centerTitle: true,
+      drawerEnableOpenDragGesture: false,
+      drawer: SafeArea(
+        child: Drawer(child: Builder(builder: (BuildContext context2) {
+          return Column(children: [
+            Padding(
+                padding: const EdgeInsets.only(top: 50, bottom: 50),
+                child: logo),
+            TextButton(
+                child: const Row(children: [
+                  Icon(Icons.settings),
+                  Padding(padding: EdgeInsetsDirectional.only(end: 10)),
+                  Text("Settings")
+                ]),
+                onPressed: () {
+                  Scaffold.of(context2).closeDrawer();
+                  Navigator.restorablePushNamed(
+                      context, SettingsView.routeName);
+                })
+          ]);
+        })),
       ),
+      appBar: AppBar(
+          title: logo,
+          centerTitle: true,
+          leading: Builder(builder: (BuildContext context2) {
+            return IconButton(
+                onPressed: () {
+                  Scaffold.of(context2).openDrawer();
+                },
+                icon: const Icon(Icons.menu));
+          }),
+          actions: [
+            IconButton(
+                onPressed: () {
+                  Navigator.restorablePushNamed(context, ProfileView.routeName);
+                },
+                icon: const Icon(Icons.person_rounded))
+          ]),
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsetsDirectional.all(8.0),
             child: TextField(
               decoration: InputDecoration(
                 hintText: 'Search Groups',
@@ -46,35 +84,42 @@ class HomeView extends StatelessWidget {
                 final progress = group.responseCount / group.memberCount;
                 final anyUnsafe = group.unsafe > 0;
                 return Card(
-                    clipBehavior: Clip.antiAliasWithSaveLayer,
-                    margin: const EdgeInsets.symmetric(
-                        vertical: 8.0, horizontal: 16.0),
-                    child: InkWell(
+                  clipBehavior: Clip.antiAliasWithSaveLayer,
+                  shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(16.0))),
+                  margin: const EdgeInsetsDirectional.symmetric(
+                      vertical: 10.0, horizontal: 20.0),
+                  child: InkWell(
                       onTap: () {},
-                      child: SizedBox(
-                          height: 100.0, // Height of each blank card
-                          child: Column(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Stack(
                             children: [
-                              Stack(
-                                children: [
-                                  LinearProgressIndicator(
-                                    value: anyUnsafe ? 1 : progress,
-                                    backgroundColor: const Color.fromARGB(
-                                        255, 126, 126, 126),
-                                    valueColor: anyUnsafe
-                                        ? const AlwaysStoppedAnimation<Color>(
-                                            Colors.red)
-                                        : const AlwaysStoppedAnimation<Color>(
-                                            Colors.green),
-                                    minHeight: 20.0,
-                                  ),
-                                  Row(
+                              Positioned.fill(
+                                  child: LinearProgressIndicator(
+                                value: anyUnsafe ? 1 : progress,
+                                backgroundColor:
+                                    const Color.fromARGB(255, 126, 126, 126),
+                                valueColor: anyUnsafe
+                                    ? const AlwaysStoppedAnimation<Color>(
+                                        Colors.red)
+                                    : const AlwaysStoppedAnimation<Color>(
+                                        Colors.green),
+                              )),
+                              Padding(
+                                  padding: const EdgeInsetsDirectional.fromSTEB(
+                                      8, 2, 2, 2),
+                                  child: Row(
                                     children: [
                                       Icon(
                                         anyUnsafe ? Icons.error : Icons.check,
                                         color:
-                                            const Color.fromARGB(128, 0, 0, 0),
+                                            const Color.fromARGB(164, 0, 0, 0),
                                       ),
+                                      const Padding(
+                                          padding: EdgeInsetsDirectional.only(
+                                              end: 8)),
                                       Text(
                                         anyUnsafe
                                             ? group.unsafe > 1
@@ -85,39 +130,43 @@ class HomeView extends StatelessWidget {
                                             fontSize: 14.0,
                                             fontWeight: FontWeight.w900,
                                             color:
-                                                Color.fromARGB(128, 0, 0, 0)),
+                                                Color.fromARGB(164, 0, 0, 0)),
                                       ),
                                     ],
-                                  )
-                                ],
-                              ),
-                              Row(
+                                  ))
+                            ],
+                          ),
+                          Padding(
+                              padding: const EdgeInsetsDirectional.fromSTEB(
+                                  16, 16, 16, 8),
+                              child: Row(
                                 children: [
                                   Text(
                                     group.name,
                                     style: const TextStyle(
                                       fontSize: 24.0,
                                       fontWeight: FontWeight.w700,
-                                      color: Colors.white,
                                     ),
                                     textAlign: TextAlign.start,
                                   ),
                                   const Spacer(),
                                   const Icon(Icons.chevron_right),
                                 ],
-                              ),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                              )),
+                          Padding(
+                              padding: const EdgeInsetsDirectional.fromSTEB(
+                                  16, 12, 16, 16),
+                              child: Row(
                                 children: [
                                   Expanded(
-                                      child: ElevatedButton(
+                                      child: FilledButton(
                                           onPressed: () {},
                                           child: const Text("Send Alert")))
                                 ],
-                              )
-                            ],
-                          )),
-                    ));
+                              ))
+                        ],
+                      )),
+                );
               },
             ),
           ),
@@ -125,10 +174,4 @@ class HomeView extends StatelessWidget {
       ),
     );
   }
-}
-
-void main() {
-  runApp(const MaterialApp(
-    home: HomeView(),
-  ));
 }

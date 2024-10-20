@@ -2,10 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
-import 'sample_feature/sample_item_details_view.dart';
-import 'sample_feature/sample_item_list_view.dart';
 import 'settings/settings_controller.dart';
 import 'settings/settings_view.dart';
+import 'profile/profile_view.dart';
 import 'home/home_view.dart';
 
 /// The Widget that configures your application.
@@ -14,6 +13,10 @@ class MyApp extends StatelessWidget {
     super.key,
     required this.settingsController,
   });
+
+  static const Widget logo = Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [Text('MERCURY'), Icon(Icons.apple, color: Colors.purple)]);
 
   final SettingsController settingsController;
 
@@ -68,15 +71,14 @@ class MyApp extends StatelessWidget {
               settings: routeSettings,
               builder: (BuildContext context) {
                 switch (routeSettings.name) {
+                  case ProfileView.routeName:
+                    return const ProfileView();
                   case SettingsView.routeName:
                     return SettingsView(controller: settingsController);
-                  case SampleItemDetailsView.routeName:
-                    return const SampleItemDetailsView();
-                  case SampleItemListView.routeName:
                   case HomeView.routeName:
-                    return HomeView();
+                    return const HomeView(logo: MyApp.logo);
                   default:
-                    return HomeView();
+                    return const HomeView(logo: MyApp.logo);
                 }
               },
             );
