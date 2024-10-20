@@ -1,5 +1,6 @@
 class Group {
-  const Group(this.id, this.name, this.memberCount, this.responseCount, this.unsafe);
+  const Group(
+      this.id, this.name, this.memberCount, this.responseCount, this.unsafe);
 
   final int id;
   final String name;
