@@ -14,14 +14,40 @@ class MyApp extends StatelessWidget {
     required this.settingsController,
   });
 
-  static const Widget logo = Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [Text('MERCURY'), Icon(Icons.apple, color: Colors.purple)]);
+  static const Widget logo = Row(mainAxisSize: MainAxisSize.min, children: [
+    Text('MERCURY', style: TextStyle(fontSize: 32, fontFamily: 'SF Pro')),
+    Icon(Icons.apple, color: Colors.deepPurple)
+  ]);
 
   final SettingsController settingsController;
 
+  ThemeData getTheme(final ColorScheme colorScheme) {
+    return ThemeData(
+      colorScheme: colorScheme,
+      filledButtonTheme: FilledButtonThemeData(
+        style: FilledButton.styleFrom(
+          backgroundColor: colorScheme.surfaceContainerHighest,
+          foregroundColor: colorScheme.onSurface,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ),
+      ),
+      // searchBarTheme:
+          // SearchBarThemeData(backgroundColor: colorScheme.surfaceContainerHigh),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final ColorScheme colorSchemeLight = ColorScheme.fromSeed(
+      brightness: Brightness.light,
+      seedColor: Colors.indigo,
+    );
+    final ColorScheme colorSchemeDark = ColorScheme.fromSeed(
+      brightness: Brightness.dark,
+      seedColor: Colors.indigo,
+    );
+
     // Glue the SettingsController to the MaterialApp.
     //
     // The ListenableBuilder Widget listens to the SettingsController for changes.
@@ -60,8 +86,8 @@ class MyApp extends StatelessWidget {
           // Define a light and dark color theme. Then, read the user's
           // preferred ThemeMode (light, dark, or system default) from the
           // SettingsController to display the correct theme.
-          theme: ThemeData(),
-          darkTheme: ThemeData.dark(),
+          theme: getTheme(colorSchemeLight),
+          darkTheme: getTheme(colorSchemeDark),
           themeMode: settingsController.themeMode,
 
           // Define a function to handle named routes in order to support
@@ -83,6 +109,7 @@ class MyApp extends StatelessWidget {
               },
             );
           },
+          home: const HomeView(logo: MyApp.logo),
         );
       },
     );
