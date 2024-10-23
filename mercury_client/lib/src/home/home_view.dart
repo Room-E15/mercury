@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../send_alert/send_alert_view.dart';
 import '../settings/settings_view.dart';
 import '../profile/profile_view.dart';
 import 'group.dart';
@@ -160,7 +161,9 @@ class HomeView extends StatelessWidget {
                             children: [
                               Expanded(
                                 child: FilledButton(
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    Navigator.push(context, MaterialPageRoute(builder: (context) => SendAlertView(logo: logo)), );
+                                  },
                                   child: const Padding(
                                     padding: EdgeInsets.all(16),
                                     child: Text("SEND ALERT"),
