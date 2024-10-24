@@ -7,7 +7,6 @@ class Group {
   final int memberCount;
   final int responseCount;
   final int unsafe;
-  // final List<Response> responses = List<Response>.empty();
 }
 
 class Response {

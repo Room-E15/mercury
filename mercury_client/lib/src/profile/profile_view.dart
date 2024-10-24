@@ -2,14 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 class ProfileView extends StatelessWidget {
-  const ProfileView({super.key});
+  const ProfileView({
+    super.key,
+    required this.profileName,
+    required this.profilePhone,
+  });
 
   static const routeName = '/profile';
+  final String profileName;
+  final String profilePhone;
 
   @override
   Widget build(BuildContext context) {
-    final TextEditingController nameController = TextEditingController(text: "Davide Falessi");
-    const String phoneNumber = "123-456-7890"; // Example phone number
+    final TextEditingController nameController =
+        TextEditingController(text: profileName);
 
     return Scaffold(
       appBar: AppBar(
@@ -42,7 +48,7 @@ class ProfileView extends StatelessWidget {
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             Text(
-              phoneNumber,
+              profilePhone,
               style: const TextStyle(fontSize: 16),
             ),
             const SizedBox(height: 20),
@@ -52,8 +58,9 @@ class ProfileView extends StatelessWidget {
             ),
             Center(
               child: QrImageView(
-                data: '1234567890',
+                data: 'phone:$profilePhone',
                 version: QrVersions.auto,
+                backgroundColor: Colors.white,
                 size: 200.0,
               ),
             ),

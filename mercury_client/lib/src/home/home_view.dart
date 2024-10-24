@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../send_alert/send_alert_view.dart';
 import '../settings/settings_view.dart';
 import '../profile/profile_view.dart';
-import 'group.dart';
+import '../entities/group.dart';
 
 class HomeView extends StatelessWidget {
   const HomeView({
@@ -62,19 +62,21 @@ class HomeView extends StatelessWidget {
               },
               icon: const Icon(Icons.person_rounded))
         ],
-        bottom: const PreferredSize(
-          preferredSize: Size.fromHeight(76),
-          child: Padding(
-            padding: EdgeInsetsDirectional.fromSTEB(20, 0, 20, 20),
-            child: SearchBar(
-              leading: Icon(Icons.search),
-              hintText: 'Search Groups',
-            ),
-          ),
-        ),
       ),
       body: Column(
         children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20.0),
+            child: TextField(
+              decoration: InputDecoration(
+                hintText: 'Search Groups',
+                prefixIcon: const Icon(Icons.search),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12.0),
+                ),
+              ),
+            ),
+          ),
           Expanded(
             child: ListView.builder(
               restorationId: 'groupList',

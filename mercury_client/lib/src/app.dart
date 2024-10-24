@@ -32,8 +32,6 @@ class MyApp extends StatelessWidget {
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),
       ),
-      // searchBarTheme:
-          // SearchBarThemeData(backgroundColor: colorScheme.surfaceContainerHigh),
     );
   }
 
@@ -98,7 +96,7 @@ class MyApp extends StatelessWidget {
               builder: (BuildContext context) {
                 switch (routeSettings.name) {
                   case ProfileView.routeName:
-                    return const ProfileView();
+                    return const ProfileView(profileName: "Davide Falessi", profilePhone: "+1 123 456 7890");
                   case SettingsView.routeName:
                     return SettingsView(controller: settingsController);
                   case HomeView.routeName:
