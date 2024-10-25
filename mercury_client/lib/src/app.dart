@@ -101,16 +101,16 @@ class MyApp extends StatelessWidget {
                   case SettingsView.routeName:
                     return SettingsView(controller: settingsController);
                   case HomeView.routeName:
-                    return const HomeView(logo: MyApp.logo);
+                    return const HomeView(logo: MyApp.logo, isMember: false);
                   case JoinServerPromptView.routeName:
                     return JoinServerPromptView(logo: MyApp.logo);
                   default:
-                    return const HomeView(logo: MyApp.logo);
+                    return const HomeView(logo: MyApp.logo, isMember: false);
                 }
               },
             );
           },
-          home: const HomeView(logo: MyApp.logo),
+          home: const HomeView(logo: MyApp.logo, isMember: false),
         );
       },
     );
