@@ -6,6 +6,7 @@ import 'settings/settings_controller.dart';
 import 'settings/settings_view.dart';
 import 'profile/profile_view.dart';
 import 'home/home_view.dart';
+import 'join_server_prompt/join_server_prompt_view.dart';
 
 /// The Widget that configures your application.
 class MyApp extends StatelessWidget {
@@ -101,6 +102,8 @@ class MyApp extends StatelessWidget {
                     return SettingsView(controller: settingsController);
                   case HomeView.routeName:
                     return const HomeView(logo: MyApp.logo);
+                  case JoinServerPromptView.routeName:
+                    return JoinServerPromptView(logo: MyApp.logo);
                   default:
                     return const HomeView(logo: MyApp.logo);
                 }
