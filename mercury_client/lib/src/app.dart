@@ -22,7 +22,7 @@ class MyApp extends StatelessWidget {
   ]);
 
   final SettingsController settingsController;
-  var registered = false; // TODO remove, get from database
+  var registered = true; // TODO remove, get from database
 
   ThemeData getTheme(final ColorScheme colorScheme) {
     return ThemeData(
@@ -105,17 +105,17 @@ class MyApp extends StatelessWidget {
                   case SettingsView.routeName:
                     return SettingsView(controller: settingsController);
                   case HomeView.routeName:
-                    return const HomeView(logo: MyApp.logo, isMember: false);
+                    return const HomeView(logo: MyApp.logo);
                   case JoinServerPromptView.routeName:
                     return JoinServerPromptView(logo: MyApp.logo);
                   default:
-                    return const HomeView(logo: MyApp.logo, isMember: false);
+                    return const HomeView(logo: MyApp.logo);
                 }
               },
             );
           },
           home: registered
-              ? const HomeView(logo: MyApp.logo, isMember: false)
+              ? const HomeView(logo: MyApp.logo)
               : StartView(logo: MyApp.logo),
         );
       },

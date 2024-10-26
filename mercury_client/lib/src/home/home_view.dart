@@ -9,20 +9,149 @@ class HomeView extends StatelessWidget {
   const HomeView({
     super.key,
     this.groups = const [
-      Group(1, "Cal Poly Software", 36, 12, 0),
-      Group(2, "Cal Poly Architecture", 36, 24, 0),
-      Group(3, "U Chicago", 36, 36, 0),
-      Group(4, "That Group", 36, 12, 1)
-    ],
+      // Group(1, "Cal Poly Software", 36, 12, 0, false),
+      Group(2, "Cal Poly Architecture", 36, 24, 0, false),
+      Group(3, "U Chicago", 36, 36, 0, false),
+      Group(4, "That Group", 36, 12, 1, false),
+      Group(5, "Just A Member", 17, 0, 0, true),
+    ], // TODO remove, get from server
     required this.logo,
-    required this.isMember,
   });
 
   static const routeName = '/';
 
   final List<Group> groups;
   final Widget logo;
-  final bool isMember;
+
+  Widget _groupWidgetBuilder(context, index) {
+    final group = groups[index];
+    final progress = group.responseCount / group.memberCount;
+    final anyUnsafe = group.unsafe > 0;
+
+    double progressValue;
+    Color progressColor;
+    IconData statusIcon;
+    String statusText;
+    Color statusColor;
+    double topPadding;
+
+    if (anyUnsafe) {
+      progressValue = 1;
+      progressColor = Colors.red;
+      statusIcon = Icons.error;
+      statusText =
+          "${group.unsafe} member${group.unsafe > 1 ? "s are" : " is"} not safe!";
+    } else {
+      progressValue = progress;
+      progressColor = Colors.green;
+      statusIcon = Icons.check;
+      statusText = (group.responseCount == group.memberCount)
+          ? "All members are safe"
+          : "${group.responseCount} of ${group.memberCount} members are safe";
+    }
+
+    if (group.isMember) {
+      progressValue = 1;
+      progressColor = const Color(0xFF4F378B);
+      statusIcon = Icons.group;
+      statusText =
+          "${group.memberCount} ${group.memberCount == 1 ? "member" : "members"}";
+
+      statusColor = Colors.white;
+      topPadding = 10;
+    } else {
+      statusColor = const Color.fromARGB(164, 0, 0, 0);
+      topPadding = 20;
+    }
+
+    return Card(
+      clipBehavior: Clip.antiAliasWithSaveLayer,
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(16.0))),
+      margin: const EdgeInsetsDirectional.symmetric(
+          vertical: 10.0, horizontal: 20.0),
+      child: InkWell(
+        onTap: () {},
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Stack(
+              children: [
+                Positioned.fill(
+                  child: LinearProgressIndicator(
+                      value: progressValue,
+                      backgroundColor: const Color.fromARGB(255, 126, 126, 126),
+                      valueColor: AlwaysStoppedAnimation<Color>(progressColor)),
+                ),
+                Padding(
+                  padding: const EdgeInsetsDirectional.fromSTEB(8, 2, 2, 2),
+                  child: Row(
+                    children: [
+                      Icon(
+                        statusIcon,
+                        color: statusColor,
+                      ),
+                      const Padding(
+                          padding: EdgeInsetsDirectional.only(end: 8)),
+                      Text(
+                        statusText,
+                        style: TextStyle(
+                          fontSize: 14.0,
+                          fontWeight: FontWeight.w900,
+                          color: statusColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              ],
+            ),
+            Padding(
+              padding: EdgeInsetsDirectional.fromSTEB(16, topPadding, 16, 10),
+              child: Row(
+                children: [
+                  Text(
+                    group.name,
+                    style: const TextStyle(
+                      fontSize: 24.0,
+                      fontWeight: FontWeight.w700,
+                    ),
+                    textAlign: TextAlign.start,
+                  ),
+                  const Spacer(),
+                  const Icon(Icons.chevron_right),
+                ],
+              ),
+            ),
+            if (!group.isMember)
+              Padding(
+                padding: const EdgeInsetsDirectional.fromSTEB(16, 12, 16, 16),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: FilledButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => SendAlertView(logo: logo),
+                            ),
+                          );
+                        },
+                        child: const Padding(
+                          padding: EdgeInsets.all(16),
+                          child: Text("SEND ALERT"),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -95,122 +224,8 @@ class HomeView extends StatelessWidget {
             child: ListView.builder(
               restorationId: 'groupList',
               itemCount: groups.length, // Number of blank cards
-              itemBuilder: (BuildContext context, int index) {
-                final group = groups[index];
-                final progress = group.responseCount / group.memberCount;
-                final anyUnsafe = group.unsafe > 0;
-                return Card(
-                  clipBehavior: Clip.antiAliasWithSaveLayer,
-                  shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(16.0))),
-                  margin: const EdgeInsetsDirectional.symmetric(
-                      vertical: 10.0, horizontal: 20.0),
-                  child: InkWell(
-                    onTap: () {},
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Stack(
-                          children: [
-                            Positioned.fill(
-                              child: isMember
-                                  ? Positioned.fill(
-                                      child: Container(
-                                        color: const Color(0xFF4F378B),
-                                      ),
-                                    )
-                                  : LinearProgressIndicator(
-                                      value: anyUnsafe ? 1 : progress,
-                                      backgroundColor: const Color.fromARGB(
-                                          255, 126, 126, 126),
-                                      valueColor: anyUnsafe
-                                          ? const AlwaysStoppedAnimation<Color>(
-                                              Colors.red)
-                                          : const AlwaysStoppedAnimation<Color>(
-                                              Colors.green),
-                                    ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsetsDirectional.fromSTEB(
-                                  8, 2, 2, 2),
-                              child: Row(
-                                children: [
-                                  isMember
-                                      ? const Icon(Icons.group,
-                                          color: Color(0xFFFFFFFF))
-                                      : Icon(
-                                          anyUnsafe ? Icons.error : Icons.check,
-                                          color: const Color.fromARGB(
-                                              164, 0, 0, 0),
-                                        ),
-                                  const Padding(
-                                      padding:
-                                          EdgeInsetsDirectional.only(end: 8)),
-                                  isMember ?
-                                  Text("${group.memberCount} ${group.memberCount == 1 ? "member" : "members"}") : 
-                                  Text(
-                                    anyUnsafe
-                                        ? group.unsafe > 1
-                                            ? "${group.unsafe} members are not safe!"
-                                            : "${group.unsafe} member is not safe!"
-                                        : "${group.responseCount} of ${group.memberCount} Members Safe",
-                                    style: const TextStyle(
-                                        fontSize: 14.0,
-                                        fontWeight: FontWeight.w900,
-                                        color: Color.fromARGB(164, 0, 0, 0)),
-                                  ),
-                                ],
-                              ),
-                            )
-                          ],
-                        ),
-                        Padding(
-                          padding: EdgeInsetsDirectional.fromSTEB(
-                              16, isMember ? 10 : 20, 16, 10),
-                          child: Row(
-                            children: [
-                              Text(
-                                group.name,
-                                style: const TextStyle(
-                                  fontSize: 24.0,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                                textAlign: TextAlign.start,
-                              ),
-                              const Spacer(),
-                              const Icon(Icons.chevron_right),
-                            ],
-                          ),
-                        ),
-                        isMember ? const SizedBox.shrink() : Padding(
-                          padding: const EdgeInsetsDirectional.fromSTEB(
-                              16, 12, 16, 16),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: FilledButton(
-                                  onPressed: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) =>
-                                              SendAlertView(logo: logo)),
-                                    );
-                                  },
-                                  child: const Padding(
-                                    padding: EdgeInsets.all(16),
-                                    child: Text("SEND ALERT"),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
+              // build all the group tiles dynamically using builder method
+              itemBuilder: _groupWidgetBuilder,
             ),
           ),
         ],

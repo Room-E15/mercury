@@ -68,7 +68,6 @@ class VerificationView extends StatelessWidget {
                       MaterialPageRoute(
                         builder: (context) => HomeView(
                           logo: logo,
-                          isMember: true,  // TODO get from server
                         ),
                       ),
                     );
