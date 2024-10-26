@@ -5,12 +5,13 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'settings/settings_controller.dart';
 import 'settings/settings_view.dart';
 import 'profile/profile_view.dart';
+import 'startup/start_view.dart';
 import 'home/home_view.dart';
 import 'join_server_prompt/join_server_prompt_view.dart';
 
 /// The Widget that configures your application.
 class MyApp extends StatelessWidget {
-  const MyApp({
+  MyApp({
     super.key,
     required this.settingsController,
   });
@@ -21,6 +22,7 @@ class MyApp extends StatelessWidget {
   ]);
 
   final SettingsController settingsController;
+  var registered = false; // TODO remove, get from database
 
   ThemeData getTheme(final ColorScheme colorScheme) {
     return ThemeData(
@@ -97,7 +99,9 @@ class MyApp extends StatelessWidget {
               builder: (BuildContext context) {
                 switch (routeSettings.name) {
                   case ProfileView.routeName:
-                    return const ProfileView(profileName: "Davide Falessi", profilePhone: "+1 123 456 7890");
+                    return const ProfileView(
+                        profileName: "Davide Falessi",
+                        profilePhone: "+1 123 456 7890");
                   case SettingsView.routeName:
                     return SettingsView(controller: settingsController);
                   case HomeView.routeName:
@@ -110,7 +114,9 @@ class MyApp extends StatelessWidget {
               },
             );
           },
-          home: const HomeView(logo: MyApp.logo),
+          home: registered
+              ? const HomeView(logo: MyApp.logo)
+              : StartView(logo: MyApp.logo),
         );
       },
     );
