@@ -1,5 +1,6 @@
 // Form widget from Flutter
 import 'package:flutter/material.dart';
+import 'package:mercury_client/src/qr_scan/qr_scan_view.dart';
 
 class JoinServerPromptView extends StatelessWidget {
   JoinServerPromptView({
@@ -39,14 +40,18 @@ class JoinServerPromptView extends StatelessWidget {
                 ),
                 const Padding(
                   padding: EdgeInsetsDirectional.only(top: 30),
-                ), IconButton.filled(
-                  iconSize: 40,
-                  style: FilledButton.styleFrom(
-          backgroundColor: const Color(0xFF4F378B),
-          foregroundColor: const Color(0xFFFFFFFF),),
-                        onPressed: () {},
-                        icon: const Icon(Icons.add)
-                )
+                ),
+                IconButton.filled(
+                    iconSize: 40,
+                    style: FilledButton.styleFrom(
+                      backgroundColor: const Color(0xFF4F378B),
+                      foregroundColor: const Color(0xFFFFFFFF),
+                    ),
+                    onPressed: () {
+                      Navigator.restorablePushNamed(
+                          context, QRScanView.routeName);
+                    },
+                    icon: const Icon(Icons.add))
               ],
             ),
           ),

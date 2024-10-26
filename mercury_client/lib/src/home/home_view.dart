@@ -8,13 +8,7 @@ import '../profile/profile_view.dart';
 class HomeView extends StatelessWidget {
   const HomeView({
     super.key,
-    this.groups = const [
-      // Group(1, "Cal Poly Software", 36, 12, 0, false),
-      Group(2, "Cal Poly Architecture", 36, 24, 0, false),
-      Group(3, "U Chicago", 36, 36, 0, false),
-      Group(4, "That Group", 36, 12, 1, false),
-      Group(5, "Just A Member", 17, 0, 0, true),
-    ], // TODO remove, get from server
+    required this.groups,
     required this.logo,
   });
 

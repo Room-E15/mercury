@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:mercury_client/src/qr_scan/qr_scan_view.dart';
 
 import 'settings/settings_controller.dart';
 import 'settings/settings_view.dart';
+import 'entities/group.dart';
 import 'profile/profile_view.dart';
 import 'startup/start_view.dart';
 import 'home/home_view.dart';
@@ -11,7 +13,7 @@ import 'join_server_prompt/join_server_prompt_view.dart';
 
 /// The Widget that configures your application.
 class MyApp extends StatelessWidget {
-  MyApp({
+  const MyApp({
     super.key,
     required this.settingsController,
   });
@@ -22,7 +24,7 @@ class MyApp extends StatelessWidget {
   ]);
 
   final SettingsController settingsController;
-  var registered = true; // TODO remove, get from database
+  final registered = true; // TODO remove, get from database
 
   ThemeData getTheme(final ColorScheme colorScheme) {
     return ThemeData(
@@ -37,6 +39,13 @@ class MyApp extends StatelessWidget {
       ),
     );
   }
+
+  final List<Group> groups = const [
+    Group(1, "Cal Poly Software", 36, 12, 0, false),
+    Group(2, "Cal Poly Architecture", 36, 24, 0, false),
+    Group(3, "U Chicago", 36, 36, 0, false),
+    Group(4, "That Group", 36, 12, 1, true)
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -105,17 +114,19 @@ class MyApp extends StatelessWidget {
                   case SettingsView.routeName:
                     return SettingsView(controller: settingsController);
                   case HomeView.routeName:
-                    return const HomeView(logo: MyApp.logo);
+                    return HomeView(groups: groups, logo: MyApp.logo);
+                  case QRScanView.routeName:
+                    return const QRScanView();
                   case JoinServerPromptView.routeName:
                     return JoinServerPromptView(logo: MyApp.logo);
                   default:
-                    return const HomeView(logo: MyApp.logo);
+                    return HomeView(groups: groups, logo: MyApp.logo);
                 }
               },
             );
           },
           home: registered
-              ? const HomeView(logo: MyApp.logo)
+              ? HomeView(groups: groups, logo: MyApp.logo)
               : StartView(logo: MyApp.logo),
         );
       },
