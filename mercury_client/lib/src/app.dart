@@ -40,13 +40,6 @@ class MyApp extends StatelessWidget {
     );
   }
 
-  final List<Group> groups = const [
-    Group(1, "Cal Poly Software", 36, 12, 0, false),
-    Group(2, "Cal Poly Architecture", 36, 24, 0, false),
-    Group(3, "U Chicago", 36, 36, 0, false),
-    Group(4, "That Group", 36, 12, 1, true)
-  ];
-
   @override
   Widget build(BuildContext context) {
     final ColorScheme colorSchemeLight = ColorScheme.fromSeed(
@@ -114,19 +107,19 @@ class MyApp extends StatelessWidget {
                   case SettingsView.routeName:
                     return SettingsView(controller: settingsController);
                   case HomeView.routeName:
-                    return HomeView(groups: groups, logo: MyApp.logo);
+                    return const HomeView(groups: GroupTestData.groups, logo: MyApp.logo);
                   case QRScanView.routeName:
                     return const QRScanView();
                   case JoinServerPromptView.routeName:
                     return JoinServerPromptView(logo: MyApp.logo);
                   default:
-                    return HomeView(groups: groups, logo: MyApp.logo);
+                    return const HomeView(groups: GroupTestData.groups, logo: MyApp.logo);
                 }
               },
             );
           },
           home: registered
-              ? HomeView(groups: groups, logo: MyApp.logo)
+              ? const HomeView(groups: GroupTestData.groups, logo: MyApp.logo)
               : StartView(logo: MyApp.logo),
         );
       },

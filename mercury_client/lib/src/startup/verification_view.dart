@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:mercury_client/src/entities/group.dart';
 
 import '../home/home_view.dart';
 
@@ -67,6 +68,7 @@ class VerificationView extends StatelessWidget {
                       context,
                       MaterialPageRoute(
                         builder: (context) => HomeView(
+                          groups: GroupTestData.groups,
                           logo: logo,
                         ),
                       ),
