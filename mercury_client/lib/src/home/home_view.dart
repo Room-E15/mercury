@@ -15,12 +15,14 @@ class HomeView extends StatelessWidget {
       Group(4, "That Group", 36, 12, 1)
     ],
     required this.logo,
+    required this.isMember,
   });
 
   static const routeName = '/';
 
   final List<Group> groups;
   final Widget logo;
+  final bool isMember;
 
   @override
   Widget build(BuildContext context) {
@@ -111,29 +113,41 @@ class HomeView extends StatelessWidget {
                         Stack(
                           children: [
                             Positioned.fill(
-                              child: LinearProgressIndicator(
-                                value: anyUnsafe ? 1 : progress,
-                                backgroundColor:
-                                    const Color.fromARGB(255, 126, 126, 126),
-                                valueColor: anyUnsafe
-                                    ? const AlwaysStoppedAnimation<Color>(
-                                        Colors.red)
-                                    : const AlwaysStoppedAnimation<Color>(
-                                        Colors.green),
-                              ),
+                              child: isMember
+                                  ? Positioned.fill(
+                                      child: Container(
+                                        color: const Color(0xFF4F378B),
+                                      ),
+                                    )
+                                  : LinearProgressIndicator(
+                                      value: anyUnsafe ? 1 : progress,
+                                      backgroundColor: const Color.fromARGB(
+                                          255, 126, 126, 126),
+                                      valueColor: anyUnsafe
+                                          ? const AlwaysStoppedAnimation<Color>(
+                                              Colors.red)
+                                          : const AlwaysStoppedAnimation<Color>(
+                                              Colors.green),
+                                    ),
                             ),
                             Padding(
                               padding: const EdgeInsetsDirectional.fromSTEB(
                                   8, 2, 2, 2),
                               child: Row(
                                 children: [
-                                  Icon(
-                                    anyUnsafe ? Icons.error : Icons.check,
-                                    color: const Color.fromARGB(164, 0, 0, 0),
-                                  ),
+                                  isMember
+                                      ? const Icon(Icons.group,
+                                          color: Color(0xFFFFFFFF))
+                                      : Icon(
+                                          anyUnsafe ? Icons.error : Icons.check,
+                                          color: const Color.fromARGB(
+                                              164, 0, 0, 0),
+                                        ),
                                   const Padding(
                                       padding:
                                           EdgeInsetsDirectional.only(end: 8)),
+                                  isMember ?
+                                  Text("${group.memberCount} ${group.memberCount == 1 ? "member" : "members"}") : 
                                   Text(
                                     anyUnsafe
                                         ? group.unsafe > 1
@@ -151,8 +165,8 @@ class HomeView extends StatelessWidget {
                           ],
                         ),
                         Padding(
-                          padding: const EdgeInsetsDirectional.fromSTEB(
-                              16, 20, 16, 10),
+                          padding: EdgeInsetsDirectional.fromSTEB(
+                              16, isMember ? 10 : 20, 16, 10),
                           child: Row(
                             children: [
                               Text(
@@ -168,7 +182,7 @@ class HomeView extends StatelessWidget {
                             ],
                           ),
                         ),
-                        Padding(
+                        isMember ? const SizedBox.shrink() : Padding(
                           padding: const EdgeInsetsDirectional.fromSTEB(
                               16, 12, 16, 16),
                           child: Row(
@@ -176,7 +190,12 @@ class HomeView extends StatelessWidget {
                               Expanded(
                                 child: FilledButton(
                                   onPressed: () {
-                                    Navigator.push(context, MaterialPageRoute(builder: (context) => SendAlertView(logo: logo)), );
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              SendAlertView(logo: logo)),
+                                    );
                                   },
                                   child: const Padding(
                                     padding: EdgeInsets.all(16),
