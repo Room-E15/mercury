@@ -1,7 +1,7 @@
 
 import 'dart:developer';
 import 'package:flutter/material.dart';
-import 'package:qr_code_dart_scan/qr_code_dart_scan.dart';
+// import 'package:qr_code_dart_scan/qr_code_dart_scan.dart';
 
 class QRScanView extends StatefulWidget {
   const QRScanView({super.key});
@@ -41,14 +41,14 @@ class _QRScanViewState extends State<QRScanView> {
               "QR Code",
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
-            QRCodeDartScanView(
-              scanInvertedQRCode: true, // enable scan invert qr code ( default = false)
+            // QRCodeDartScanView(
+            //   scanInvertedQRCode: true, // enable scan invert qr code ( default = false)
 
-              typeScan: TypeScan.live,
-              onCapture: (Result result) {
-                log('data: ${result.toString()}');
-              }
-            ),
+            //   typeScan: TypeScan.live,
+            //   onCapture: (Result result) {
+            //     log('data: ${result.toString()}');
+            //   }
+            // ),
           ],
         ),
       ),
