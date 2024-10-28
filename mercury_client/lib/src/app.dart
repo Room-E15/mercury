@@ -107,13 +107,15 @@ class MyApp extends StatelessWidget {
                   case SettingsView.routeName:
                     return SettingsView(controller: settingsController);
                   case HomeView.routeName:
-                    return const HomeView(groups: GroupTestData.groups, logo: MyApp.logo);
+                    return const HomeView(
+                        groups: GroupTestData.groups, logo: MyApp.logo);
                   case QRScanView.routeName:
                     return const QRScanView();
                   case JoinServerPromptView.routeName:
                     return JoinServerPromptView(logo: MyApp.logo);
                   default:
-                    return const HomeView(groups: GroupTestData.groups, logo: MyApp.logo);
+                    return const HomeView(
+                        groups: GroupTestData.groups, logo: MyApp.logo);
                 }
               },
             );
