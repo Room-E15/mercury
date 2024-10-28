@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import '../send_alert/send_alert_view.dart';
 import '../settings/settings_view.dart';
 import '../entities/group.dart';
-import '../group_dashboard/group_view.dart';
+import '../group_dashboard/leader_group_view.dart';
+import '../group_dashboard/member_group_view.dart';
 import '../join_server_prompt/join_server_prompt_view.dart';
 import '../profile/profile_view.dart';
 
@@ -67,13 +68,23 @@ class HomeView extends StatelessWidget {
           vertical: 10.0, horizontal: 20.0),
       child: InkWell(
         onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) =>
-                  GroupView(key: key, group: group, logo: logo),
-            ),
-          );
+          if (group.isMember) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    MemberGroupView(key: key, group: group, logo: logo),
+              ),
+            );
+          } else {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    LeaderGroupView(key: key, group: group, logo: logo),
+              ),
+            );
+          }
         },
         child: Column(
           mainAxisSize: MainAxisSize.min,

@@ -1,12 +1,15 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import '../settings/settings_view.dart';
 import '../send_alert/send_alert_view.dart';
 import '../entities/group.dart';
+import '../entities/member.dart';
 import '../join_server_prompt/join_server_prompt_view.dart';
 import '../profile/profile_view.dart';
 
-class GroupView extends StatelessWidget {
-  const GroupView({
+class LeaderGroupView extends StatelessWidget {
+  const LeaderGroupView({
     super.key,
     required this.group,
     required this.logo,
@@ -15,27 +18,8 @@ class GroupView extends StatelessWidget {
   final Group group;
   final Widget logo;
 
-  String get routeName => "/${group.name}";
-
-  Widget _memberWidgetBuilder(context, index) {
-    final member = group.members[index];
-
-    return Row(
-      children: [
-        Text(
-          member.name,
-          style: TextStyle(
-            fontSize: 14.0,
-            fontWeight: FontWeight.w400,
-          ),
-        ),
-        Spacer(),
-      ],
-    );
-  }
-
-  Widget _leaderWidgetBuilder(context, index) {
-    final member = group.members[index];
+  Widget _memberWidgetBuilder(context, index, memberList) {
+    final member = memberList[index];
 
     return Row(
       children: [
@@ -59,6 +43,10 @@ class GroupView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final List<Member> unsafe = getUnsafeResponses();
+    final List<Member> safe = getSafeResponses();
+    final List<Member> noResponse = getNoResponses();
+
     return Scaffold(
       drawerEnableOpenDragGesture: false,
       drawer: SafeArea(
@@ -166,8 +154,6 @@ class GroupView extends StatelessWidget {
               ),
             ),
           ),
-          // Leader view card!
-          // Member view card!
           Card(
             clipBehavior: Clip.antiAliasWithSaveLayer,
             shape: const RoundedRectangleBorder(
@@ -181,7 +167,7 @@ class GroupView extends StatelessWidget {
                   children: [
                     Positioned.fill(
                       child: Container(
-                        color: const Color(0xFF4F378B),
+                        color: Colors.red,
                       ),
                     ),
                     Padding(
@@ -189,17 +175,17 @@ class GroupView extends StatelessWidget {
                       child: Row(
                         children: [
                           Icon(
-                            Icons.group,
-                            color: Colors.white,
+                            Icons.cancel_outlined,
+                            color: Colors.black,
                           ),
                           const Padding(
                               padding: EdgeInsetsDirectional.only(end: 8)),
                           Text(
-                            "${group.leaders.length} ${group.leaders.length == 1 ? "leader" : "leaders"}",
+                            "${unsafe.length} ${unsafe.length == 1 ? "Member" : "Members"} NOT OK",
                             style: TextStyle(
                               fontSize: 14.0,
                               fontWeight: FontWeight.w900,
-                              color: Colors.white,
+                              color: Colors.black,
                             ),
                           ),
                         ],
@@ -211,16 +197,17 @@ class GroupView extends StatelessWidget {
                   padding: EdgeInsetsDirectional.fromSTEB(16, 6, 16, 10),
                   child: ListView.builder(
                     shrinkWrap: true,
-                    restorationId: 'leaderList',
-                    itemCount: group.leaders.length, // Number of blank cards
+                    restorationId: 'unsafeList',
+                    itemCount: unsafe.length, // Number of blank cards
                     // build all the group tiles dynamically using builder method
-                    itemBuilder: _leaderWidgetBuilder,
+                    itemBuilder: (context, index) {
+                      return _memberWidgetBuilder(context, index, unsafe);
+                    },
                   ),
                 ),
               ],
             ),
           ),
-          // Member view card!
           Card(
             clipBehavior: Clip.antiAliasWithSaveLayer,
             shape: const RoundedRectangleBorder(
@@ -234,7 +221,7 @@ class GroupView extends StatelessWidget {
                   children: [
                     Positioned.fill(
                       child: Container(
-                        color: const Color(0xFF4F378B),
+                        color: Colors.grey,
                       ),
                     ),
                     Padding(
@@ -242,17 +229,17 @@ class GroupView extends StatelessWidget {
                       child: Row(
                         children: [
                           Icon(
-                            Icons.group,
-                            color: Colors.white,
+                            Icons.access_time,
+                            color: Colors.black,
                           ),
                           const Padding(
                               padding: EdgeInsetsDirectional.only(end: 8)),
                           Text(
-                            "${group.members.length} ${group.members.length == 1 ? "member" : "members"}",
+                            "Waiting for ${noResponse.length} ${noResponse.length == 1 ? "Response" : "Responses"}",
                             style: TextStyle(
                               fontSize: 14.0,
                               fontWeight: FontWeight.w900,
-                              color: Colors.white,
+                              color: Colors.black,
                             ),
                           ),
                         ],
@@ -264,10 +251,66 @@ class GroupView extends StatelessWidget {
                   padding: EdgeInsetsDirectional.fromSTEB(16, 6, 16, 10),
                   child: ListView.builder(
                     shrinkWrap: true,
-                    restorationId: 'memberList',
-                    itemCount: group.members.length, // Number of blank cards
+                    restorationId: 'noResponseList',
+                    itemCount: noResponse.length, // Number of blank cards
                     // build all the group tiles dynamically using builder method
-                    itemBuilder: _memberWidgetBuilder,
+                    itemBuilder: (context, index) {
+                      return _memberWidgetBuilder(context, index, noResponse);
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Card(
+            clipBehavior: Clip.antiAliasWithSaveLayer,
+            shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(16.0))),
+            margin: const EdgeInsetsDirectional.symmetric(
+                vertical: 10.0, horizontal: 20.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Stack(
+                  children: [
+                    Positioned.fill(
+                      child: Container(
+                        color: Colors.green,
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsetsDirectional.fromSTEB(8, 2, 2, 2),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.check_outlined,
+                            color: Colors.black,
+                          ),
+                          const Padding(
+                              padding: EdgeInsetsDirectional.only(end: 8)),
+                          Text(
+                            "${safe.length} ${safe.length == 1 ? "Member" : "Members"} OK",
+                            style: TextStyle(
+                              fontSize: 14.0,
+                              fontWeight: FontWeight.w900,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  ],
+                ),
+                Padding(
+                  padding: EdgeInsetsDirectional.fromSTEB(16, 6, 16, 10),
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    restorationId: 'safeList',
+                    itemCount: safe.length, // Number of blank cards
+                    // build all the group tiles dynamically using builder method
+                    itemBuilder: (context, index) {
+                      return _memberWidgetBuilder(context, index, safe);
+                    },
                   ),
                 ),
               ],
@@ -276,5 +319,32 @@ class GroupView extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  List<Member> getSafeResponses() {
+    log("Querying for safe responses");
+
+    return [
+      Member(3, "Julius Caesar", 1, 1234567890, Response(true, 97, 10.0, 10.0)),
+      Member(6, "Ramos Remus", 1, 1234567890, Response(true, 23, 10.0, 10.0)),
+      Member(
+          1, "Albert Einstein", 1, 1234567890, Response(true, 73, 10.0, 10.0)),
+      Member(
+          2, "Giorno Giovanna", 1, 1098765432, Response(true, 82, 10.0, 10.0))
+    ];
+  }
+
+  List<Member> getUnsafeResponses() {
+    log("Querying for unsafe responses");
+
+    return [
+      Member(4, "Brutus", 1, 1234567890, Response(false, 54, 10.0, 10.0))
+    ];
+  }
+
+  List<Member> getNoResponses() {
+    log("Querying for unsafe responses");
+
+    return [Member(5, "Charlemagne", 1, 1234567890, null)];
   }
 }

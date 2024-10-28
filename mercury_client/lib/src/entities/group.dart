@@ -1,8 +1,8 @@
 import 'member.dart';
 
 class Group {
-  const Group(this.id, this.name, this.memberCount, this.responseCount, this.unsafe,
-      this.isMember, this.members, this.leaders);
+  const Group(this.id, this.name, this.memberCount, this.responseCount,
+      this.unsafe, this.isMember, this.members, this.leaders);
 
   final int id;
   final String name;
