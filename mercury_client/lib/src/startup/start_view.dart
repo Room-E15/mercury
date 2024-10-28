@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'verification_view.dart';
 
-class StartView extends StatelessWidget {
+class StartView extends StatefulWidget {
   static const routeName = '/start';
 
   final TextEditingController firstNameController = TextEditingController();
@@ -13,9 +13,14 @@ class StartView extends StatelessWidget {
 
   StartView({super.key, required this.logo});
 
+  @override
+  StartViewState createState() => StartViewState();
+}
+
+class StartViewState extends State<StartView> {
   final formKey = GlobalKey<FormState>();
 
-  final String? selectedValue = "+1"; // Current selected value
+  String? selectedValue = "+1"; // Current selected value
 
   final List<String> options = ['+1', '+2', '+3']; // Options list
 
@@ -23,7 +28,7 @@ class StartView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: logo,
+        title: widget.logo,
       ),
       body: Column(
         children: [
@@ -37,7 +42,7 @@ class StartView extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: TextFormField(
-                    controller: firstNameController,
+                    controller: widget.firstNameController,
                     decoration: const InputDecoration(
                       labelText: 'First Name',
                     ),
@@ -54,7 +59,7 @@ class StartView extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: TextFormField(
-                    controller: lastNameController,
+                    controller: widget.lastNameController,
                     decoration: const InputDecoration(
                       labelText: 'Last Name',
                     ),
@@ -74,7 +79,7 @@ class StartView extends StatelessWidget {
                       child: Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: DropdownButtonFormField<String>(
-                          value: "selectedValue", // Currently selected value
+                          value: selectedValue, // Currently selected value
                           items: options.map((String option) {
                             return DropdownMenuItem<String>(
                               value: option,
@@ -82,9 +87,11 @@ class StartView extends StatelessWidget {
                             );
                           }).toList(),
                           onChanged: (String? newValue) {
-                            // setState(() {
-                            //   selectedValue = newValue;
-                            // });
+                            if (newValue != null) {
+                              setState(() {
+                                selectedValue = newValue;
+                              });
+                            }
                           },
                           decoration: const InputDecoration(
                             labelText: 'Area Code',
@@ -97,7 +104,7 @@ class StartView extends StatelessWidget {
                       child: Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: TextFormField(
-                          controller: phoneNumberController,
+                          controller: widget.phoneNumberController,
                           decoration: const InputDecoration(
                             labelText: 'Phone Number',
                           ),
@@ -126,10 +133,10 @@ class StartView extends StatelessWidget {
                             context,
                             MaterialPageRoute(
                               builder: (context) => VerificationView(
-                                logo: logo,
-                                firstName: firstNameController.text,
-                                lastName: lastNameController.text,
-                                phoneNumber: phoneNumberController.text,
+                                logo: widget.logo,
+                                firstName: widget.firstNameController.text,
+                                lastName: widget.lastNameController.text,
+                                phoneNumber: widget.phoneNumberController.text,
                               ),
                             ));
                       }
