@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../create_group/create_group_view.dart';
 import '../send_alert/send_alert_view.dart';
 import '../settings/settings_view.dart';
 import '../entities/group.dart';
@@ -12,12 +13,14 @@ class HomeView extends StatelessWidget {
     super.key,
     required this.groups,
     required this.logo,
+    required this.isManager,
   });
 
   static const routeName = '/';
 
   final List<Group> groups;
   final Widget logo;
+  final bool isManager;
 
   Widget _groupWidgetBuilder(context, index) {
     final group = groups[index];
@@ -242,6 +245,18 @@ class HomeView extends StatelessWidget {
               itemBuilder: _groupWidgetBuilder,
             ),
           ),
+          IconButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        CreateGroupView(key: key, logo: logo),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.add_circle_outline,
+                  size: 40, color: Color(0xFF4F378B))),
         ],
       ),
     );

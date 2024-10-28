@@ -108,20 +108,20 @@ class MyApp extends StatelessWidget {
                     return SettingsView(controller: settingsController);
                   case HomeView.routeName:
                     return const HomeView(
-                        groups: GroupTestData.groups, logo: MyApp.logo);
+                        groups: GroupTestData.groups, logo: MyApp.logo, isManager: true);
                   case QRScanView.routeName:
                     return const QRScanView();
                   case JoinServerPromptView.routeName:
                     return JoinServerPromptView(logo: MyApp.logo);
                   default:
                     return const HomeView(
-                        groups: GroupTestData.groups, logo: MyApp.logo);
+                        groups: GroupTestData.groups, logo: MyApp.logo, isManager: true);
                 }
               },
             );
           },
           home: registered
-              ? const HomeView(groups: GroupTestData.groups, logo: MyApp.logo)
+              ? const HomeView(groups: GroupTestData.groups, logo: MyApp.logo, isManager: true)
               : StartView(logo: MyApp.logo),
         );
       },

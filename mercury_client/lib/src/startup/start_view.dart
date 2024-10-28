@@ -50,7 +50,7 @@ class StartViewState extends State<StartView> {
                       if (value == null) {
                         return 'Please enter some text';
                       } else if (!RegExp(r'^[a-zA-Z]+$').hasMatch(value)) {
-                        return 'Please only use onlyalphabetical characters';
+                        return 'Please only use only alphabetical characters';
                       }
                       return null;
                     },

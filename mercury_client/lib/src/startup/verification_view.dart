@@ -70,6 +70,7 @@ class VerificationView extends StatelessWidget {
                         builder: (context) => HomeView(
                           groups: GroupTestData.groups,
                           logo: logo,
+                          isManager: true,
                         ),
                       ),
                     );
