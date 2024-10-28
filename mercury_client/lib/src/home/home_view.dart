@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../send_alert/send_alert_view.dart';
 import '../settings/settings_view.dart';
 import '../entities/group.dart';
+import '../group_dashboard/group_view.dart';
 import '../join_server_prompt/join_server_prompt_view.dart';
 import '../profile/profile_view.dart';
 
@@ -65,7 +66,15 @@ class HomeView extends StatelessWidget {
       margin: const EdgeInsetsDirectional.symmetric(
           vertical: 10.0, horizontal: 20.0),
       child: InkWell(
-        onTap: () {},
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) =>
+                  GroupView(key: key, group: group, logo: logo),
+            ),
+          );
+        },
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
