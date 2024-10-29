@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
+import 'dart:developer';
+import 'dart:collection';
 import '../create_group/create_group_view.dart';
 import '../send_alert/send_alert_view.dart';
 import '../settings/settings_view.dart';
+import '../entities/alert.dart';
 import '../entities/group.dart';
 import '../group_dashboard/leader_group_view.dart';
 import '../group_dashboard/member_group_view.dart';
 import '../join_server_prompt/join_server_prompt_view.dart';
 import '../profile/profile_view.dart';
 
-class HomeView extends StatelessWidget {
+class HomeView extends StatefulWidget {
   const HomeView({
     super.key,
     required this.groups,
@@ -22,8 +25,37 @@ class HomeView extends StatelessWidget {
   final Widget logo;
   final bool isManager;
 
+  @override
+  HomeViewState createState() => HomeViewState();
+}
+
+class HomeViewState extends State<HomeView> {
+  // Will call fetchServerAlert
+  Queue<Alert> alerts = Queue.from(AlertTestData.alerts);
+
+  // TODO make async
+  void fetchServerAlert() {
+    log("Fetching alerts");
+
+    setState(() {
+      alerts = Queue.from(AlertTestData.alerts); // Toggle between items
+    });
+
+    // while (true) {
+    //   GetAlertsFromServer
+    // }
+  }
+
+  // TODO make async
+  void respondToAlert() {
+    log("Alert response sent");
+    setState(() {
+      alerts.removeFirst(); // Toggle between items
+    });
+  }
+
   Widget _groupWidgetBuilder(context, index) {
-    final group = groups[index];
+    final group = widget.groups[index];
     final progress = group.responseCount / group.memberCount;
     final anyUnsafe = group.unsafe > 0;
 
@@ -75,16 +107,16 @@ class HomeView extends StatelessWidget {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) =>
-                    MemberGroupView(key: key, group: group, logo: logo),
+                builder: (context) => MemberGroupView(
+                    key: widget.key, group: group, logo: widget.logo),
               ),
             );
           } else {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) =>
-                    LeaderGroupView(key: key, group: group, logo: logo),
+                builder: (context) => LeaderGroupView(
+                    key: widget.key, group: group, logo: widget.logo),
               ),
             );
           }
@@ -151,7 +183,8 @@ class HomeView extends StatelessWidget {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => SendAlertView(logo: logo),
+                              builder: (context) =>
+                                  SendAlertView(logo: widget.logo),
                             ),
                           );
                         },
@@ -179,7 +212,7 @@ class HomeView extends StatelessWidget {
           return Column(children: [
             Padding(
                 padding: const EdgeInsets.only(top: 50, bottom: 50),
-                child: logo),
+                child: widget.logo),
             TextButton(
                 child: const Row(children: [
                   Icon(Icons.settings),
@@ -206,7 +239,7 @@ class HomeView extends StatelessWidget {
         })),
       ),
       appBar: AppBar(
-        title: logo,
+        title: widget.logo,
         centerTitle: true,
         leading: Builder(builder: (BuildContext context2) {
           return IconButton(
@@ -225,6 +258,104 @@ class HomeView extends StatelessWidget {
       ),
       body: Column(
         children: [
+          alerts.isNotEmpty
+              ? Container(
+                  padding: EdgeInsets.all(16.0),
+                  child: Row(
+                    children: [
+                      // Alert icon
+                      Container(
+                        width: 50,
+                        height: 50,
+                        decoration: BoxDecoration(
+                          color: Color(0xFF4F378B), // Purple background color
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.error_outline,
+                          size: 30,
+                        ),
+                      ),
+                      SizedBox(width: 16), // Space between icon and text
+
+                      // Alert text
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              alerts.first.name,
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              alerts.first.description,
+                              style: TextStyle(
+                                fontSize: 14,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      SizedBox(width: 16), // Space between text and buttons
+
+                      // Red dismiss button
+                      Container(
+                        width: 50,
+                        height: 50,
+                        decoration: BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.rectangle,
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                        child: IconButton(
+                          icon: Icon(Icons.close, color: Colors.black),
+                          iconSize: 24,
+                          onPressed: () {
+                            setState(() {
+                              respondToAlert(); // Toggle between items
+                            });
+                          },
+                        ),
+                      ),
+                      SizedBox(width: 8), // Space between buttons
+
+                      // Green confirm button
+                      Container(
+                        width: 50,
+                        height: 50,
+                        decoration: BoxDecoration(
+                          color: Colors.green,
+                          shape: BoxShape.rectangle,
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                        child: IconButton(
+                          icon: Icon(Icons.check, color: Colors.black),
+                          iconSize: 24,
+                          onPressed: () {
+                            setState(() {
+                              respondToAlert(); // Toggle between items
+                            });
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              : SizedBox.shrink(),
+          // Expanded(
+          //   child: ListView.builder(
+          //     restorationId: 'alertList',
+          //     itemCount: alerts.length,
+          //     itemBuilder: (context, index) {
+          //       return _alertNotificationWidgetBuilder(context, index, alerts);
+          //     },
+          //   ),
+          // ),
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20.0),
             child: TextField(
@@ -239,24 +370,28 @@ class HomeView extends StatelessWidget {
           ),
           Expanded(
             child: ListView.builder(
-              restorationId: 'groupList',
-              itemCount: groups.length, // Number of blank cards
-              // build all the group tiles dynamically using builder method
-              itemBuilder: _groupWidgetBuilder,
-            ),
+                restorationId: 'groupList',
+                itemCount: widget.groups.length + 1, // Number of blank cards
+                // build all the group tiles dynamically using builder method
+                itemBuilder: (context, index) {
+                  if (index < widget.groups.length) {
+                    return _groupWidgetBuilder(context, index);
+                  } else {
+                    return IconButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => CreateGroupView(
+                                  key: widget.key, logo: widget.logo),
+                            ),
+                          );
+                        },
+                        icon: const Icon(Icons.add_circle_outline,
+                            size: 40, color: Color(0xFF4F378B)));
+                  }
+                }),
           ),
-          IconButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        CreateGroupView(key: key, logo: logo),
-                  ),
-                );
-              },
-              icon: const Icon(Icons.add_circle_outline,
-                  size: 40, color: Color(0xFF4F378B))),
         ],
       ),
     );

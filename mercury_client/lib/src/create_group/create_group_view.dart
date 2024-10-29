@@ -20,7 +20,7 @@ class CreateGroupView extends StatelessWidget {
         children: [
           const Padding(
               padding: EdgeInsetsDirectional.fromSTEB(40, 180, 40, 40),
-              child: Text("Lets get a new group Started!")),
+              child: Text("Lets get a new group started!")),
           Form(
             key: formKey,
             child: Column(
