@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../settings/settings_view.dart';
-import '../entities/group.dart';
-import '../join_server_prompt/join_server_prompt_view.dart';
-import '../profile/profile_view.dart';
+import 'package:mercury_client/src/settings/settings_view.dart';
+import 'package:mercury_client/src/entities/group.dart';
+import 'package:mercury_client/src/join_server_prompt/join_server_prompt_view.dart';
+import 'package:mercury_client/src/profile/profile_view.dart';
 
 class MemberGroupView extends StatelessWidget {
   const MemberGroupView({

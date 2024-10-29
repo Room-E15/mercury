@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:mercury_client/src/loading/loading_view.dart';
 import 'package:mercury_client/src/qr_scan/qr_scan_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -43,7 +44,6 @@ class MyApp extends StatefulWidget {
   @override
   State<MyApp> createState() => _MyAppState();
 }
-
 
 class _MyAppState extends State<MyApp> {
   bool _registered = false;
@@ -140,7 +140,20 @@ class _MyAppState extends State<MyApp> {
             );
           },
           home: _registered
-              ? const HomeView(groups: GroupTestData.groups, logo: MyApp.logo)
+              ? LoadingView(
+                  future: _loadRegistrationStatus(),
+                  onFinish: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) {
+                          return const HomeView(
+                              groups: GroupTestData.groups, logo: MyApp.logo);
+                        },
+                      ),
+                    );
+                  },
+                )
               : StartView(logo: MyApp.logo),
         );
       },

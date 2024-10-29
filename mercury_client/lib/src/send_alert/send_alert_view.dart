@@ -1,6 +1,6 @@
 // Form widget from Flutter
 import 'package:flutter/material.dart';
-import '../profile/profile_view.dart';
+import 'package:mercury_client/src/profile/profile_view.dart';
 
 class SendAlertView extends StatelessWidget {
   SendAlertView({

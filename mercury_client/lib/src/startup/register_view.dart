@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:mercury_client/src/loading/loading_view.dart';
 import 'package:uuid/uuid.dart';
 import 'package:flutter/material.dart';
 import 'package:mercury_client/src/home/home_view.dart';
@@ -9,7 +10,7 @@ import 'verification_view.dart';
 class RegisterView extends StatelessWidget {
   static const routeName = '/register';
 
-  final _formKey = GlobalKey<FormState>(); 
+  final _formKey = GlobalKey<FormState>();
   final firstNameController = TextEditingController();
   final lastNameController = TextEditingController();
 
@@ -58,7 +59,7 @@ class RegisterView extends StatelessWidget {
                       if (value == null) {
                         return 'Please enter some text';
                       } else if (!RegExp(r'^[a-zA-Z]+$').hasMatch(value)) {
-                        return 'Please only use onlyalphabetical characters';
+                        return 'Please only use only alphabetical characters';
                       }
                       return null;
                     },
@@ -87,18 +88,23 @@ class RegisterView extends StatelessWidget {
                     onPressed: () {
                       // Validate returns true if the form is valid, or false otherwise.
                       if (_formKey.currentState!.validate()) {
-                        logUserInfo(RegisteredUserInfo(
-                                firstName: firstNameController.text,
-                                lastName: lastNameController.text,
-                                countryCode: countryCode,
-                                phoneNumber: phoneNumber,
-                                id: id))
-                            .then((future) {
-                          if (context.mounted) {
-                            Navigator.pushNamedAndRemoveUntil(
-                                context, HomeView.routeName, (route) => false);
-                          }
-                        });
+                        final future = logUserInfo(RegisteredUserInfo(
+                            firstName: firstNameController.text,
+                            lastName: lastNameController.text,
+                            countryCode: countryCode,
+                            phoneNumber: phoneNumber,
+                            id: id));
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => LoadingView(
+                                future: future,
+                                onFinish: (na) {
+                                  Navigator.pushNamedAndRemoveUntil(context,
+                                      HomeView.routeName, (route) => false);
+                                }),
+                          ),
+                        );
                       }
                     },
                     child: const Text('Submit'),

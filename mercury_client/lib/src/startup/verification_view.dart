@@ -15,6 +15,7 @@ class UserInfo {
   });
 }
 
+// TODO make it so you can't go back to SMS verify
 class RegisteredUserInfo extends UserInfo {
   final String firstName;
   final String lastName;
@@ -32,8 +33,9 @@ class RegisteredUserInfo extends UserInfo {
 
 class VerificationView extends StatelessWidget {
   static const routeName = '/verify';
+  // TODO remove all annoying ass characters you can't tell the difference between
   static const availableChars =
-      'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
+      'AaBbCcDdEeFfGgHhiJjKkLMmNnoPpQqRrSsTtUuVvWwXxYyZz123456789';
   static final _rnd = Random();
 
   final TextEditingController verificationCodeController =
@@ -69,7 +71,12 @@ class VerificationView extends StatelessWidget {
     // TODO implement and make async
     dev.log('Checking server for phone registration status...');
     dev.log('Check complete, User is not registered.');
-    return UserInfo(id: Uuid());
+
+    return Future.delayed(const Duration(seconds: 2), () {
+      return UserInfo(
+        id: Uuid(),
+     );
+    });
   }
 
   @override
@@ -106,34 +113,45 @@ class VerificationView extends StatelessWidget {
                 onPressed: () {
                   // Fetch info from server to decide which page to load
                   if (verificationCodeController.text == verificationCode) {
-                    final infoFuture = getServerUserInfo().then((userInfo) {
-                      if (userInfo is RegisteredUserInfo) {
-                        logUserInfo(userInfo).then((future) {
-                          if (context.mounted) {
-                            Navigator.pushNamedAndRemoveUntil(
-                                context, HomeView.routeName, (route) => false);
-                          }
-                        });
-                      } else if (context.mounted) {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(builder: (context) {
-                            return RegisterView(
-                              logo: logo,
-                              countryCode: countryCode,
-                              phoneNumber: phoneNumber,
-                              id: userInfo.id,
-                            );
-                          }),
-                        );
-                      }
-                    });
+                    final infoFuture = getServerUserInfo();
 
                     // push a loading page to wait for user info from server
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) {
-                      return LoadingView(future: infoFuture);
-                    }));
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) {
+                          return LoadingView(
+                            future: infoFuture,
+                            onFinish: (userInfo) {
+                              if (userInfo is RegisteredUserInfo) {
+                                logUserInfo(userInfo).then(
+                                  (future) {
+                                    if (context.mounted) {
+                                      Navigator.pushNamedAndRemoveUntil(context,
+                                          HomeView.routeName, (route) => false);
+                                    }
+                                  },
+                                );
+                              } else if (context.mounted) {
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) {
+                                      return RegisterView(
+                                        logo: logo,
+                                        countryCode: countryCode,
+                                        phoneNumber: phoneNumber,
+                                        id: userInfo.id,
+                                      );
+                                    },
+                                  ),
+                                );
+                              }
+                            },
+                          );
+                        },
+                      ),
+                    );
                   } else {
                     showDialog(
                       context: context,
@@ -158,7 +176,7 @@ class VerificationView extends StatelessWidget {
                 child: const Text('Submit'),
               ),
             ),
-            Text("Hint: $verificationCode"),  // TODO remove, for debugging
+            Text("Hint: $verificationCode"), // TODO remove, for debugging
           ],
         ));
   }

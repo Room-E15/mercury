@@ -1,12 +1,12 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import '../settings/settings_view.dart';
-import '../send_alert/send_alert_view.dart';
-import '../entities/group.dart';
-import '../entities/member.dart';
-import '../join_server_prompt/join_server_prompt_view.dart';
-import '../profile/profile_view.dart';
+import 'package:mercury_client/src/settings/settings_view.dart';
+import 'package:mercury_client/src/send_alert/send_alert_view.dart';
+import 'package:mercury_client/src/entities/group.dart';
+import 'package:mercury_client/src/entities/member.dart';
+import 'package:mercury_client/src/join_server_prompt/join_server_prompt_view.dart';
+import 'package:mercury_client/src/profile/profile_view.dart';
 
 class LeaderGroupView extends StatelessWidget {
   const LeaderGroupView({
