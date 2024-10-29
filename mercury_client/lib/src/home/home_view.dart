@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:developer';
+import 'dart:collection';
 import '../create_group/create_group_view.dart';
 import '../send_alert/send_alert_view.dart';
 import '../settings/settings_view.dart';
@@ -29,10 +30,28 @@ class HomeView extends StatefulWidget {
 }
 
 class HomeViewState extends State<HomeView> {
-  static List<Alert> queryServerAlerts() {
+  // Will call fetchServerAlert
+  Queue<Alert> alerts = Queue.from(AlertTestData.alerts);
+
+  // TODO make async
+  void fetchServerAlert() {
     log("Fetching alerts");
 
-    return AlertTestData.alerts;
+    setState(() {
+      alerts = Queue.from(AlertTestData.alerts); // Toggle between items
+    });
+
+    // while (true) {
+    //   GetAlertsFromServer
+    // }
+  }
+
+  // TODO make async
+  void respondToAlert() {
+    log("Alert response sent");
+    setState(() {
+      alerts.removeFirst(); // Toggle between items
+    });
   }
 
   Widget _groupWidgetBuilder(context, index) {
@@ -184,98 +203,8 @@ class HomeViewState extends State<HomeView> {
     );
   }
 
-  Widget _alertNotificationWidgetBuilder(context, index, alerts) {
-    final Alert alert = alerts[index];
-
-    return Container(
-      padding: EdgeInsets.all(16.0),
-      child: Row(
-        children: [
-          // Alert icon
-          Container(
-            width: 50,
-            height: 50,
-            decoration: BoxDecoration(
-              color: Color(0xFF4F378B), // Purple background color
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              Icons.error_outline,
-              size: 30,
-            ),
-          ),
-          SizedBox(width: 16), // Space between icon and text
-
-          // Alert text
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  alert.name,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                SizedBox(height: 4),
-                Text(
-                  alert.description,
-                  style: TextStyle(
-                    fontSize: 14,
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          SizedBox(width: 16), // Space between text and buttons
-
-          // Red dismiss button
-          Container(
-            width: 50,
-            height: 50,
-            decoration: BoxDecoration(
-              color: Colors.red,
-              shape: BoxShape.rectangle,
-              borderRadius: BorderRadius.circular(8.0),
-            ),
-            child: IconButton(
-              icon: Icon(Icons.close, color: Colors.black),
-              iconSize: 24,
-              onPressed: () {
-                // Add your dismiss logic here
-              },
-            ),
-          ),
-          SizedBox(width: 8), // Space between buttons
-
-          // Green confirm button
-          Container(
-            width: 50,
-            height: 50,
-            decoration: BoxDecoration(
-              color: Colors.green,
-              shape: BoxShape.rectangle,
-              borderRadius: BorderRadius.circular(8.0),
-            ),
-            child: IconButton(
-              icon: Icon(Icons.check, color: Colors.black),
-              iconSize: 24,
-              onPressed: () {
-                // Add your confirm logic here
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    final List<Alert> alerts = queryServerAlerts();
-
     return Scaffold(
       drawerEnableOpenDragGesture: false,
       drawer: SafeArea(
@@ -329,15 +258,104 @@ class HomeViewState extends State<HomeView> {
       ),
       body: Column(
         children: [
-          Expanded(
-            child: ListView.builder(
-              restorationId: 'alertList',
-              itemCount: alerts.length,
-              itemBuilder: (context, index) {
-                return _alertNotificationWidgetBuilder(context, index, alerts);
-              },
-            ),
-          ),
+          alerts.isNotEmpty
+              ? Container(
+                  padding: EdgeInsets.all(16.0),
+                  child: Row(
+                    children: [
+                      // Alert icon
+                      Container(
+                        width: 50,
+                        height: 50,
+                        decoration: BoxDecoration(
+                          color: Color(0xFF4F378B), // Purple background color
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.error_outline,
+                          size: 30,
+                        ),
+                      ),
+                      SizedBox(width: 16), // Space between icon and text
+
+                      // Alert text
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              alerts.first.name,
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              alerts.first.description,
+                              style: TextStyle(
+                                fontSize: 14,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      SizedBox(width: 16), // Space between text and buttons
+
+                      // Red dismiss button
+                      Container(
+                        width: 50,
+                        height: 50,
+                        decoration: BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.rectangle,
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                        child: IconButton(
+                          icon: Icon(Icons.close, color: Colors.black),
+                          iconSize: 24,
+                          onPressed: () {
+                            setState(() {
+                              respondToAlert(); // Toggle between items
+                            });
+                          },
+                        ),
+                      ),
+                      SizedBox(width: 8), // Space between buttons
+
+                      // Green confirm button
+                      Container(
+                        width: 50,
+                        height: 50,
+                        decoration: BoxDecoration(
+                          color: Colors.green,
+                          shape: BoxShape.rectangle,
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                        child: IconButton(
+                          icon: Icon(Icons.check, color: Colors.black),
+                          iconSize: 24,
+                          onPressed: () {
+                            setState(() {
+                              respondToAlert(); // Toggle between items
+                            });
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              : SizedBox.shrink(),
+          // Expanded(
+          //   child: ListView.builder(
+          //     restorationId: 'alertList',
+          //     itemCount: alerts.length,
+          //     itemBuilder: (context, index) {
+          //       return _alertNotificationWidgetBuilder(context, index, alerts);
+          //     },
+          //   ),
+          // ),
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20.0),
             child: TextField(
@@ -352,24 +370,28 @@ class HomeViewState extends State<HomeView> {
           ),
           Expanded(
             child: ListView.builder(
-              restorationId: 'groupList',
-              itemCount: widget.groups.length, // Number of blank cards
-              // build all the group tiles dynamically using builder method
-              itemBuilder: _groupWidgetBuilder,
-            ),
+                restorationId: 'groupList',
+                itemCount: widget.groups.length + 1, // Number of blank cards
+                // build all the group tiles dynamically using builder method
+                itemBuilder: (context, index) {
+                  if (index < widget.groups.length) {
+                    return _groupWidgetBuilder(context, index);
+                  } else {
+                    return IconButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => CreateGroupView(
+                                  key: widget.key, logo: widget.logo),
+                            ),
+                          );
+                        },
+                        icon: const Icon(Icons.add_circle_outline,
+                            size: 40, color: Color(0xFF4F378B)));
+                  }
+                }),
           ),
-          IconButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        CreateGroupView(key: widget.key, logo: widget.logo),
-                  ),
-                );
-              },
-              icon: const Icon(Icons.add_circle_outline,
-                  size: 40, color: Color(0xFF4F378B))),
         ],
       ),
     );
