@@ -45,26 +45,21 @@ class QRPresentView extends StatelessWidget {
             Padding(
               padding: const EdgeInsetsDirectional.fromSTEB(16, 40, 16, 16),
               child: Center(
-                  child: 
-                  FilledButton(
-                    onPressed: () {
-                      // Download website link logic here
-                    },
-                    child: const Padding(
+                child: FilledButton(
+                  onPressed: () {
+                    // Download website link logic here
+                  },
+                  child: const Padding(
                       padding: EdgeInsets.all(16),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
+                      child: Row(mainAxisSize: MainAxisSize.min, children: [
                         Icon(Icons.copy_outlined,
-                        size: 20, color: Color(0xFFFFFFFF)),
+                            size: 20, color: Color(0xFFFFFFFF)),
                         SizedBox(width: 8),
-                        Text("Copy Link",
-                        style: TextStyle(fontSize: 14))
-                      ])
-                    ),
-                  ),
-                 ),
+                        Text("Copy Link", style: TextStyle(fontSize: 14))
+                      ])),
+                ),
               ),
+            ),
           ],
         ),
       ),
