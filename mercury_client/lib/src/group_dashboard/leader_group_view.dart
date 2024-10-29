@@ -7,6 +7,7 @@ import '../entities/group.dart';
 import '../entities/member.dart';
 import '../join_server_prompt/join_server_prompt_view.dart';
 import '../profile/profile_view.dart';
+import '../qr_present/qr_present_view.dart';
 
 class LeaderGroupView extends StatelessWidget {
   const LeaderGroupView({
@@ -121,6 +122,22 @@ class LeaderGroupView extends StatelessWidget {
                           textAlign: TextAlign.start,
                         ),
                         const Spacer(),
+                        IconButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      // QR Code screen
+                                      QRPresentView(
+                                          key: key,
+                                          groupId: group.id,
+                                          groupName: group.name),
+                                ),
+                              );
+                            },
+                            icon: const Icon(Icons.add_circle_outline,
+                                size: 40, color: Color(0xFF4F378B))),
                       ],
                     ),
                   ),
