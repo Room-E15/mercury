@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:mercury_client/src/qr_scan/qr_scan_view.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'settings/settings_controller.dart';
 import 'settings/settings_view.dart';
@@ -12,19 +13,18 @@ import 'home/home_view.dart';
 import 'join_server_prompt/join_server_prompt_view.dart';
 
 /// The Widget that configures your application.
-class MyApp extends StatelessWidget {
-  const MyApp({
-    super.key,
-    required this.settingsController,
-  });
+class MyApp extends StatefulWidget {
+  final SettingsController settingsController;
 
   static const Widget logo = Row(mainAxisSize: MainAxisSize.min, children: [
     Text('MERCURY', style: TextStyle(fontSize: 32, fontFamily: 'SF Pro')),
     Icon(Icons.apple, color: Colors.deepPurple)
   ]);
 
-  final SettingsController settingsController;
-  final registered = true; // TODO remove, get from database
+  const MyApp({
+    super.key,
+    required this.settingsController,
+  });
 
   ThemeData getTheme(final ColorScheme colorScheme) {
     return ThemeData(
@@ -38,6 +38,27 @@ class MyApp extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+
+class _MyAppState extends State<MyApp> {
+  bool _registered = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadRegistrationStatus();
+  }
+
+  Future<void> _loadRegistrationStatus() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _registered = prefs.getBool('registered') ?? false;
+    });
   }
 
   @override
@@ -56,7 +77,7 @@ class MyApp extends StatelessWidget {
     // The ListenableBuilder Widget listens to the SettingsController for changes.
     // Whenever the user updates their settings, the MaterialApp is rebuilt.
     return ListenableBuilder(
-      listenable: settingsController,
+      listenable: widget.settingsController,
       builder: (BuildContext context, Widget? child) {
         return MaterialApp(
           // Providing a restorationScopeId allows the Navigator built by the
@@ -89,9 +110,9 @@ class MyApp extends StatelessWidget {
           // Define a light and dark color theme. Then, read the user's
           // preferred ThemeMode (light, dark, or system default) from the
           // SettingsController to display the correct theme.
-          theme: getTheme(colorSchemeLight),
-          darkTheme: getTheme(colorSchemeDark),
-          themeMode: settingsController.themeMode,
+          theme: widget.getTheme(colorSchemeLight),
+          darkTheme: widget.getTheme(colorSchemeDark),
+          themeMode: widget.settingsController.themeMode,
 
           // Define a function to handle named routes in order to support
           // Flutter web url navigation and deep linking.
@@ -101,11 +122,9 @@ class MyApp extends StatelessWidget {
               builder: (BuildContext context) {
                 switch (routeSettings.name) {
                   case ProfileView.routeName:
-                    return const ProfileView(
-                        profileName: "Davide Falessi",
-                        profilePhone: "+1 123 456 7890");
+                    return ProfileView();
                   case SettingsView.routeName:
-                    return SettingsView(controller: settingsController);
+                    return SettingsView(controller: widget.settingsController);
                   case HomeView.routeName:
                     return const HomeView(
                         groups: GroupTestData.groups, logo: MyApp.logo);
@@ -120,7 +139,7 @@ class MyApp extends StatelessWidget {
               },
             );
           },
-          home: registered
+          home: _registered
               ? const HomeView(groups: GroupTestData.groups, logo: MyApp.logo)
               : StartView(logo: MyApp.logo),
         );

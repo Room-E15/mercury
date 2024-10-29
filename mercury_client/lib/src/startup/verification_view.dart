@@ -1,8 +1,34 @@
 import 'dart:math';
+import 'dart:developer' as dev;
 import 'package:flutter/material.dart';
-import 'package:mercury_client/src/entities/group.dart';
+import 'package:mercury_client/src/home/home_view.dart';
+import 'package:mercury_client/src/loading/loading_view.dart';
+import 'package:mercury_client/src/startup/register_view.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uuid/uuid.dart';
 
-import '../home/home_view.dart';
+class UserInfo {
+  final Uuid id;
+
+  UserInfo({
+    required this.id,
+  });
+}
+
+class RegisteredUserInfo extends UserInfo {
+  final String firstName;
+  final String lastName;
+  final String countryCode;
+  final String phoneNumber;
+
+  RegisteredUserInfo({
+    required super.id,
+    required this.firstName,
+    required this.lastName,
+    required this.countryCode,
+    required this.phoneNumber,
+  });
+}
 
 class VerificationView extends StatelessWidget {
   static const routeName = '/verify';
@@ -15,30 +41,48 @@ class VerificationView extends StatelessWidget {
   final String verificationCode = generateRandomString(6);
 
   final Widget logo;
-  final String firstName;
-  final String lastName;
+  final String countryCode;
   final String phoneNumber;
+  final String carrier;
 
   static String generateRandomString(int length) {
     return List.generate(length,
         (index) => availableChars[_rnd.nextInt(availableChars.length)]).join();
   }
-  // TODO figure out how to ask server to send SMS when page loads
+
   VerificationView({
     super.key,
     required this.logo,
-    required this.firstName,
-    required this.lastName,
+    required this.countryCode,
     required this.phoneNumber,
+    required this.carrier,
   });
+
+  Future<void> askServerToSendVerificationCode() async {
+    // TODO implement
+    dev.log('Asking server to send verification code: $verificationCode');
+  }
+
+  // if the user is registered, returns a FullUserInfo object,
+  // else returns a UserInfo object with the new user's ID
+  Future<UserInfo> getServerUserInfo() async {
+    // TODO implement and make async
+    dev.log('Checking server for phone registration status...');
+    dev.log('Check complete, User is not registered.');
+    return UserInfo(id: Uuid());
+  }
 
   @override
   Widget build(BuildContext context) {
+    askServerToSendVerificationCode();
+
     return Scaffold(
         appBar: AppBar(
-          leading: IconButton(onPressed: () {
-            Navigator.pop(context);
-          }, icon: const Icon(Icons.arrow_back)),
+          leading: IconButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              icon: const Icon(Icons.arrow_back)),
           title: logo,
         ),
         body: Column(
@@ -46,7 +90,7 @@ class VerificationView extends StatelessWidget {
             Padding(
                 padding: const EdgeInsets.all(16),
                 child: Text(
-                    "Welcome, $firstName $lastName! Enter the verification code sent to your phone number.")),
+                    "Enter the verification code sent to your phone number.")),
             Padding(
               padding: const EdgeInsets.all(16),
               child: TextField(
@@ -60,19 +104,36 @@ class VerificationView extends StatelessWidget {
               padding: const EdgeInsets.all(16.0),
               child: ElevatedButton(
                 onPressed: () {
+                  // Fetch info from server to decide which page to load
                   if (verificationCodeController.text == verificationCode) {
-                    // logUserInfo();  // TODO implement
-                    // sendServerUserInfo();  // TODO implement
+                    final infoFuture = getServerUserInfo().then((userInfo) {
+                      if (userInfo is RegisteredUserInfo) {
+                        logUserInfo(userInfo).then((future) {
+                          if (context.mounted) {
+                            Navigator.pushNamedAndRemoveUntil(
+                                context, HomeView.routeName, (route) => false);
+                          }
+                        });
+                      } else if (context.mounted) {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(builder: (context) {
+                            return RegisterView(
+                              logo: logo,
+                              countryCode: countryCode,
+                              phoneNumber: phoneNumber,
+                              id: userInfo.id,
+                            );
+                          }),
+                        );
+                      }
+                    });
 
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => HomeView(
-                          groups: GroupTestData.groups,
-                          logo: logo,
-                        ),
-                      ),
-                    );
+                    // push a loading page to wait for user info from server
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) {
+                      return LoadingView(future: infoFuture);
+                    }));
                   } else {
                     showDialog(
                       context: context,
@@ -101,4 +162,14 @@ class VerificationView extends StatelessWidget {
           ],
         ));
   }
+}
+
+Future<void> logUserInfo(RegisteredUserInfo user) async {
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.setBool('registered', true);
+  await prefs.setString('id', user.id.toString());
+  await prefs.setString('firstName', user.firstName);
+  await prefs.setString('lastName', user.lastName);
+  await prefs.setString('countryCode', user.countryCode);
+  await prefs.setString('phoneNumber', user.phoneNumber);
 }
