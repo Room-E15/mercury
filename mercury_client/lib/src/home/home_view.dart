@@ -32,6 +32,7 @@ class HomeView extends StatefulWidget {
 class HomeViewState extends State<HomeView> {
   // Will call fetchServerAlert
   Queue<Alert> alerts = Queue.from(AlertTestData.alerts);
+  String filterSearch = "";
 
   // TODO make async
   void fetchServerAlert() {
@@ -347,18 +348,13 @@ class HomeViewState extends State<HomeView> {
                   ),
                 )
               : SizedBox.shrink(),
-          // Expanded(
-          //   child: ListView.builder(
-          //     restorationId: 'alertList',
-          //     itemCount: alerts.length,
-          //     itemBuilder: (context, index) {
-          //       return _alertNotificationWidgetBuilder(context, index, alerts);
-          //     },
-          //   ),
-          // ),
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20.0),
             child: TextField(
+              onChanged: (value) {
+                setState(() {filterSearch = value;});
+                log(filterSearch);
+              },
               decoration: InputDecoration(
                 hintText: 'Search Groups',
                 prefixIcon: const Icon(Icons.search),
@@ -375,7 +371,11 @@ class HomeViewState extends State<HomeView> {
                 // build all the group tiles dynamically using builder method
                 itemBuilder: (context, index) {
                   if (index < widget.groups.length) {
-                    return _groupWidgetBuilder(context, index);
+                    if (filterSearch == "" || widget.groups[index].name.toLowerCase().contains(filterSearch.toLowerCase())) {
+                      return _groupWidgetBuilder(context, index);
+                    } else {
+                      return SizedBox.shrink();
+                    }
                   } else {
                     return IconButton(
                         onPressed: () {

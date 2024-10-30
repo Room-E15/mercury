@@ -24,7 +24,7 @@ class MyApp extends StatelessWidget {
   ]);
 
   final SettingsController settingsController;
-  final registered = true; // TODO remove, get from database
+  final registered = false; // TODO remove, get from database
 
   ThemeData getTheme(final ColorScheme colorScheme) {
     return ThemeData(
