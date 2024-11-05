@@ -25,6 +25,9 @@ jobs:
         run: |
           cd mercury_client 
           flutter build web
+          cd ../backend
+          mvn clean
+          mvn test -f pom.xml
           cd ..
       - name: Download sonar-scanner
         run: |
