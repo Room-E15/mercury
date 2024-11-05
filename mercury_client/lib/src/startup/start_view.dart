@@ -9,7 +9,7 @@ class StartView extends StatefulWidget {
 
   final TextEditingController firstNameController = TextEditingController();
   final TextEditingController lastNameController = TextEditingController();
-  final TextEditingController areaCodeController = TextEditingController();
+  final TextEditingController countryCodeController = TextEditingController();
   final TextEditingController phoneNumberController = TextEditingController();
 
   final Widget logo;
@@ -34,7 +34,7 @@ class StartViewState extends State<StartView> {
       // you'd often call a server or save the information in a database.
       final firstName = widget.firstNameController.text;
       final lastName = widget.lastNameController.text;
-      final areaCode = widget.areaCodeController.text;
+      final countryCode = widget.countryCodeController.text;
       final phoneNumber = widget.phoneNumberController.text;
 
       // Prepare the data for the HTTP request
@@ -44,7 +44,7 @@ class StartViewState extends State<StartView> {
         body: {
           'firstName': firstName,
           'lastName': lastName,
-          'areaCode': areaCode,
+          'countryCode': countryCode,
           'phoneNumber': phoneNumber,
         },
       );

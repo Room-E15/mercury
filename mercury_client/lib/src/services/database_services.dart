@@ -7,11 +7,11 @@ import 'globals.dart';
 
 class DatabaseServices{
 
-  static Future<Member> addMember(String firstName, String lastName, String areaCode, String phoneNumber) async {
+  static Future<Member> addMember(String firstName, String lastName, String countryCode, String phoneNumber) async {
     Map data = {
       "firstName": firstName,
       "lastName": lastName,
-      "areaCode": areaCode,
+      "countryCode": countryCode,
       "phoneNumber": phoneNumber,
     };
     var body = json.encode(data);
