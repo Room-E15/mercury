@@ -1,20 +1,19 @@
 import 'package:flutter/material.dart';
 
-class LoadingView extends StatefulWidget {
+void stub () {}
+
+class LoadingView<T> extends StatelessWidget {
   const LoadingView({
     super.key,
     required this.future,
+    this.onFinish = stub,
   });
 
   static const routeName = '/loading';
 
-  final Future<void> future;
+  final Future<T> future;
+  final Function onFinish;
 
-  @override
-  State<LoadingView> createState() => _LoadingViewState();
-}
-
-class _LoadingViewState extends State<LoadingView> {
   Widget _spinnerBuilder(BuildContext context) {
     return const Center(
       child: CircularProgressIndicator(
@@ -25,6 +24,12 @@ class _LoadingViewState extends State<LoadingView> {
 
   @override
   Widget build(BuildContext context) {
+    future.then((T value) {
+      if (context.mounted) {
+        onFinish(value);
+      }
+    });
+
     return Scaffold(
         appBar: AppBar(
           title: const Text('Loading'),
