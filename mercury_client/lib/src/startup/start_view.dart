@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'verification_view.dart';
+import 'package:http/http.dart' as http;
+
+import '../services/globals.dart';
 
 class StartView extends StatefulWidget {
   static const routeName = '/start';
 
   final TextEditingController firstNameController = TextEditingController();
   final TextEditingController lastNameController = TextEditingController();
-  final TextEditingController areaCodeController = TextEditingController();
+  final TextEditingController countryCodeController = TextEditingController();
   final TextEditingController phoneNumberController = TextEditingController();
 
   final Widget logo;
@@ -23,6 +26,51 @@ class StartViewState extends State<StartView> {
   String? selectedValue = "+1"; // Current selected value
 
   final List<String> options = ['+1', '+2', '+3']; // Options list
+
+  Future<void> _submitForm() async {
+    // Validate returns true if the form is valid, or false otherwise.
+    if (formKey.currentState!.validate()) {
+      // If the form is valid, display a snackbar. In the real world,
+      // you'd often call a server or save the information in a database.
+      final firstName = widget.firstNameController.text;
+      final lastName = widget.lastNameController.text;
+      final countryCode = widget.countryCodeController.text;
+      final phoneNumber = widget.phoneNumberController.text;
+
+      // Prepare the data for the HTTP request
+      final uri = Uri.parse('$baseURL/add');
+      final response = await http.post(
+        uri,
+        body: {
+          'firstName': firstName,
+          'lastName': lastName,
+          'countryCode': countryCode,
+          'phoneNumber': phoneNumber,
+        },
+      );
+
+      // Handle response
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Form submitted successfully!')),
+        );
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => VerificationView(
+                logo: widget.logo,
+                firstName: widget.firstNameController.text,
+                lastName: widget.lastNameController.text,
+                phoneNumber: widget.phoneNumberController.text,
+              ),
+            ));
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to submit form')),
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -124,23 +172,7 @@ class StartViewState extends State<StartView> {
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: ElevatedButton(
-                    onPressed: () {
-                      // Validate returns true if the form is valid, or false otherwise.
-                      if (formKey.currentState!.validate()) {
-                        // If the form is valid, display a snackbar. In the real world,
-                        // you'd often call a server or save the information in a database.
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => VerificationView(
-                                logo: widget.logo,
-                                firstName: widget.firstNameController.text,
-                                lastName: widget.lastNameController.text,
-                                phoneNumber: widget.phoneNumberController.text,
-                              ),
-                            ));
-                      }
-                    },
+                    onPressed: _submitForm,
                     child: const Text('Submit'),
                   ),
                 ),
