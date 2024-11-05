@@ -26,7 +26,7 @@ jobs:
           cd mercury_client && flutter build web && cd ..
           echo "Done compiling Flutter! Moving on to Spring"
           ls -l
-          cd backend && mvn clean && mvn test -f pom.xml && cd ..
+          cd backend && chmod +x ./mvnw && ./mvnw clean && ./mvnw test -f pom.xml && cd ..
       - name: Download sonar-scanner
         run: |
           curl --create-dirs -sSLo $HOME/.sonar/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-6.2.1.4610-linux-x64.zip
