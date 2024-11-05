@@ -25,7 +25,7 @@ jobs:
         run: |
           cd mercury_client && flutter build web && cd ..
           echo "Done compiling Flutter! Moving on to Spring"
-          tree -L 2
+          ls -l
           cd backend && mvn clean && mvn test -f pom.xml && cd ..
       - name: Download sonar-scanner
         run: |
