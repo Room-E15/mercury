@@ -20,13 +20,13 @@ public class MemberController {
     @PostMapping(path="/add") // Map ONLY POST Requests
     public @ResponseBody String addNewMember (@RequestParam String firstName,
                                               @RequestParam String lastName,
-                                              @RequestParam String areaCode,
+                                              @RequestParam String countryCode,
                                               @RequestParam String phoneNumber
             ) {
         // @ResponseBody means the returned String is the response, not a view name
         // @RequestParam means it is a parameter from the GET or POST request
 
-        Member n = new Member(firstName, lastName, areaCode, phoneNumber);
+        Member n = new Member(firstName, lastName, countryCode, phoneNumber);
         memberRepository.save(n);
         return "Saved";
     }

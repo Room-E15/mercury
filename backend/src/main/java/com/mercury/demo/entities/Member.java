@@ -31,17 +31,17 @@ public class Member {
     @NotNull
     @Getter
     @Setter
-    private String areaCode;
+    private String countryCode;
 
     @NotNull
     @Getter
     @Setter
     private String phoneNumber;
 
-    public Member(final String firstName, final String lastName, final String areaCode, final String phoneNumber) {
+    public Member(final String firstName, final String lastName, final String countryCode, final String phoneNumber) {
         this.firstName = firstName;
         this.lastName = lastName;
-        this.areaCode = areaCode;
+        this.countryCode = countryCode;
         this.phoneNumber = phoneNumber;
     }
 }
