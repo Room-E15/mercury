@@ -1,78 +1,79 @@
-import 'dart:math' as math;
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:mercury_client/src/entities/group.dart';
-import 'package:mercury_client/src/loading/loading_view.dart';
+import 'package:mercury_client/src/utils/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:uuid/uuid.dart';
 
-import '../home/home_view.dart';
+import 'package:mercury_client/src/home/home_view.dart';
 
-class UserInfo {
-  final Uuid id;
-
-  UserInfo({
-    required this.id,
-  });
+enum LoadingState {
+  nothing,
+  loading,
+  success,
+  failure,
 }
 
-// TODO make it so you can't go back to SMS verify
-class RegisteredUserInfo extends UserInfo {
-  final String firstName;
-  final String lastName;
-  final String countryCode;
-  final String phoneNumber;
-
-  RegisteredUserInfo({
-    required super.id,
-    required this.firstName,
-    required this.lastName,
-    required this.countryCode,
-    required this.phoneNumber,
-  });
-}
-
-class VerificationView extends StatelessWidget {
+class VerificationView extends StatefulWidget {
   static const routeName = '/verify';
-  // TODO remove all annoying ass characters you can't tell the difference between
-  static const availableChars =
-      'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
-  // TODO remove once server generates code
-  static final _rnd = math.Random();
 
-  final verificationCodeController = TextEditingController();
+  final codeController = TextEditingController();
 
-  final Widget logo;
   final SharedPreferencesWithCache preferences;
   final String countryCode;
   final String phoneNumber;
   final String carrier;
 
-  // TODO figure out how to ask server to send SMS when page loads
   VerificationView({
     super.key,
-    required this.logo,
     required this.preferences,
     required this.countryCode,
     required this.phoneNumber,
     required this.carrier,
   });
 
-  Future<String> requestServerVerification() async {
-    // TODO implement, currently placeholder
-    final verificationCode = List.generate(
-            6, (index) => availableChars[_rnd.nextInt(availableChars.length)])
-        .join();
+  Future<void> requestServerSendCode() async {
+    // TODO implement
+    log('Asking server to check verification code');
+  }
 
-    log('Asking server to send verification code: $verificationCode');
+  Future<bool> requestServerCheckCode(String code) async {
+    // TODO implement, currently placeholder
+    log('Asking server to check verification code: $code');
 
     return Future.delayed(const Duration(seconds: 2), () {
-      return verificationCode;
+      return code == '1234';
     });
   }
 
   @override
+  VerificationViewState createState() => VerificationViewState();
+}
+
+class VerificationViewState extends State<VerificationView> {
+  var _loadingIconState = LoadingState.nothing;
+
+  Widget displayLoadingIcon(LoadingState state) {
+    // TODO add nice animations for check (slowly fills in) and X (shakes widget)
+    switch (state) {
+      case LoadingState.nothing:
+        return Container();
+      case LoadingState.loading:
+        return const CircularProgressIndicator();
+      case LoadingState.success:
+        return const Icon(Icons.check);
+      case LoadingState.failure:
+        return Row(mainAxisAlignment: MainAxisAlignment.center,
+        children: const [
+          Icon(Icons.close),
+          Text('Invalid Verification Code'),
+        ],) ;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    widget.requestServerSendCode();
+
     return Scaffold(
         appBar: AppBar(
           leading: IconButton(
@@ -80,7 +81,7 @@ class VerificationView extends StatelessWidget {
                 Navigator.pop(context);
               },
               icon: const Icon(Icons.arrow_back)),
-          title: logo,
+          title: appLogo,
         ),
         body: Column(
           children: [
@@ -91,7 +92,7 @@ class VerificationView extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.all(16),
               child: TextField(
-                controller: verificationCodeController,
+                controller: widget.codeController,
                 decoration: const InputDecoration(
                   labelText: 'Verification Code',
                 ),
@@ -101,46 +102,48 @@ class VerificationView extends StatelessWidget {
               padding: const EdgeInsets.all(16.0),
               child: ElevatedButton(
                 onPressed: () {
-                  if (verificationCodeController.text == verificationCode) {
-                    // logUserInfo();  // TODO implement
-                    // sendServerUserInfo();  // TODO implement
+                  // when you press the button, it should cause a loading symbol
+                  setState(() {
+                    _loadingIconState = LoadingState.loading;
+                  });
 
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => HomeView(
-                          groups: GroupTestData
-                              .groups, // TODO remove groups passed in
-                          logo: logo,
-                          isManager: true,
-                        ),
-                      ),
-                    );
-                  } else {
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          title: const Text('Invalid Verification Code'),
-                          content: const Text(
-                              'The verification code you entered is invalid. Please try again.'),
-                          actions: <Widget>[
-                            TextButton(
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                              },
-                              child: const Text('OK'),
+                  // when the server responds, it should change to display a result symbol
+                  widget
+                      .requestServerCheckCode(widget.codeController.text)
+                      .then((isVerified) async {
+                    setState(() {
+                      _loadingIconState = isVerified
+                          ? LoadingState.success
+                          : LoadingState.failure;
+                    });
+
+                    // sendServerUserInfo();  // TODO implement
+                    // logUserInfo();  // TODO implement
+
+                    if (isVerified) {
+                      // TODO instead of future.delayed, change to an animation that executes lambda once finished
+                      Future.delayed(const Duration(seconds: 1), () {
+                          // Navigator.pushNamed(context, HomeView.routeName);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => HomeView(
+                                groups: GroupTestData.groups, // TODO remove
+                                isManager: true, // TODO remove
+                              ),
                             ),
-                          ],
-                        );
-                      },
-                    );
-                  }
+                          );
+                      });
+                    }
+                  });
                 },
                 child: const Text('Submit'),
               ),
             ),
-            Text("Hint: $verificationCode"), // TODO remove, for debugging
+            Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: displayLoadingIcon(_loadingIconState)),
+            Text("Hint: 1234"), // TODO remove, for debugging
           ],
         ));
   }

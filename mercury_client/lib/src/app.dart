@@ -23,11 +23,7 @@ class MyApp extends StatelessWidget {
     required this.sharedPreferences,
   });
 
-  static const Widget logo = Row(mainAxisSize: MainAxisSize.min, children: [
-    Text('MERCURY', style: TextStyle(fontSize: 32, fontFamily: 'SF Pro')),
-    Icon(Icons.apple, color: Colors.deepPurple)
-  ]);
-
+  // TODO move to library
   ThemeData getTheme(final ColorScheme colorScheme) {
     return ThemeData(
       colorScheme: colorScheme,
@@ -44,6 +40,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // TODO move to library
     final ColorScheme colorSchemeLight = ColorScheme.fromSeed(
       brightness: Brightness.light,
       seedColor: Colors.indigo,
@@ -103,24 +100,22 @@ class MyApp extends StatelessWidget {
                 builder: (BuildContext context) {
                   switch (routeSettings.name) {
                     case ProfileView.routeName:
-                      return const ProfileView(
+                      return const ProfileView(  // TODO refactor ProfileView
                           profileName: "Davide Falessi",
                           profilePhone: "+1 123 456 7890");
                     case SettingsView.routeName:
                       return SettingsView(controller: settingsController);
                     case HomeView.routeName:
                       return const HomeView(
-                          groups: GroupTestData.groups,
-                          logo: MyApp.logo,
-                          isManager: true);
+                          groups: GroupTestData.groups,  // TODO remove groups
+                          isManager: true);  // TODO remove isManager
                     case QRScanView.routeName:
                       return const QRScanView();
                     case JoinServerPromptView.routeName:
-                      return JoinServerPromptView(logo: MyApp.logo);
+                      return JoinServerPromptView();
                     default:
                       return const HomeView(
-                          groups: GroupTestData.groups,
-                          logo: MyApp.logo,
+                          groups: GroupTestData.groups,  //TODO remove groups
                           isManager: true); // TODO remove isManager
                   }
                 },
@@ -129,10 +124,9 @@ class MyApp extends StatelessWidget {
             home: sharedPreferences.getBool('registered') == true
                 ? const HomeView(
                     groups: GroupTestData.groups,
-                    logo: MyApp.logo, // TODO remove logo shuffling
                     isManager: true, // TODO remove isManager
                   )
-                : StartView(logo: MyApp.logo, preferences: sharedPreferences));
+                : StartView(preferences: sharedPreferences));
       },
     );
   }

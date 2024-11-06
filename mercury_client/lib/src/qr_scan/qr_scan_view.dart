@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mercury_client/src/home/home_view.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
-import '../loading/loading_widget.dart';
+import '../entities/loading_widget.dart';
 
 class QRScanView extends StatefulWidget {
   const QRScanView({super.key});

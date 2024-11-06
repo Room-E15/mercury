@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mercury_client/src/utils/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'verification_view.dart';
 
@@ -22,16 +23,15 @@ class StartView extends StatelessWidget {
     'T-Mobile'
   ]; // Options list, TODO get from server
 
-  final Widget logo;
   final SharedPreferencesWithCache preferences;
 
-  StartView({super.key, required this.logo, required this.preferences});
+  StartView({super.key, required this.preferences});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: logo,
+        title: appLogo,
       ),
       body: Column(
         children: [
@@ -118,7 +118,6 @@ class StartView extends StatelessWidget {
                             context,
                             MaterialPageRoute(
                               builder: (context) => VerificationView(
-                                logo: logo,
                                 preferences: preferences,
                                 countryCode: countryCodeController.text,
                                 phoneNumber: phoneNumberController.text,
