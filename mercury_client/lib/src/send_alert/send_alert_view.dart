@@ -1,6 +1,10 @@
 // Form widget from Flutter
 import 'package:flutter/material.dart';
 import '../profile/profile_view.dart';
+import 'package:http/http.dart' as http;
+import '../services/globals.dart';
+
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 class SendAlertView extends StatelessWidget {
   SendAlertView({
@@ -12,6 +16,35 @@ class SendAlertView extends StatelessWidget {
 
   final Widget logo;
   final formKey = GlobalKey<FormState>();
+
+  final TextEditingController titleController = TextEditingController();
+  final TextEditingController descriptionController = TextEditingController();
+
+  Future<void> _submitForm() async {
+    if (formKey.currentState!.validate()) {
+      final title = titleController.text;
+      final description = descriptionController.text;
+
+      final uri = Uri.parse('$baseURL/sendAlert');
+      final response = await http.post(
+        uri,
+        body: {
+          'title': title,
+          'description': description,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(navigatorKey.currentContext!).showSnackBar(
+          SnackBar(content: Text('Form submitted successfully!')),
+        );
+      } else {
+        ScaffoldMessenger.of(navigatorKey.currentContext!).showSnackBar(
+          SnackBar(content: Text('Failed to submit form!')),
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -82,6 +115,7 @@ class SendAlertView extends StatelessWidget {
                       children: [
                         // Add TextFormFields and ElevatedButton here.
                         TextFormField(
+                          controller: titleController,
                           decoration: const InputDecoration(
                             labelText: 'Title',
                           ),
@@ -93,6 +127,7 @@ class SendAlertView extends StatelessWidget {
                           },
                         ),
                         TextFormField(
+                          controller: descriptionController,
                           decoration: const InputDecoration(
                             labelText: 'Description (Optional)',
                           ),
@@ -134,10 +169,9 @@ class SendAlertView extends StatelessWidget {
                                 // If the form is valid, display a snackbar. In the real world,
                                 // you'd often call a server or save the information in a database.
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('Processing Data'),
-                                  ),
+                                  const SnackBar(content: Text('Sending Alert')),
                                 );
+                                _submitForm();
                               }
                             },
                             child: const Text('SEND ALERT'),
