@@ -30,8 +30,9 @@ class StartViewState extends State<StartView> {
   Future<void> _submitForm() async {
     // Validate returns true if the form is valid, or false otherwise.
     if (formKey.currentState!.validate()) {
-      // If the form is valid, display a snackbar. In the real world,
-      // you'd often call a server or save the information in a database.
+      // Update countryCodeController with the selected value explicitly
+      widget.countryCodeController.text = selectedValue!;
+
       final firstName = widget.firstNameController.text;
       final lastName = widget.lastNameController.text;
       final countryCode = widget.countryCodeController.text;
@@ -70,6 +71,14 @@ class StartViewState extends State<StartView> {
         );
       }
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    selectedValue = widget.countryCodeController.text.isNotEmpty
+        ? widget.countryCodeController.text
+        : options.first; // Default to first option if no initial value
   }
 
   @override
@@ -138,11 +147,13 @@ class StartViewState extends State<StartView> {
                             if (newValue != null) {
                               setState(() {
                                 selectedValue = newValue;
+                                widget.countryCodeController.text =
+                                    newValue; // Save to controller
                               });
                             }
                           },
                           decoration: const InputDecoration(
-                            labelText: 'Area Code',
+                            labelText: 'Country Code',
                           ),
                         ),
                       ),
