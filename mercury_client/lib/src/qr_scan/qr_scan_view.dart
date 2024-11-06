@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mercury_client/src/home/home_view.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
-import '../loading/loading_view.dart';
+import '../loading/loading_widget.dart';
 
 class QRScanView extends StatefulWidget {
   const QRScanView({super.key});
@@ -12,12 +12,15 @@ class QRScanView extends StatefulWidget {
   State<QRScanView> createState() => _QRScanViewState();
 }
 
-Future<void> requestRegistrationFromServer(String? groupCode) async {
-  groupCode ??= '';
-  return Future.delayed(const Duration(seconds: 2));
+Future<String> requestRegistrationFromServer(String? groupCode) async {
+  return Future.delayed(const Duration(seconds: 2), () {
+    return "success";
+  });
 }
 
 class _QRScanViewState extends State<QRScanView> {
+  Future<String>? loading;
+
   final MobileScannerController controller = MobileScannerController(
     cameraResolution: Size(480, 640),
     detectionSpeed: DetectionSpeed.unrestricted,
@@ -28,14 +31,7 @@ class _QRScanViewState extends State<QRScanView> {
       controller.stop();
       var future =
           requestRegistrationFromServer(barcodes.barcodes.first.rawValue);
-      future.then((value) => {
-            if (context.mounted)
-              Navigator.pushNamedAndRemoveUntil(
-                  context, HomeView.routeName, (route) => false)
-          });
-      Navigator.push(context, MaterialPageRoute(builder: (context) {
-        return LoadingView(future: future);
-      }));
+        setState(() { loading = future; });
     }
   }
 
@@ -54,6 +50,17 @@ class _QRScanViewState extends State<QRScanView> {
       body: Stack(
         fit: StackFit.expand,
         children: [
+          if (loading != null)
+            LoadingWidget<String>(
+              future: loading as Future<String>,
+              childBuilder: (context, value) {
+                if (context.mounted) {
+                  Navigator.pushNamedAndRemoveUntil(
+                      context, HomeView.routeName, (route) => false);
+                }
+                return SizedBox(height: 0, width: 0);
+              },
+            ),
           MobileScanner(
             fit: BoxFit.contain,
             scanWindow: scanWindow,
