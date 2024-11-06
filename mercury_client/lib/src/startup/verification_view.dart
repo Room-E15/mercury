@@ -1,44 +1,85 @@
-import 'dart:math';
+import 'dart:math' as math;
+import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:mercury_client/src/entities/group.dart';
+import 'package:mercury_client/src/loading/loading_view.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uuid/uuid.dart';
 
 import '../home/home_view.dart';
 
-class VerificationView extends StatelessWidget {
-  static const routeName = '/verify';
-  static const availableChars =
-      'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
-  static final _rnd = Random();
+class UserInfo {
+  final Uuid id;
 
-  final TextEditingController verificationCodeController =
-      TextEditingController();
-  final String verificationCode = generateRandomString(6);
+  UserInfo({
+    required this.id,
+  });
+}
 
-  final Widget logo;
+// TODO make it so you can't go back to SMS verify
+class RegisteredUserInfo extends UserInfo {
   final String firstName;
   final String lastName;
+  final String countryCode;
   final String phoneNumber;
 
-  static String generateRandomString(int length) {
-    return List.generate(length,
-        (index) => availableChars[_rnd.nextInt(availableChars.length)]).join();
-  }
+  RegisteredUserInfo({
+    required super.id,
+    required this.firstName,
+    required this.lastName,
+    required this.countryCode,
+    required this.phoneNumber,
+  });
+}
+
+class VerificationView extends StatelessWidget {
+  static const routeName = '/verify';
+  // TODO remove all annoying ass characters you can't tell the difference between
+  static const availableChars =
+      'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
+  // TODO remove once server generates code
+  static final _rnd = math.Random();
+
+  final verificationCodeController = TextEditingController();
+
+  final Widget logo;
+  final SharedPreferencesWithCache preferences;
+  final String countryCode;
+  final String phoneNumber;
+  final String carrier;
+
   // TODO figure out how to ask server to send SMS when page loads
   VerificationView({
     super.key,
     required this.logo,
-    required this.firstName,
-    required this.lastName,
+    required this.preferences,
+    required this.countryCode,
     required this.phoneNumber,
+    required this.carrier,
   });
+
+  Future<String> requestServerVerification() async {
+    // TODO implement, currently placeholder
+    final verificationCode = List.generate(
+            6, (index) => availableChars[_rnd.nextInt(availableChars.length)])
+        .join();
+
+    log('Asking server to send verification code: $verificationCode');
+
+    return Future.delayed(const Duration(seconds: 2), () {
+      return verificationCode;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          leading: IconButton(onPressed: () {
-            Navigator.pop(context);
-          }, icon: const Icon(Icons.arrow_back)),
+          leading: IconButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              icon: const Icon(Icons.arrow_back)),
           title: logo,
         ),
         body: Column(
@@ -46,7 +87,7 @@ class VerificationView extends StatelessWidget {
             Padding(
                 padding: const EdgeInsets.all(16),
                 child: Text(
-                    "Welcome, $firstName $lastName! Enter the verification code sent to your phone number.")),
+                    "Enter the verification code sent to your phone number.")),
             Padding(
               padding: const EdgeInsets.all(16),
               child: TextField(
@@ -68,7 +109,8 @@ class VerificationView extends StatelessWidget {
                       context,
                       MaterialPageRoute(
                         builder: (context) => HomeView(
-                          groups: GroupTestData.groups,
+                          groups: GroupTestData
+                              .groups, // TODO remove groups passed in
                           logo: logo,
                           isManager: true,
                         ),
@@ -98,7 +140,7 @@ class VerificationView extends StatelessWidget {
                 child: const Text('Submit'),
               ),
             ),
-            Text("Hint: $verificationCode"),  // TODO remove, for debugging
+            Text("Hint: $verificationCode"), // TODO remove, for debugging
           ],
         ));
   }

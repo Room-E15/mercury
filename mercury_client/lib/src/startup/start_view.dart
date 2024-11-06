@@ -1,100 +1,63 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'verification_view.dart';
 
-class StartView extends StatefulWidget {
+class StartView extends StatelessWidget {
   static const routeName = '/start';
 
-  final TextEditingController firstNameController = TextEditingController();
-  final TextEditingController lastNameController = TextEditingController();
-  final TextEditingController areaCodeController = TextEditingController();
-  final TextEditingController phoneNumberController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+  final countryCodeController = TextEditingController();
+  final phoneNumberController = TextEditingController();
+  final phoneCarrierController = TextEditingController();
+
+  final selectedCode = "+1"; // Current selected value
+  final countryCodeOptions = [
+    '+1',
+    '+2',
+    '+3'
+  ]; // Options list  TODO get from somewhere
+  final phoneCarrierOptions = [
+    'AT&T',
+    'Verizon',
+    'T-Mobile'
+  ]; // Options list, TODO get from server
 
   final Widget logo;
+  final SharedPreferencesWithCache preferences;
 
-  StartView({super.key, required this.logo});
-
-  @override
-  StartViewState createState() => StartViewState();
-}
-
-class StartViewState extends State<StartView> {
-  final formKey = GlobalKey<FormState>();
-
-  String? selectedValue = "+1"; // Current selected value
-
-  final List<String> options = ['+1', '+2', '+3']; // Options list
+  StartView({super.key, required this.logo, required this.preferences});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: widget.logo,
+        title: logo,
       ),
       body: Column(
         children: [
           const Padding(
               padding: EdgeInsets.all(40),
-              child: Text("Welcome! Please enter your information.")),
+              child: Text("Welcome! Please enter your phone information.")),
           Form(
-            key: formKey,
+            key: _formKey,
             child: Column(
               children: [
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: TextFormField(
-                    controller: widget.firstNameController,
-                    decoration: const InputDecoration(
-                      labelText: 'First Name',
-                    ),
-                    validator: (value) {
-                      if (value == null) {
-                        return 'Please enter some text';
-                      } else if (!RegExp(r'^[a-zA-Z]+$').hasMatch(value)) {
-                        return 'Please only use only alphabetical characters';
-                      }
-                      return null;
-                    },
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: TextFormField(
-                    controller: widget.lastNameController,
-                    decoration: const InputDecoration(
-                      labelText: 'Last Name',
-                    ),
-                    validator: (value) {
-                      if (value == null) {
-                        return 'Please enter some text';
-                      } else if (!RegExp(r'^[a-zA-Z]+$').hasMatch(value)) {
-                        return 'Please only use only alphabetical characters';
-                      }
-                      return null;
-                    },
-                  ),
-                ),
                 Row(
                   children: [
                     Expanded(
                       child: Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: DropdownButtonFormField<String>(
-                          value: selectedValue, // Currently selected value
-                          items: options.map((String option) {
+                          value: selectedCode, // Currently selected value
+                          items: countryCodeOptions.map((String option) {
                             return DropdownMenuItem<String>(
                               value: option,
                               child: Text(option),
                             );
                           }).toList(),
-                          onChanged: (String? newValue) {
-                            if (newValue != null) {
-                              setState(() {
-                                selectedValue = newValue;
-                              });
-                            }
-                          },
+                          onChanged: (String? newValue) {},
                           decoration: const InputDecoration(
-                            labelText: 'Area Code',
+                            labelText: 'Country Code',
                           ),
                         ),
                       ),
@@ -104,15 +67,16 @@ class StartViewState extends State<StartView> {
                       child: Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: TextFormField(
-                          controller: widget.phoneNumberController,
+                          controller: phoneNumberController,
                           decoration: const InputDecoration(
                             labelText: 'Phone Number',
                           ),
                           validator: (value) {
-                            if (value == null) {
-                              return 'Please enter some text';
-                            } else if (!RegExp(r'^[0-9]+$').hasMatch(value)) {
-                              return 'Please only use only numerical characters';
+                            if (value == null || value == '') {
+                              return 'Please enter your 10 digit phone number';
+                            } else if (!RegExp(r'^[0-9]{10}$')
+                                .hasMatch(value)) {
+                              return 'Please enter 10 numerical characters';
                             }
                             return null;
                           },
@@ -123,20 +87,42 @@ class StartViewState extends State<StartView> {
                 ),
                 Padding(
                   padding: const EdgeInsets.all(16.0),
+                  child: DropdownButtonFormField<String>(
+                    items: phoneCarrierOptions.map((String option) {
+                      return DropdownMenuItem<String>(
+                        value: option,
+                        child: Text(option),
+                      );
+                    }).toList(),
+                    onChanged: (String? newValue) {},
+                    decoration: const InputDecoration(
+                      labelText: 'Network Carrier',
+                    ),
+                    validator: (value) {
+                      if (value == null) {
+                        return 'Please select your network carrier';
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
                   child: ElevatedButton(
                     onPressed: () {
                       // Validate returns true if the form is valid, or false otherwise.
-                      if (formKey.currentState!.validate()) {
+                      if (_formKey.currentState!.validate()) {
                         // If the form is valid, display a snackbar. In the real world,
                         // you'd often call a server or save the information in a database.
                         Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (context) => VerificationView(
-                                logo: widget.logo,
-                                firstName: widget.firstNameController.text,
-                                lastName: widget.lastNameController.text,
-                                phoneNumber: widget.phoneNumberController.text,
+                                logo: logo,
+                                preferences: preferences,
+                                countryCode: countryCodeController.text,
+                                phoneNumber: phoneNumberController.text,
+                                carrier: phoneCarrierController.text,
                               ),
                             ));
                       }
