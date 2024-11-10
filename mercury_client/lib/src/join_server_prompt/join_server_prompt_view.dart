@@ -1,16 +1,15 @@
 // Form widget from Flutter
 import 'package:flutter/material.dart';
+import 'package:mercury_client/src/utils/widgets.dart';
 import 'package:mercury_client/src/qr_scan/qr_scan_view.dart';
 
 class JoinServerPromptView extends StatelessWidget {
   JoinServerPromptView({
     super.key,
-    required this.logo,
   });
 
   static const routeName = '/join_server_prompt';
 
-  final Widget logo;
   final formKey = GlobalKey<FormState>();
 
   @override
@@ -18,7 +17,7 @@ class JoinServerPromptView extends StatelessWidget {
     return Scaffold(
         drawerEnableOpenDragGesture: false,
         appBar: AppBar(
-          title: logo,
+          title: appLogo,
           centerTitle: true,
           leading: IconButton(
               onPressed: () {

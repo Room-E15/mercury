@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mercury_client/src/utils/widgets.dart';
 import 'dart:developer';
 import 'dart:collection';
 import '../create_group/create_group_view.dart';
@@ -14,15 +15,12 @@ import '../profile/profile_view.dart';
 class HomeView extends StatefulWidget {
   const HomeView({
     super.key,
-    required this.groups,
-    required this.logo,
     required this.isManager,
   });
 
-  static const routeName = '/';
+  static const routeName = '/home';
 
-  final List<Group> groups;
-  final Widget logo;
+  final List<Group> groups = GroupTestData.groups;  // TODO get from server call
   final bool isManager;
 
   @override
@@ -31,7 +29,7 @@ class HomeView extends StatefulWidget {
 
 class HomeViewState extends State<HomeView> {
   // Will call fetchServerAlert
-  Queue<Alert> alerts = Queue.from(AlertTestData.alerts);
+  Queue<Alert> _alerts = Queue.from(AlertTestData.alerts);
   String filterSearch = "";
 
   // TODO make async
@@ -39,7 +37,7 @@ class HomeViewState extends State<HomeView> {
     log("Fetching alerts");
 
     setState(() {
-      alerts = Queue.from(AlertTestData.alerts); // Toggle between items
+      _alerts = Queue.from(AlertTestData.alerts); // Toggle between items
     });
 
     // while (true) {
@@ -51,7 +49,7 @@ class HomeViewState extends State<HomeView> {
   void respondToAlert() {
     log("Alert response sent");
     setState(() {
-      alerts.removeFirst(); // Toggle between items
+      _alerts.removeFirst(); // Toggle between items
     });
   }
 
@@ -109,7 +107,7 @@ class HomeViewState extends State<HomeView> {
               context,
               MaterialPageRoute(
                 builder: (context) => MemberGroupView(
-                    key: widget.key, group: group, logo: widget.logo),
+                    key: widget.key, group: group),
               ),
             );
           } else {
@@ -117,7 +115,7 @@ class HomeViewState extends State<HomeView> {
               context,
               MaterialPageRoute(
                 builder: (context) => LeaderGroupView(
-                    key: widget.key, group: group, logo: widget.logo),
+                    key: widget.key, group: group),
               ),
             );
           }
@@ -185,7 +183,7 @@ class HomeViewState extends State<HomeView> {
                             context,
                             MaterialPageRoute(
                               builder: (context) =>
-                                  SendAlertView(logo: widget.logo),
+                                  SendAlertView(),
                             ),
                           );
                         },
@@ -213,7 +211,7 @@ class HomeViewState extends State<HomeView> {
           return Column(children: [
             Padding(
                 padding: const EdgeInsets.only(top: 50, bottom: 50),
-                child: widget.logo),
+                child: appLogo),
             TextButton(
                 child: const Row(children: [
                   Icon(Icons.settings),
@@ -240,7 +238,7 @@ class HomeViewState extends State<HomeView> {
         })),
       ),
       appBar: AppBar(
-        title: widget.logo,
+        title: appLogo,
         centerTitle: true,
         leading: Builder(builder: (BuildContext context2) {
           return IconButton(
@@ -259,7 +257,7 @@ class HomeViewState extends State<HomeView> {
       ),
       body: Column(
         children: [
-          alerts.isNotEmpty
+          _alerts.isNotEmpty
               ? Container(
                   padding: EdgeInsets.all(16.0),
                   child: Row(
@@ -285,7 +283,7 @@ class HomeViewState extends State<HomeView> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              alerts.first.name,
+                              _alerts.first.name,
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
@@ -293,7 +291,7 @@ class HomeViewState extends State<HomeView> {
                             ),
                             SizedBox(height: 4),
                             Text(
-                              alerts.first.description,
+                              _alerts.first.description,
                               style: TextStyle(
                                 fontSize: 14,
                               ),
@@ -383,7 +381,7 @@ class HomeViewState extends State<HomeView> {
                             context,
                             MaterialPageRoute(
                               builder: (context) => CreateGroupView(
-                                  key: widget.key, logo: widget.logo),
+                                  key: widget.key),
                             ),
                           );
                         },
