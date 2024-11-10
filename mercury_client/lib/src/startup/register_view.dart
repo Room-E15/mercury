@@ -1,10 +1,11 @@
+import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import 'package:mercury_client/src/startup/loading_view.dart';
 import 'package:mercury_client/src/entities/user_info.dart';
 import 'package:mercury_client/src/utils/functions.dart';
 import 'package:mercury_client/src/utils/server_calls.dart';
 import 'package:mercury_client/src/utils/widgets.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter/material.dart';
 import 'package:mercury_client/src/home/home_view.dart';
 
 class RegisterView extends StatelessWidget {
@@ -17,16 +18,12 @@ class RegisterView extends StatelessWidget {
   final SharedPreferencesWithCache preferences;
   final String countryCode;
   final String phoneNumber;
-  final String carrier;
-  final String id;
 
   RegisterView({
     super.key,
     required this.preferences,
     required this.countryCode,
     required this.phoneNumber,
-    required this.carrier,
-    required this.id,
   });
 
   @override
@@ -85,21 +82,23 @@ class RegisterView extends StatelessWidget {
                     onPressed: () {
                       // Validate returns true if the form is valid, or false otherwise.
                       if (_formKey.currentState!.validate()) {
-                        final user = RegisteredUserInfo(
+                        final user = UserInfo(
                             firstName: firstNameController.text,
                             lastName: lastNameController.text,
                             countryCode: countryCode,
                             phoneNumber: phoneNumber,
-                            id: id);
+                          );
 
-                        final localFuture = logUserInfo(preferences, user);
-                        final serverFuture = requestServerRegisterUser(user);
+                        final future = requestServerRegisterUser(user).then((userId) {
+                          userId ??= 'spingis';  // TODO figure out what to do if the server fails
+                          return logUserInfo(preferences, RegisteredUserInfo.fromUser(user, userId));
+                        });
 
                         Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) => LoadingView(
-                              future: awaitAll([localFuture, serverFuture]),
+                              future: future,
                               onFinish: (_) {
                                 Navigator.pushNamedAndRemoveUntil(
                                   context,

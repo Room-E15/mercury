@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:http/http.dart' as http;
 import '../models/member.dart';
@@ -22,7 +23,7 @@ class DatabaseServices{
       headers: headers,
       body: body,
     );
-    print(response.body);
+    log(response.body);
     Map responseMap = jsonDecode(response.body);
     Member member = Member.fromMap(responseMap);
 
@@ -35,7 +36,7 @@ class DatabaseServices{
       url,
       headers: headers,
     );
-    print(response.body);
+    log(response.body);
     List responseList = jsonDecode(response.body);
     List<Member> members = [];
     for (Map memberMap in responseList) {
