@@ -11,7 +11,7 @@ import lombok.Setter;
 
 @Entity
 @NoArgsConstructor
-public class Member {
+public class Alert {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -19,27 +19,33 @@ public class Member {
     @NotNull
     @Getter
     @Setter
-    private String firstName;
+    private Long groupId;
 
     @NotNull
     @Getter
     @Setter
-    private String lastName;
+    private String title;
 
     @NotNull
     @Getter
     @Setter
-    private String countryCode;
+    private String description;
+
+    // TODO figure out proper data representation for location. Possibilities:
+    // - Latitude, Longitude, Radius
+    // - Address, Radius
+    // - Selectable region
+    // - Should we allow for multiple??
 
     @NotNull
     @Getter
     @Setter
-    private String phoneNumber;
+    private String location;
 
-    public Member(final String firstName, final String lastName, final String countryCode, final String phoneNumber) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.countryCode = countryCode;
-        this.phoneNumber = phoneNumber;
+    public Alert(Long groupId, String title, String description, String location) {
+        this.groupId = groupId;
+        this.title = title;
+        this.description = description;
+        this.location = location;
     }
 }
