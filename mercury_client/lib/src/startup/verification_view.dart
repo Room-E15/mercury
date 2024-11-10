@@ -20,8 +20,6 @@ enum LoadingState {
 class VerificationView extends StatefulWidget {
   static const routeName = '/verify';
 
-  final codeController = TextEditingController();
-
   final SharedPreferencesWithCache preferences;
   final String countryCode;
   final String phoneNumber;
@@ -34,6 +32,14 @@ class VerificationView extends StatefulWidget {
     required this.phoneNumber,
     required this.carrier,
   });
+
+  @override
+  VerificationViewState createState() => VerificationViewState();
+}
+
+class VerificationViewState extends State<VerificationView> {
+  final codeController = TextEditingController();
+  var _loadingIconState = LoadingState.nothing;
 
   Future<void> requestServerSendCode() async {
     // TODO implement
@@ -69,13 +75,6 @@ class VerificationView extends StatefulWidget {
     });
   }
 
-  @override
-  VerificationViewState createState() => VerificationViewState();
-}
-
-class VerificationViewState extends State<VerificationView> {
-  var _loadingIconState = LoadingState.nothing;
-
   Widget displayLoadingIcon(LoadingState state) {
     // TODO add nice animations for check (slowly fills in) and X (shakes widget)
     switch (state) {
@@ -98,7 +97,7 @@ class VerificationViewState extends State<VerificationView> {
 
   @override
   Widget build(BuildContext context) {
-    widget.requestServerSendCode();
+    requestServerSendCode();
 
     return Scaffold(
         appBar: AppBar(
@@ -118,7 +117,7 @@ class VerificationViewState extends State<VerificationView> {
             Padding(
               padding: const EdgeInsets.all(16),
               child: TextField(
-                controller: widget.codeController,
+                controller: codeController,
                 decoration: const InputDecoration(
                   labelText: 'Verification Code',
                 ),
@@ -134,11 +133,11 @@ class VerificationViewState extends State<VerificationView> {
                   });
 
                   // when the server responds, it should change to display a result symbol
-                  widget
-                      .requestServerCheckCode(widget.codeController.text)
-                      .then((enteredCorrectCode) async {
+
+                  requestServerCheckCode(codeController.text)
+                      .then((codeIsCorrect) async {
                     setState(() {
-                      _loadingIconState = enteredCorrectCode
+                      _loadingIconState = codeIsCorrect
                           ? LoadingState.success
                           : LoadingState.failure;
                     });
@@ -146,8 +145,8 @@ class VerificationViewState extends State<VerificationView> {
                     // sendServerUserInfo();  // TODO implement
                     // logUserInfo();  // TODO implement
 
-                    if (enteredCorrectCode) {
-                      final infoFuture = widget.fetchServerUserInfo();
+                    if (codeIsCorrect) {
+                      final infoFuture = fetchServerUserInfo();
 
                       Future.delayed(const Duration(seconds: 1), () {
                         if (context.mounted) {
@@ -157,6 +156,7 @@ class VerificationViewState extends State<VerificationView> {
                               builder: (context2) => LoadingView(
                                 future: infoFuture,
                                 onFinish: (info) {
+                                  // if the user is registered, log their info and send them to the homepage
                                   if (info is RegisteredUserInfo) {
                                     logUserInfo(info).then((_) {
                                       if (context2.mounted) {
@@ -166,6 +166,7 @@ class VerificationViewState extends State<VerificationView> {
                                             (route) => false);
                                       }
                                     });
+                                    // otherwise, send them to the registration page
                                   } else if (context2.mounted) {
                                     Navigator.pushAndRemoveUntil(
                                         context2,
