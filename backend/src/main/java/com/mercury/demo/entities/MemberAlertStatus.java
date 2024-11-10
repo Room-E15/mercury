@@ -9,9 +9,16 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+enum Status {
+    UNSEEN,
+    SEEN,
+    SAFE,
+    UNSAFE
+}
+
 @Entity
 @NoArgsConstructor
-public class Member {
+public class MemberAlertStatus {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -19,27 +26,22 @@ public class Member {
     @NotNull
     @Getter
     @Setter
-    private String firstName;
+    private Long groupId;
 
     @NotNull
     @Getter
     @Setter
-    private String lastName;
+    private Long memberId;
 
     @NotNull
     @Getter
     @Setter
-    private String countryCode;
+    private Status status;
 
-    @NotNull
-    @Getter
-    @Setter
-    private String phoneNumber;
-
-    public Member(final String firstName, final String lastName, final String countryCode, final String phoneNumber) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.countryCode = countryCode;
-        this.phoneNumber = phoneNumber;
+    public MemberAlertStatus(final Long groupId, final long memberId,
+                             final Status status) {
+        this.groupId = groupId;
+        this.memberId = memberId;
+        this.status = status;
     }
 }
