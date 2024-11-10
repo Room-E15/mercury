@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mercury_client/src/utils/widgets.dart';
-import '../entities/group.dart';
-import '../home/home_view.dart';
+import 'package:mercury_client/src/home/home_view.dart';
 
 class CreateGroupView extends StatelessWidget {
   final TextEditingController groupNameController = TextEditingController();

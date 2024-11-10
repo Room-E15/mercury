@@ -3,45 +3,32 @@ import 'dart:developer';
 import 'package:mercury_client/src/entities/user_info.dart';
 import 'package:mercury_client/src/services/globals.dart';
 import 'package:http/http.dart';
-import 'package:uuid/uuid.dart';
 
-Future<bool> requestServerCheckCode(
-    String code, String countryCode, String phoneNumber) async {
-  // TODO implement, currently placeholder
-  log('Asking server to check verification code: $code');
-
-  return Future.delayed(const Duration(seconds: 2), () {
-    return code == '1234';
-  });
-}
 
 Future<void> requestServerSendCode(
     String countryCode, String phoneNumber, String carrier) async {
   // TODO implement
-  log('Asking server to check verification code');
+  log('[INFO] Asking server to send verification code');
+  return Future.delayed(const Duration(seconds: 2));
 }
 
-// if the user is registered, returns a FullUserInfo object,
-// else returns a UserInfo object with the new user's ID
-Future<UserInfo> fetchServerUserInfo() async {
-  // TODO implement and make async
-  log('Checking server for phone registration status...');
-  log('Check complete, User is not registered.');
+// if the user is registered, returns a FullUserInfo object
+// Returns true if code is working and false if it is not
+// Returns the User's Info if they are registered, and null otherwise
+Future<(bool, RegisteredUserInfo?)> requestServerCheckCode(
+    String code, String countryCode, String phoneNumber) async {
+  // TODO implement, currently placeholder
+  log('[INFO] Asking server to check verification code: $code');
+  log('[INFO] Checking server for phone registration status...');
 
   return Future.delayed(const Duration(seconds: 2), () {
-    return UserInfo(
-      id: Uuid().v4(),
-    );
-    // return RegisteredUserInfo(
-    //     id: Uuid().v4(),
-    //     firstName: "Davide",
-    //     lastName: "Falessi",
-    //     countryCode: "39",
-    //     phoneNumber: "1234567890");
+    // temp code check, temp user is not registered return
+    return (code == '1234', null);
   });
 }
 
-Future<void> requestServerRegisterUser(RegisteredUserInfo user) async {
+// returns the user's ID if they were successfully registered
+Future<String?> requestServerRegisterUser(UserInfo user) async {
   log('[INFO] Sending user data to server...');
 
   // Prepare the data for the HTTP request
@@ -62,8 +49,9 @@ Future<void> requestServerRegisterUser(RegisteredUserInfo user) async {
     // Log response
     if (response.statusCode == 200) {
       log('[INFO] User data sent successfully!');
+      return response.body;
     } else {
       log('[ERROR] Failed to send user data to server.');
-      // TODO figure out something better to do if registration fails
+      return null;
     }
 }

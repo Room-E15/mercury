@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:mercury_client/src/startup/loading_view.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import 'package:mercury_client/src/entities/user_info.dart';
+import 'package:mercury_client/src/home/home_view.dart';
 import 'package:mercury_client/src/startup/register_view.dart';
 import 'package:mercury_client/src/utils/functions.dart';
 import 'package:mercury_client/src/utils/server_calls.dart';
 import 'package:mercury_client/src/utils/widgets.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
-import 'package:mercury_client/src/home/home_view.dart';
 
 enum LoadingState {
   nothing,
@@ -102,7 +101,9 @@ class VerificationViewState extends State<VerificationView> {
 
                   requestServerCheckCode(codeController.text,
                           widget.countryCode, widget.phoneNumber)
-                      .then((codeIsCorrect) async {
+                      .then((response) async {
+                    final codeIsCorrect = response.$1, user = response.$2;
+
                     setState(() {
                       _loadingIconState = codeIsCorrect
                           ? LoadingState.success
@@ -110,46 +111,41 @@ class VerificationViewState extends State<VerificationView> {
                     });
 
                     if (codeIsCorrect) {
-                      final infoFuture = fetchServerUserInfo();
+                      // TODO currently have 2 second delay for "check" animation, make less jank
+                      final animationDelay = 2;
 
-                      Future.delayed(const Duration(seconds: 1), () {
-                        if (context.mounted) {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context2) => LoadingView(
-                                future: infoFuture,
-                                onFinish: (info) {
-                                  // if the user is registered, log their info and send them to the homepage
-                                  if (info is RegisteredUserInfo) {
-                                    logUserInfo(widget.preferences, info)
-                                        .then((_) {
-                                      if (context2.mounted) {
-                                        Navigator.pushNamedAndRemoveUntil(
-                                            context2,
-                                            HomeView.routeName,
-                                            (route) => false);
-                                      }
-                                    });
-                                    // otherwise, send them to the registration page
-                                  } else if (context2.mounted) {
-                                    Navigator.pushAndRemoveUntil(
-                                        context2,
-                                        MaterialPageRoute(
-                                          builder: (context2) => RegisterView(
-                                              preferences: widget.preferences,
-                                              countryCode: widget.countryCode,
-                                              phoneNumber: widget.phoneNumber,
-                                              carrier: widget.carrier,
-                                              id: info.id),
-                                        ),
-                                        (route) => false);
-                                  }
-                                },
+                      // if the user is registered, log their info and send them to the homepage
+                      if (user is RegisteredUserInfo) {
+                        logUserInfo(widget.preferences, user).then((future) {
+                          Future.delayed(Duration(seconds: animationDelay), () {
+                            if (context.mounted) {
+                              Navigator.pushNamedAndRemoveUntil(context,
+                                  HomeView.routeName, (route) => false);
+                            }
+                          });
+                        });
+
+                        // otherwise, send them to the registration page
+                      } else {
+                        Future.delayed(Duration(seconds: animationDelay), () {
+                          if (context.mounted) {
+                          Navigator.pushAndRemoveUntil(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context2) => RegisterView(
+                                    preferences: widget.preferences,
+                                    countryCode: widget.countryCode,
+                                    phoneNumber: widget.phoneNumber),
                               ),
-                            ),
-                          );
-                        }
+                              (route) => false);
+                          }
+                        });
+                      }
+                    } else {
+                      // if the code is incorrect, reset the loading icon
+                      await Future.delayed(const Duration(seconds: 2));
+                      setState(() {
+                        _loadingIconState = LoadingState.nothing;
                       });
                     }
                   });
