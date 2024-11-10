@@ -107,7 +107,6 @@ class MyApp extends StatelessWidget {
                       return SettingsView(controller: settingsController);
                     case HomeView.routeName:
                       return const HomeView(
-                          groups: GroupTestData.groups,  // TODO remove groups
                           isManager: true);  // TODO remove isManager
                     case QRScanView.routeName:
                       return const QRScanView();
@@ -115,7 +114,6 @@ class MyApp extends StatelessWidget {
                       return JoinServerPromptView();
                     default:
                       return const HomeView(
-                          groups: GroupTestData.groups,  //TODO remove groups
                           isManager: true); // TODO remove isManager
                   }
                 },
@@ -123,7 +121,6 @@ class MyApp extends StatelessWidget {
             },
             home: sharedPreferences.getBool('registered') == true
                 ? const HomeView(
-                    groups: GroupTestData.groups,
                     isManager: true, // TODO remove isManager
                   )
                 : StartView(preferences: sharedPreferences));

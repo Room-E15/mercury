@@ -15,13 +15,12 @@ import '../profile/profile_view.dart';
 class HomeView extends StatefulWidget {
   const HomeView({
     super.key,
-    required this.groups,
     required this.isManager,
   });
 
-  static const routeName = '/';
+  static const routeName = '/home';
 
-  final List<Group> groups;
+  final List<Group> groups = GroupTestData.groups;  // TODO get from server call
   final bool isManager;
 
   @override

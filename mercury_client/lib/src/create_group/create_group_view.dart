@@ -53,10 +53,8 @@ class CreateGroupView extends StatelessWidget {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => HomeView(
-                                groups: GroupTestData.groups,
-                                isManager: true,
-                              ),
+                              // TODO change to use routing table
+                              builder: (context) => HomeView(isManager: true),
                             ));
                       }
                     },

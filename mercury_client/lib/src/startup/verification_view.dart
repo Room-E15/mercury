@@ -1,10 +1,14 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
-import 'package:mercury_client/src/entities/group.dart';
+import 'package:mercury_client/src/startup/loading_view.dart';
+import 'package:mercury_client/src/entities/user_info.dart';
+import 'package:mercury_client/src/startup/register_view.dart';
+import 'package:mercury_client/src/utils/functions.dart';
 import 'package:mercury_client/src/utils/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:mercury_client/src/home/home_view.dart';
+import 'package:uuid/uuid.dart';
 
 enum LoadingState {
   nothing,
@@ -45,6 +49,26 @@ class VerificationView extends StatefulWidget {
     });
   }
 
+  // if the user is registered, returns a FullUserInfo object,
+  // else returns a UserInfo object with the new user's ID
+  Future<UserInfo> fetchServerUserInfo() async {
+    // TODO implement and make async
+    log('Checking server for phone registration status...');
+    log('Check complete, User is not registered.');
+
+    return Future.delayed(const Duration(seconds: 2), () {
+      return UserInfo(
+        id: Uuid(),
+      );
+      // return RegisteredUserInfo(
+      //     id: Uuid(),
+      //     firstName: "Davide",
+      //     lastName: "Falessi",
+      //     countryCode: "39",
+      //     phoneNumber: "1234567890");
+    });
+  }
+
   @override
   VerificationViewState createState() => VerificationViewState();
 }
@@ -62,11 +86,13 @@ class VerificationViewState extends State<VerificationView> {
       case LoadingState.success:
         return const Icon(Icons.check);
       case LoadingState.failure:
-        return Row(mainAxisAlignment: MainAxisAlignment.center,
-        children: const [
-          Icon(Icons.close),
-          Text('Invalid Verification Code'),
-        ],) ;
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: const [
+            Icon(Icons.close),
+            Text('Invalid Verification Code'),
+          ],
+        );
     }
   }
 
@@ -110,9 +136,9 @@ class VerificationViewState extends State<VerificationView> {
                   // when the server responds, it should change to display a result symbol
                   widget
                       .requestServerCheckCode(widget.codeController.text)
-                      .then((isVerified) async {
+                      .then((enteredCorrectCode) async {
                     setState(() {
-                      _loadingIconState = isVerified
+                      _loadingIconState = enteredCorrectCode
                           ? LoadingState.success
                           : LoadingState.failure;
                     });
@@ -120,19 +146,44 @@ class VerificationViewState extends State<VerificationView> {
                     // sendServerUserInfo();  // TODO implement
                     // logUserInfo();  // TODO implement
 
-                    if (isVerified) {
-                      // TODO instead of future.delayed, change to an animation that executes lambda once finished
+                    if (enteredCorrectCode) {
+                      final infoFuture = widget.fetchServerUserInfo();
+
                       Future.delayed(const Duration(seconds: 1), () {
-                          // Navigator.pushNamed(context, HomeView.routeName);
+                        if (context.mounted) {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => HomeView(
-                                groups: GroupTestData.groups, // TODO remove
-                                isManager: true, // TODO remove
+                              builder: (context2) => LoadingView(
+                                future: infoFuture,
+                                onFinish: (info) {
+                                  if (info is RegisteredUserInfo) {
+                                    logUserInfo(info).then((_) {
+                                      if (context2.mounted) {
+                                        Navigator.pushNamedAndRemoveUntil(
+                                            context2,
+                                            HomeView.routeName,
+                                            (route) => false);
+                                      }
+                                    });
+                                  } else if (context2.mounted) {
+                                    Navigator.pushAndRemoveUntil(
+                                        context2,
+                                        MaterialPageRoute(
+                                          builder: (context2) => RegisterView(
+                                              preferences: widget.preferences,
+                                              countryCode: widget.countryCode,
+                                              phoneNumber: widget.phoneNumber,
+                                              carrier: widget.carrier,
+                                              id: info.id),
+                                        ),
+                                        (route) => false);
+                                  }
+                                },
                               ),
                             ),
                           );
+                        }
                       });
                     }
                   });

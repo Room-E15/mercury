@@ -6,7 +6,7 @@ import 'verification_view.dart';
 class StartView extends StatelessWidget {
   static const routeName = '/start';
 
-  final _formKey = GlobalKey<FormState>();
+  final _formKey = GlobalKey<FormState>();  // Replaced Global Key
   final countryCodeController = TextEditingController();
   final phoneNumberController = TextEditingController();
   final phoneCarrierController = TextEditingController();
