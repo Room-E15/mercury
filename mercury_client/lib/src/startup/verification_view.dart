@@ -25,7 +25,7 @@ class VerificationView extends StatefulWidget {
   final String phoneNumber;
   final String carrier;
 
-  VerificationView({
+  const VerificationView({
     super.key,
     required this.preferences,
     required this.countryCode,
@@ -41,12 +41,14 @@ class VerificationViewState extends State<VerificationView> {
   final codeController = TextEditingController();
   var _loadingIconState = LoadingState.nothing;
 
-  Future<void> requestServerSendCode() async {
+  Future<void> requestServerSendCode(
+      String countryCode, String phoneNumber, String carrier) async {
     // TODO implement
     log('Asking server to check verification code');
   }
 
-  Future<bool> requestServerCheckCode(String code) async {
+  Future<bool> requestServerCheckCode(
+      String code, String countryCode, String phoneNumber) async {
     // TODO implement, currently placeholder
     log('Asking server to check verification code: $code');
 
@@ -97,7 +99,8 @@ class VerificationViewState extends State<VerificationView> {
 
   @override
   Widget build(BuildContext context) {
-    requestServerSendCode();
+    requestServerSendCode(
+        widget.countryCode, widget.phoneNumber, widget.carrier);
 
     return Scaffold(
         appBar: AppBar(
@@ -134,7 +137,8 @@ class VerificationViewState extends State<VerificationView> {
 
                   // when the server responds, it should change to display a result symbol
 
-                  requestServerCheckCode(codeController.text)
+                  requestServerCheckCode(codeController.text,
+                          widget.countryCode, widget.phoneNumber)
                       .then((codeIsCorrect) async {
                     setState(() {
                       _loadingIconState = codeIsCorrect
