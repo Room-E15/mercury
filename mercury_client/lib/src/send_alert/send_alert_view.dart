@@ -1,5 +1,6 @@
 // Form widget from Flutter
 import 'package:flutter/material.dart';
+import 'package:mercury_client/src/utils/widgets.dart';
 import '../profile/profile_view.dart';
 import 'package:http/http.dart' as http;
 import '../services/globals.dart';
@@ -9,12 +10,10 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 class SendAlertView extends StatelessWidget {
   SendAlertView({
     super.key,
-    required this.logo,
   });
 
   static const routeName = '/send_alert';
 
-  final Widget logo;
   final formKey = GlobalKey<FormState>();
 
   final TextEditingController titleController = TextEditingController();
@@ -51,7 +50,7 @@ class SendAlertView extends StatelessWidget {
     return Scaffold(
       drawerEnableOpenDragGesture: false,
       appBar: AppBar(
-        title: logo,
+        title: appLogo,
         centerTitle: true,
         leading: IconButton(
             onPressed: () {

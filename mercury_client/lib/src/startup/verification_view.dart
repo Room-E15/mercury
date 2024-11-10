@@ -1,56 +1,89 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:mercury_client/src/entities/group.dart';
+import 'package:mercury_client/src/startup/loading_view.dart';
+import 'package:mercury_client/src/entities/user_info.dart';
+import 'package:mercury_client/src/startup/register_view.dart';
+import 'package:mercury_client/src/utils/functions.dart';
+import 'package:mercury_client/src/utils/server_calls.dart';
+import 'package:mercury_client/src/utils/widgets.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-import '../home/home_view.dart';
+import 'package:mercury_client/src/home/home_view.dart';
 
-class VerificationView extends StatelessWidget {
+enum LoadingState {
+  nothing,
+  loading,
+  success,
+  failure,
+}
+
+class VerificationView extends StatefulWidget {
   static const routeName = '/verify';
-  static const availableChars =
-      'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
-  static final _rnd = Random();
 
-  final TextEditingController verificationCodeController =
-      TextEditingController();
-  final String verificationCode = generateRandomString(6);
-
-  final Widget logo;
-  final String firstName;
-  final String lastName;
+  final SharedPreferencesWithCache preferences;
+  final String countryCode;
   final String phoneNumber;
+  final String carrier;
 
-  static String generateRandomString(int length) {
-    return List.generate(length,
-        (index) => availableChars[_rnd.nextInt(availableChars.length)]).join();
-  }
-  // TODO figure out how to ask server to send SMS when page loads
-  VerificationView({
+  const VerificationView({
     super.key,
-    required this.logo,
-    required this.firstName,
-    required this.lastName,
+    required this.preferences,
+    required this.countryCode,
     required this.phoneNumber,
+    required this.carrier,
   });
 
   @override
+  VerificationViewState createState() => VerificationViewState();
+}
+
+class VerificationViewState extends State<VerificationView> {
+  final codeController = TextEditingController();
+  var _loadingIconState = LoadingState.nothing;
+
+  Widget displayLoadingIcon(LoadingState state) {
+    // TODO add nice animations for check (slowly fills in) and X (shakes widget)
+    switch (state) {
+      case LoadingState.nothing:
+        return Container();
+      case LoadingState.loading:
+        return const CircularProgressIndicator();
+      case LoadingState.success:
+        return const Icon(Icons.check);
+      case LoadingState.failure:
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: const [
+            Icon(Icons.close),
+            Text('Invalid Verification Code'),
+          ],
+        );
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    requestServerSendCode(
+        widget.countryCode, widget.phoneNumber, widget.carrier);
+
     return Scaffold(
         appBar: AppBar(
-          leading: IconButton(onPressed: () {
-            Navigator.pop(context);
-          }, icon: const Icon(Icons.arrow_back)),
-          title: logo,
+          leading: IconButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              icon: const Icon(Icons.arrow_back)),
+          title: appLogo,
         ),
         body: Column(
           children: [
             Padding(
                 padding: const EdgeInsets.all(16),
                 child: Text(
-                    "Welcome, $firstName $lastName! Enter the verification code sent to your phone number.")),
+                    "Enter the verification code sent to your phone number.")),
             Padding(
               padding: const EdgeInsets.all(16),
               child: TextField(
-                controller: verificationCodeController,
+                controller: codeController,
                 decoration: const InputDecoration(
                   labelText: 'Verification Code',
                 ),
@@ -60,45 +93,74 @@ class VerificationView extends StatelessWidget {
               padding: const EdgeInsets.all(16.0),
               child: ElevatedButton(
                 onPressed: () {
-                  if (verificationCodeController.text == verificationCode) {
-                    // logUserInfo();  // TODO implement
-                    // sendServerUserInfo();  // TODO implement
+                  // when you press the button, it should cause a loading symbol
+                  setState(() {
+                    _loadingIconState = LoadingState.loading;
+                  });
 
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => HomeView(
-                          groups: GroupTestData.groups,
-                          logo: logo,
-                          isManager: true,
-                        ),
-                      ),
-                    );
-                  } else {
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          title: const Text('Invalid Verification Code'),
-                          content: const Text(
-                              'The verification code you entered is invalid. Please try again.'),
-                          actions: <Widget>[
-                            TextButton(
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                              },
-                              child: const Text('OK'),
+                  // when the server responds, it should change to display a result symbol
+
+                  requestServerCheckCode(codeController.text,
+                          widget.countryCode, widget.phoneNumber)
+                      .then((codeIsCorrect) async {
+                    setState(() {
+                      _loadingIconState = codeIsCorrect
+                          ? LoadingState.success
+                          : LoadingState.failure;
+                    });
+
+                    if (codeIsCorrect) {
+                      final infoFuture = fetchServerUserInfo();
+
+                      Future.delayed(const Duration(seconds: 1), () {
+                        if (context.mounted) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context2) => LoadingView(
+                                future: infoFuture,
+                                onFinish: (info) {
+                                  // if the user is registered, log their info and send them to the homepage
+                                  if (info is RegisteredUserInfo) {
+                                    logUserInfo(widget.preferences, info)
+                                        .then((_) {
+                                      if (context2.mounted) {
+                                        Navigator.pushNamedAndRemoveUntil(
+                                            context2,
+                                            HomeView.routeName,
+                                            (route) => false);
+                                      }
+                                    });
+                                    // otherwise, send them to the registration page
+                                  } else if (context2.mounted) {
+                                    Navigator.pushAndRemoveUntil(
+                                        context2,
+                                        MaterialPageRoute(
+                                          builder: (context2) => RegisterView(
+                                              preferences: widget.preferences,
+                                              countryCode: widget.countryCode,
+                                              phoneNumber: widget.phoneNumber,
+                                              carrier: widget.carrier,
+                                              id: info.id),
+                                        ),
+                                        (route) => false);
+                                  }
+                                },
+                              ),
                             ),
-                          ],
-                        );
-                      },
-                    );
-                  }
+                          );
+                        }
+                      });
+                    }
+                  });
                 },
                 child: const Text('Submit'),
               ),
             ),
-            Text("Hint: $verificationCode"),  // TODO remove, for debugging
+            Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: displayLoadingIcon(_loadingIconState)),
+            Text("Hint: 1234"), // TODO remove, for debugging
           ],
         ));
   }

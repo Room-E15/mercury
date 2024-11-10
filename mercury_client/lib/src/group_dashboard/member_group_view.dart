@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mercury_client/src/utils/widgets.dart';
 import '../settings/settings_view.dart';
 import '../entities/group.dart';
 import '../join_server_prompt/join_server_prompt_view.dart';
@@ -8,11 +9,9 @@ class MemberGroupView extends StatelessWidget {
   const MemberGroupView({
     super.key,
     required this.group,
-    required this.logo,
   });
 
   final Group group;
-  final Widget logo;
 
   Widget _memberWidgetBuilder(context, index) {
     final member = group.members[index];
@@ -63,7 +62,7 @@ class MemberGroupView extends StatelessWidget {
           return Column(children: [
             Padding(
                 padding: const EdgeInsets.only(top: 50, bottom: 50),
-                child: logo),
+                child: appLogo),
             TextButton(
                 child: const Row(children: [
                   Icon(Icons.settings),
@@ -90,7 +89,7 @@ class MemberGroupView extends StatelessWidget {
         })),
       ),
       appBar: AppBar(
-        title: logo,
+        title: appLogo,
         centerTitle: true,
         leading: IconButton(
             onPressed: () {

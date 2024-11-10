@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:mercury_client/src/utils/widgets.dart';
 import '../entities/group.dart';
 import '../home/home_view.dart';
 
 class CreateGroupView extends StatelessWidget {
   final TextEditingController groupNameController = TextEditingController();
 
-  final Widget logo;
   final formKey = GlobalKey<FormState>();
 
-  CreateGroupView({super.key, required this.logo});
+  CreateGroupView({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: logo,
+        title: appLogo,
       ),
       body: Column(
         children: [
@@ -53,11 +53,8 @@ class CreateGroupView extends StatelessWidget {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => HomeView(
-                                logo: logo,
-                                groups: GroupTestData.groups,
-                                isManager: true,
-                              ),
+                              // TODO change to use routing table
+                              builder: (context) => HomeView(isManager: true),
                             ));
                       }
                     },
