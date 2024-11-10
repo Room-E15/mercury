@@ -1,30 +1,49 @@
+import 'dart:convert';
 import 'dart:developer';
 
+import 'package:mercury_client/src/entities/responses/sms_dispatch_response.dart';
+import 'package:mercury_client/src/entities/responses/sms_verify_response.dart';
 import 'package:mercury_client/src/entities/user_info.dart';
 import 'package:mercury_client/src/services/globals.dart';
 import 'package:http/http.dart';
 
 
-Future<void> requestServerSendCode(
+Future<SMSDispatchResponse> requestServerSendCode(
     String countryCode, String phoneNumber, String carrier) async {
-  // TODO implement
   log('[INFO] Asking server to send verification code');
-  return Future.delayed(const Duration(seconds: 2));
+
+  final uri = Uri.parse('$baseURL/sms/dispatch');
+  final Response response = await post(
+    uri,
+    body: {
+      'countryCode': "1",
+      'phoneNumber': phoneNumber,
+      'carrier': "att",
+    },
+  );
+  
+  return SMSDispatchResponse.fromJson(jsonDecode(response.body));
 }
 
 // if the user is registered, returns a FullUserInfo object
 // Returns true if code is working and false if it is not
 // Returns the User's Info if they are registered, and null otherwise
-Future<(bool, RegisteredUserInfo?)> requestServerCheckCode(
-    String code, String countryCode, String phoneNumber) async {
-  // TODO implement, currently placeholder
-  log('[INFO] Asking server to check verification code: $code');
-  log('[INFO] Checking server for phone registration status...');
+Future<SMSVerifyResponse> requestServerCheckCode(
+    String code, String token) async {
+  log('[INFO] Asking server to check verification code: $code and return registration status');
 
-  return Future.delayed(const Duration(seconds: 2), () {
-    // temp code check, temp user is not registered return
-    return (code == '1234', null);
-  });
+  final uri = Uri.parse('$baseURL/sms/verify');
+  final Response response = await post(
+    uri,
+    body: {
+      'token': token,
+      'code': code,
+    },
+  );
+
+  print(response.body);
+
+  return SMSVerifyResponse.fromJson(jsonDecode(response.body));
 }
 
 // returns the user's ID if they were successfully registered
@@ -32,7 +51,7 @@ Future<String?> requestServerRegisterUser(UserInfo user) async {
   log('[INFO] Sending user data to server...');
 
   // Prepare the data for the HTTP request
-    final uri = Uri.parse('$baseURL/add');
+    final uri = Uri.parse('$baseURL/demo/add');
     final response = await post(
       uri,
       body: {
