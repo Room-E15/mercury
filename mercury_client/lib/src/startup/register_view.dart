@@ -93,7 +93,7 @@ class RegisterView extends StatelessWidget {
                             id: id);
 
                         final localFuture = logUserInfo(preferences, user);
-                        final serverFuture = sendServerUserData(user);
+                        final serverFuture = requestServerRegisterUser(user);
 
                         Navigator.push(
                           context,

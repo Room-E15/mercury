@@ -1,6 +1,8 @@
 import 'dart:developer';
 
 import 'package:mercury_client/src/entities/user_info.dart';
+import 'package:mercury_client/src/services/globals.dart';
+import 'package:http/http.dart';
 import 'package:uuid/uuid.dart';
 
 Future<bool> requestServerCheckCode(
@@ -39,8 +41,29 @@ Future<UserInfo> fetchServerUserInfo() async {
   });
 }
 
-Future<void> sendServerUserData(RegisteredUserInfo user) async {
-  // TODO implement
+Future<void> requestServerRegisterUser(RegisteredUserInfo user) async {
   log('[INFO] Sending user data to server...');
-  return Future.delayed(const Duration(seconds: 2));
+
+  // Prepare the data for the HTTP request
+    final uri = Uri.parse('$baseURL/add');
+    final response = await post(
+      uri,
+      body: {
+        'firstName': user.firstName,
+        'lastName': user.lastName,
+        'countryCode': user.countryCode,
+        'phoneNumber': user.phoneNumber,
+      },
+    ).onError((obj, stackTrace) {
+      log('[ERROR] Failed to send user data to server.');
+      return Response('', 500);
+    });
+
+    // Log response
+    if (response.statusCode == 200) {
+      log('[INFO] User data sent successfully!');
+    } else {
+      log('[ERROR] Failed to send user data to server.');
+      // TODO figure out something better to do if registration fails
+    }
 }
