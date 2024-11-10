@@ -27,13 +27,14 @@ class RegisterView extends StatelessWidget {
     required this.preferences,
     required this.countryCode,
     required this.phoneNumber,
-    required this.id,
     required this.carrier,
+    required this.id,
   });
 
-  Future<void> sendServerUserData() async {
+  Future<void> sendServerUserData(RegisteredUserInfo user) async {
     // TODO implement
     log('[INFO] Sending user data to server...');
+    return Future.delayed(const Duration(seconds: 2));
   }
 
   @override
@@ -92,17 +93,21 @@ class RegisterView extends StatelessWidget {
                     onPressed: () {
                       // Validate returns true if the form is valid, or false otherwise.
                       if (_formKey.currentState!.validate()) {
-                        final future = logUserInfo(RegisteredUserInfo(
+                        final user = RegisteredUserInfo(
                             firstName: firstNameController.text,
                             lastName: lastNameController.text,
                             countryCode: countryCode,
                             phoneNumber: phoneNumber,
-                            id: id));
+                            id: id);
+
+                        final localFuture = logUserInfo(preferences, user);
+                        final serverFuture = sendServerUserData(user);
+
                         Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) => LoadingView(
-                              future: future,
+                              future: awaitAll([localFuture, serverFuture]),
                               onFinish: (_) {
                                 Navigator.pushNamedAndRemoveUntil(
                                   context,

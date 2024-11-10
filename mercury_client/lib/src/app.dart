@@ -6,7 +6,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'settings/settings_controller.dart';
 import 'settings/settings_view.dart';
-import 'entities/group.dart';
 import 'profile/profile_view.dart';
 import 'startup/start_view.dart';
 import 'home/home_view.dart';

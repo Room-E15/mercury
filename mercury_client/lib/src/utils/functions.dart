@@ -23,13 +23,21 @@ Future<T?> showPopup<T>(BuildContext context, String title, String content,
   );
 }
 
-// TODO make this right
-Future<void> logUserInfo(RegisteredUserInfo user) async {
-  final prefs = await SharedPreferences.getInstance();
+Future<void> logUserInfo(SharedPreferencesWithCache prefs, RegisteredUserInfo user) async {
   await prefs.setBool('registered', true);
   await prefs.setString('id', user.id.toString());
   await prefs.setString('firstName', user.firstName);
   await prefs.setString('lastName', user.lastName);
   await prefs.setString('countryCode', user.countryCode);
   await prefs.setString('phoneNumber', user.phoneNumber);
+}
+
+bool isRegistered(SharedPreferences prefs) {
+  return prefs.getBool('registered') == true;
+}
+
+Future<void> awaitAll(List<Future> futures) async {
+  for (var future in futures) {
+    await future;
+  }
 }

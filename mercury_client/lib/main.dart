@@ -17,6 +17,11 @@ void main() async {
         // When an allowlist is included, any keys that aren't included cannot be used.
         allowList: <String>{
           'registered',
+          'id',
+          'firstName',
+          'lastName',
+          'countryCode',
+          'phoneNumber',
         }, // TODO add more allow keys
       ),
     );

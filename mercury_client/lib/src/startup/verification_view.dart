@@ -162,7 +162,7 @@ class VerificationViewState extends State<VerificationView> {
                                 onFinish: (info) {
                                   // if the user is registered, log their info and send them to the homepage
                                   if (info is RegisteredUserInfo) {
-                                    logUserInfo(info).then((_) {
+                                    logUserInfo(widget.preferences, info).then((_) {
                                       if (context2.mounted) {
                                         Navigator.pushNamedAndRemoveUntil(
                                             context2,
