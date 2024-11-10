@@ -120,7 +120,7 @@ class SendAlertView extends StatelessWidget {
                           ),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'Please enter some text';
+                              return 'Please enter a title';
                             }
                             return null;
                           },
