@@ -1,7 +1,5 @@
-import 'package:uuid/uuid.dart';
-
 class UserInfo {
-  final Uuid id;
+  final String id;
 
   UserInfo({
     required this.id,

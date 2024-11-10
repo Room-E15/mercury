@@ -1,11 +1,9 @@
-import 'dart:developer';
-
 import 'package:mercury_client/src/startup/loading_view.dart';
 import 'package:mercury_client/src/entities/user_info.dart';
 import 'package:mercury_client/src/utils/functions.dart';
+import 'package:mercury_client/src/utils/server_calls.dart';
 import 'package:mercury_client/src/utils/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:uuid/uuid.dart';
 import 'package:flutter/material.dart';
 import 'package:mercury_client/src/home/home_view.dart';
 
@@ -20,7 +18,7 @@ class RegisterView extends StatelessWidget {
   final String countryCode;
   final String phoneNumber;
   final String carrier;
-  final Uuid id;
+  final String id;
 
   RegisterView({
     super.key,
@@ -30,12 +28,6 @@ class RegisterView extends StatelessWidget {
     required this.carrier,
     required this.id,
   });
-
-  Future<void> sendServerUserData(RegisteredUserInfo user) async {
-    // TODO implement
-    log('[INFO] Sending user data to server...');
-    return Future.delayed(const Duration(seconds: 2));
-  }
 
   @override
   Widget build(BuildContext context) {

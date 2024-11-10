@@ -23,9 +23,10 @@ Future<T?> showPopup<T>(BuildContext context, String title, String content,
   );
 }
 
-Future<void> logUserInfo(SharedPreferencesWithCache prefs, RegisteredUserInfo user) async {
+Future<void> logUserInfo(
+    SharedPreferencesWithCache prefs, RegisteredUserInfo user) async {
   await prefs.setBool('registered', true);
-  await prefs.setString('id', user.id.toString());
+  await prefs.setString('id', user.id);
   await prefs.setString('firstName', user.firstName);
   await prefs.setString('lastName', user.lastName);
   await prefs.setString('countryCode', user.countryCode);

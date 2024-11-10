@@ -1,14 +1,13 @@
-import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:mercury_client/src/startup/loading_view.dart';
 import 'package:mercury_client/src/entities/user_info.dart';
 import 'package:mercury_client/src/startup/register_view.dart';
 import 'package:mercury_client/src/utils/functions.dart';
+import 'package:mercury_client/src/utils/server_calls.dart';
 import 'package:mercury_client/src/utils/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:mercury_client/src/home/home_view.dart';
-import 'package:uuid/uuid.dart';
 
 enum LoadingState {
   nothing,
@@ -40,42 +39,6 @@ class VerificationView extends StatefulWidget {
 class VerificationViewState extends State<VerificationView> {
   final codeController = TextEditingController();
   var _loadingIconState = LoadingState.nothing;
-
-  Future<void> requestServerSendCode(
-      String countryCode, String phoneNumber, String carrier) async {
-    // TODO implement
-    log('Asking server to check verification code');
-  }
-
-  Future<bool> requestServerCheckCode(
-      String code, String countryCode, String phoneNumber) async {
-    // TODO implement, currently placeholder
-    log('Asking server to check verification code: $code');
-
-    return Future.delayed(const Duration(seconds: 2), () {
-      return code == '1234';
-    });
-  }
-
-  // if the user is registered, returns a FullUserInfo object,
-  // else returns a UserInfo object with the new user's ID
-  Future<UserInfo> fetchServerUserInfo() async {
-    // TODO implement and make async
-    log('Checking server for phone registration status...');
-    log('Check complete, User is not registered.');
-
-    return Future.delayed(const Duration(seconds: 2), () {
-      return UserInfo(
-        id: Uuid(),
-      );
-      // return RegisteredUserInfo(
-      //     id: Uuid(),
-      //     firstName: "Davide",
-      //     lastName: "Falessi",
-      //     countryCode: "39",
-      //     phoneNumber: "1234567890");
-    });
-  }
 
   Widget displayLoadingIcon(LoadingState state) {
     // TODO add nice animations for check (slowly fills in) and X (shakes widget)
@@ -146,9 +109,6 @@ class VerificationViewState extends State<VerificationView> {
                           : LoadingState.failure;
                     });
 
-                    // sendServerUserInfo();  // TODO implement
-                    // logUserInfo();  // TODO implement
-
                     if (codeIsCorrect) {
                       final infoFuture = fetchServerUserInfo();
 
@@ -162,7 +122,8 @@ class VerificationViewState extends State<VerificationView> {
                                 onFinish: (info) {
                                   // if the user is registered, log their info and send them to the homepage
                                   if (info is RegisteredUserInfo) {
-                                    logUserInfo(widget.preferences, info).then((_) {
+                                    logUserInfo(widget.preferences, info)
+                                        .then((_) {
                                       if (context2.mounted) {
                                         Navigator.pushNamedAndRemoveUntil(
                                             context2,

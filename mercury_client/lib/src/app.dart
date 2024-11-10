@@ -99,9 +99,7 @@ class MyApp extends StatelessWidget {
                 builder: (BuildContext context) {
                   switch (routeSettings.name) {
                     case ProfileView.routeName:
-                      return const ProfileView(  // TODO refactor ProfileView
-                          profileName: "Davide Falessi",
-                          profilePhone: "+1 123 456 7890");
+                      return ProfileView(preferences: sharedPreferences);
                     case SettingsView.routeName:
                       return SettingsView(controller: settingsController);
                     case HomeView.routeName:
