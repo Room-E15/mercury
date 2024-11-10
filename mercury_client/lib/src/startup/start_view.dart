@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:mercury_client/src/utils/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'verification_view.dart';
-import 'package:http/http.dart' as http;
 
-import '../services/globals.dart';
+import 'verification_view.dart';
+
 
 class StartView extends StatelessWidget {
   static const routeName = '/start';
@@ -29,61 +28,6 @@ class StartView extends StatelessWidget {
   final SharedPreferencesWithCache preferences;
 
   StartView({super.key, required this.preferences});
-
-  // TODO move to server calls file
-  Future<void> _submitForm() async {
-    // Validate returns true if the form is valid, or false otherwise.
-    if (formKey.currentState!.validate()) {
-      // Update countryCodeController with the selected value explicitly
-      widget.countryCodeController.text = selectedValue!;
-
-      final firstName = widget.firstNameController.text;
-      final lastName = widget.lastNameController.text;
-      final countryCode = widget.countryCodeController.text;
-      final phoneNumber = widget.phoneNumberController.text;
-
-      // Prepare the data for the HTTP request
-      final uri = Uri.parse('$baseURL/add');
-      final response = await http.post(
-        uri,
-        body: {
-          'firstName': firstName,
-          'lastName': lastName,
-          'countryCode': countryCode,
-          'phoneNumber': phoneNumber,
-        },
-      );
-
-      // Handle response
-      if (response.statusCode == 200) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Form submitted successfully!')),
-        );
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => VerificationView(
-                logo: widget.logo,
-                firstName: widget.firstNameController.text,
-                lastName: widget.lastNameController.text,
-                phoneNumber: widget.phoneNumberController.text,
-              ),
-            ));
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to submit form')),
-        );
-      }
-    }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    selectedValue = widget.countryCodeController.text.isNotEmpty
-        ? widget.countryCodeController.text
-        : options.first; // Default to first option if no initial value
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -113,15 +57,7 @@ class StartView extends StatelessWidget {
                               child: Text(option),
                             );
                           }).toList(),
-                          onChanged: (String? newValue) {
-                            if (newValue != null) {
-                              setState(() {
-                                selectedValue = newValue;
-                                widget.countryCodeController.text =
-                                    newValue; // Save to controller
-                              });
-                            }
-                          },
+                          onChanged: (String? newValue) {},
                           decoration: const InputDecoration(
                             labelText: 'Country Code',
                           ),
@@ -190,7 +126,6 @@ class StartView extends StatelessWidget {
                                 carrier: phoneCarrierController.text,
                               ),
                             ));
-                       
                       }
                     },
                     child: const Text('Submit'),
