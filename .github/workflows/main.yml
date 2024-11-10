@@ -23,9 +23,8 @@ jobs:
           restore-keys: ${{ runner.os }}-sonar
       - name: Build
         run: |
-          cd mercury_client 
-          flutter build web
-          cd ..
+          cd mercury_client && flutter build web && cd ..
+          cd backend && chmod +x ./mvnw && ./mvnw clean && ./mvnw test -f pom.xml && cd ..
       - name: Download sonar-scanner
         run: |
           curl --create-dirs -sSLo $HOME/.sonar/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-6.2.1.4610-linux-x64.zip
