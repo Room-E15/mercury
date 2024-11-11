@@ -95,6 +95,7 @@ class VerificationViewState extends State<VerificationView> {
               padding: const EdgeInsets.all(16),
               child: TextField(
                 controller: codeController,
+                keyboardType: TextInputType.number,
                 decoration: const InputDecoration(
                   labelText: 'Verification Code',
                 ),
@@ -173,7 +174,6 @@ class VerificationViewState extends State<VerificationView> {
             Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: displayLoadingIcon(_loadingIconState)),
-            Text("Hint: 1234"), // TODO remove, for debugging
           ],
         ));
   }

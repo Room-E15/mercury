@@ -16,9 +16,9 @@ Future<SMSDispatchResponse> requestServerSendCode(
   final Response response = await post(
     uri,
     body: {
-      'countryCode': "1",
+      'countryCode': countryCode.replaceAll("+", ""),
       'phoneNumber': phoneNumber,
-      'carrier': "att",
+      'carrier': carrier.toLowerCase(),
     },
   );
   
@@ -40,8 +40,6 @@ Future<SMSVerifyResponse> requestServerCheckCode(
       'code': code,
     },
   );
-
-  print(response.body);
 
   return SMSVerifyResponse.fromJson(jsonDecode(response.body));
 }
