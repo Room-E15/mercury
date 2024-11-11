@@ -41,14 +41,14 @@ public class TestGroupManagementController {
     public void testCreateGroup() {
         final AlertGroup expectedAlertGroup = new AlertGroup("AIA");
         final Membership expectedMembership = new Membership(member.getId(), expectedAlertGroup.getId(), true);
-        member.setId(123L);
+        member.setId("123");
 
         // Stubbings for functions that cannot be unit-tested as they are handled by external packages
         Mockito.when(mockMemberRepository.findById(member.getId())).thenReturn(Optional.of(member));
         Mockito.when(mockMembershipRepository.save(expectedMembership)).thenReturn(expectedMembership);
         Mockito.when(mockAlertGroupRepository.save(expectedAlertGroup)).thenReturn(expectedAlertGroup);
 
-        Assertions.assertEquals("Saved", controller.createGroup("AIA", 123L));
+        Assertions.assertEquals("Saved", controller.createGroup("AIA", "123"));
     }
 
     @Test
@@ -59,6 +59,6 @@ public class TestGroupManagementController {
         // Stubbings for functions that cannot be unit-tested as they are handled by external packages
         Mockito.when(mockMemberRepository.findById(member.getId())).thenReturn(Optional.empty());
 
-        Assertions.assertThrows(RuntimeException.class, () -> controller.createGroup("AIA", 123L));
+        Assertions.assertThrows(RuntimeException.class, () -> controller.createGroup("AIA", "123"));
     }
 }
