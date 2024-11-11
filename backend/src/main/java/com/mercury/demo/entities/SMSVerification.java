@@ -1,7 +1,6 @@
 package com.mercury.demo.entities;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -13,18 +12,14 @@ import org.hibernate.annotations.UuidGenerator;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-public class Member {
+public class SMSVerification {
     @Id
     @UuidGenerator
     private String id;
 
     @NotNull
     @Setter
-    private String firstName;
-
-    @NotNull
-    @Setter
-    private String lastName;
+    private String phoneNumber;
 
     @NotNull
     @Setter
@@ -32,12 +27,16 @@ public class Member {
 
     @NotNull
     @Setter
-    private String phoneNumber;
+    private String verificationCodeHash;
 
-    public Member(final String firstName, final String lastName, final String countryCode, final String phoneNumber) {
-        this.firstName = firstName;
-        this.lastName = lastName;
+    @NotNull
+    @Setter
+    private long expiration;
+
+    public SMSVerification(final String countryCode, final String phoneNumber, final long expiration, final String verificationCodeHash) {
         this.countryCode = countryCode;
         this.phoneNumber = phoneNumber;
+        this.expiration = expiration;
+        this.verificationCodeHash = verificationCodeHash;
     }
 }

@@ -28,7 +28,7 @@ public class MemberController {
 
         Member n = new Member(firstName, lastName, countryCode, phoneNumber);
         memberRepository.save(n);
-        return "Saved";
+        return n.getId();
     }
 
     @GetMapping(path="/all")
