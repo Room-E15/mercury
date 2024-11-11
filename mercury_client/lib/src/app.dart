@@ -103,22 +103,28 @@ class MyApp extends StatelessWidget {
                     case SettingsView.routeName:
                       return SettingsView(controller: settingsController);
                     case HomeView.routeName:
-                      return const HomeView(
-                          isManager: true);  // TODO remove isManager
+                      return HomeView(
+                        preferences: sharedPreferences,
+                          isManager: true,
+                          dummyValues: true,);  // TODO remove isManager
                     case QRScanView.routeName:
                       return const QRScanView();
                     case JoinServerPromptView.routeName:
                       return JoinServerPromptView();
                     default:
-                      return const HomeView(
-                          isManager: true); // TODO remove isManager
+                      return HomeView(
+                        preferences: sharedPreferences,
+                          isManager: true,
+                          dummyValues: true,); // TODO remove isManager
                   }
                 },
               );
             },
             home: sharedPreferences.getBool('registered') == true
-                ? const HomeView(
+                ? HomeView(
+                        preferences: sharedPreferences,
                     isManager: true, // TODO remove isManager
+                    dummyValues: true,
                   )
                 : StartView(preferences: sharedPreferences));
       },

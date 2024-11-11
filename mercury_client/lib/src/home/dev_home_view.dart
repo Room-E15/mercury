@@ -1,32 +1,30 @@
-import 'dart:collection';
-import 'dart:developer';
-import 'package:mercury_client/src/join_server_prompt/join_server_prompt_view.dart';
 import 'package:flutter/material.dart';
 import 'package:mercury_client/src/utils/widgets.dart';
-import 'package:mercury_client/src/utils/server_calls.dart';
-import 'package:mercury_client/src/create_group/create_group_view.dart';
-import 'package:mercury_client/src/send_alert/send_alert_view.dart';
-import 'package:mercury_client/src/settings/settings_view.dart';
-import 'package:mercury_client/src/entities/alert.dart';
-import 'package:mercury_client/src/entities/group.dart';
-import 'package:mercury_client/src/group_dashboard/leader_group_view.dart';
-import 'package:mercury_client/src/group_dashboard/member_group_view.dart';
-import 'package:mercury_client/src/profile/profile_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:developer';
+import 'dart:collection';
+import '../create_group/create_group_view.dart';
+import '../send_alert/send_alert_view.dart';
+import '../settings/settings_view.dart';
+import '../entities/alert.dart';
+import '../entities/group.dart';
+import '../group_dashboard/leader_group_view.dart';
+import '../group_dashboard/member_group_view.dart';
+import '../join_server_prompt/join_server_prompt_view.dart';
+import '../profile/profile_view.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({
     super.key,
     required this.isManager,
     required this.preferences,
-    required this.dummyValues,
   });
 
   static const routeName = '/home';
 
+  final List<Group> groups = GroupTestData.groups; // TODO get from server call
   final bool isManager;
   final SharedPreferencesWithCache preferences;
-  final bool dummyValues;
 
   @override
   HomeViewState createState() => HomeViewState();
@@ -37,27 +35,6 @@ class HomeViewState extends State<HomeView> {
   Queue<Alert> _alerts = Queue.from(AlertTestData.alerts);
   String filterSearch = "";
 
-  List<Group> groups = List.empty();
-  Future<List<Group>>? futureGroups;
-
-  // TODO: Use easy-refresh package to refresh async fetch
-  @override
-  void initState() {
-    super.initState();
-    
-    String memberId = widget.preferences.getString('id')!;
-
-    // If dummyValues is enabled, create dummy classes
-    if (widget.dummyValues) {
-      for (final group in GroupTestData.groups) {
-        requestServerCreateGroup(memberId, group.name);
-      }
-    }
-
-    // Call the async function as the page is initialized
-    futureGroups = fetchServerGroups(memberId);
-  }
-
   // TODO make async
   void fetchServerAlert() {
     log("Fetching alerts");
@@ -65,6 +42,10 @@ class HomeViewState extends State<HomeView> {
     setState(() {
       _alerts = Queue.from(AlertTestData.alerts); // Toggle between items
     });
+
+    // while (true) {
+    //   GetAlertsFromServer
+    // }
   }
 
   // TODO make async
@@ -75,8 +56,8 @@ class HomeViewState extends State<HomeView> {
     });
   }
 
-  Widget _groupWidgetBuilder(context, index, groups) {
-    final group = groups[index];
+  Widget _groupWidgetBuilder(context, index) {
+    final group = widget.groups[index];
     final progress = group.responseCount != null
         ? group.responseCount! / group.memberCount
         : 1.0;
@@ -104,7 +85,7 @@ class HomeViewState extends State<HomeView> {
           : "${group.responseCount} of ${group.memberCount} members are safe";
     }
 
-    if (!group.isLeader || group.responseCount == null) {
+    if (!group.isLeader) {
       progressValue = 1;
       progressColor = const Color(0xFF4F378B);
       statusIcon = Icons.group;
@@ -222,63 +203,6 @@ class HomeViewState extends State<HomeView> {
           ],
         ),
       ),
-    );
-  }
-
-  Widget _waitForGroupPopulation(BuildContext context, String filterSearch) {
-    return FutureBuilder<List<Group>>(
-      future: futureGroups,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          // Show a loading indicator while waiting for the future to complete
-          return Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasError) {
-          // Show an error message if the future completes with an error
-          return Center(child: Text("Error: ${snapshot.error}"));
-        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          // Show a message if no groups are found
-          return SizedBox.shrink();
-        } else {
-          log("Snapshot: ${snapshot.data!}");
-          // When future completes successfully, show the list of groups
-          final groups = snapshot.data!;
-
-          return ListView.builder(
-            restorationId: 'groupList',
-            itemCount:
-                groups.length + 1, // Extra item for the "Add Group" button
-            itemBuilder: (context, index) {
-              if (index < groups.length) {
-                if (filterSearch == "" ||
-                    groups[index]
-                        .name
-                        .toLowerCase()
-                        .contains(filterSearch.toLowerCase())) {
-                  return _groupWidgetBuilder(context, index, groups);
-                } else {
-                  return SizedBox.shrink();
-                }
-              } else {
-                return IconButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => CreateGroupView(key: widget.key, preferences: widget.preferences),
-                      ),
-                    );
-                  },
-                  icon: const Icon(
-                    Icons.add_circle_outline,
-                    size: 40,
-                    color: Color(0xFF4F378B),
-                  ),
-                );
-              }
-            },
-          );
-        }
-      },
     );
   }
 
@@ -445,7 +369,35 @@ class HomeViewState extends State<HomeView> {
             ),
           ),
           Expanded(
-            child: _waitForGroupPopulation(context, filterSearch),
+            child: ListView.builder(
+                restorationId: 'groupList',
+                itemCount: widget.groups.length + 1, // Number of blank cards
+                // build all the group tiles dynamically using builder method
+                itemBuilder: (context, index) {
+                  if (index < widget.groups.length) {
+                    if (filterSearch == "" ||
+                        widget.groups[index].name
+                            .toLowerCase()
+                            .contains(filterSearch.toLowerCase())) {
+                      return _groupWidgetBuilder(context, index);
+                    } else {
+                      return SizedBox.shrink();
+                    }
+                  } else {
+                    return IconButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  CreateGroupView(key: widget.key, preferences: widget.preferences),
+                            ),
+                          );
+                        },
+                        icon: const Icon(Icons.add_circle_outline,
+                            size: 40, color: Color(0xFF4F378B)));
+                  }
+                }),
           ),
         ],
       ),

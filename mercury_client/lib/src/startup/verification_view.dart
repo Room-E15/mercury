@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:mercury_client/src/startup/loading_view.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import 'package:mercury_client/src/entities/user_info.dart';
+import 'package:mercury_client/src/home/home_view.dart';
 import 'package:mercury_client/src/startup/register_view.dart';
 import 'package:mercury_client/src/utils/functions.dart';
 import 'package:mercury_client/src/utils/server_calls.dart';
 import 'package:mercury_client/src/utils/widgets.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
-import 'package:mercury_client/src/home/home_view.dart';
 
 enum LoadingState {
   nothing,
@@ -39,6 +38,7 @@ class VerificationView extends StatefulWidget {
 class VerificationViewState extends State<VerificationView> {
   final codeController = TextEditingController();
   var _loadingIconState = LoadingState.nothing;
+  var _verificationToken = "1234";
 
   Widget displayLoadingIcon(LoadingState state) {
     // TODO add nice animations for check (slowly fills in) and X (shakes widget)
@@ -61,10 +61,12 @@ class VerificationViewState extends State<VerificationView> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    requestServerSendCode(
-        widget.countryCode, widget.phoneNumber, widget.carrier);
+  void initState() {
+    super.initState();
+  }
 
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
           leading: IconButton(
@@ -84,6 +86,7 @@ class VerificationViewState extends State<VerificationView> {
               padding: const EdgeInsets.all(16),
               child: TextField(
                 controller: codeController,
+                keyboardType: TextInputType.number,
                 decoration: const InputDecoration(
                   labelText: 'Verification Code',
                 ),
@@ -92,75 +95,45 @@ class VerificationViewState extends State<VerificationView> {
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: ElevatedButton(
-                onPressed: () {
-                  // when you press the button, it should cause a loading symbol
-                  setState(() {
-                    _loadingIconState = LoadingState.loading;
-                  });
+                onPressed: (_verificationToken == "")
+                    ? null
+                    : () {
+                        // when you press the button, it should cause a loading symbol
+                        setState(() {
+                          _loadingIconState = LoadingState.loading;
+                        });
 
-                  // when the server responds, it should change to display a result symbol
+                        // when the server responds, it should change to display a result symbol
 
-                  requestServerCheckCode(codeController.text,
-                          widget.countryCode, widget.phoneNumber)
-                      .then((codeIsCorrect) async {
-                    setState(() {
-                      _loadingIconState = codeIsCorrect
-                          ? LoadingState.success
-                          : LoadingState.failure;
-                    });
+                          setState(() {
+                                LoadingState.success;
+                          });
 
-                    if (codeIsCorrect) {
-                      final infoFuture = fetchServerUserInfo();
+                            // TODO currently have 2 second delay for "check" animation, make less jank
+                            final animationDelay = 2;
 
-                      Future.delayed(const Duration(seconds: 1), () {
-                        if (context.mounted) {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context2) => LoadingView(
-                                future: infoFuture,
-                                onFinish: (info) {
-                                  // if the user is registered, log their info and send them to the homepage
-                                  if (info is RegisteredUserInfo) {
-                                    logUserInfo(widget.preferences, info)
-                                        .then((_) {
-                                      if (context2.mounted) {
-                                        Navigator.pushNamedAndRemoveUntil(
-                                            context2,
-                                            HomeView.routeName,
-                                            (route) => false);
-                                      }
-                                    });
-                                    // otherwise, send them to the registration page
-                                  } else if (context2.mounted) {
-                                    Navigator.pushAndRemoveUntil(
-                                        context2,
-                                        MaterialPageRoute(
-                                          builder: (context2) => RegisterView(
-                                              preferences: widget.preferences,
-                                              countryCode: widget.countryCode,
-                                              phoneNumber: widget.phoneNumber,
-                                              carrier: widget.carrier,
-                                              id: info.id),
-                                        ),
-                                        (route) => false);
-                                  }
-                                },
-                              ),
-                            ),
-                          );
-                        }
-                      });
-                    }
-                  });
-                },
+                              Future.delayed(Duration(seconds: animationDelay),
+                                  () {
+                                if (context.mounted) {
+                                  Navigator.pushAndRemoveUntil(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context2) => RegisterView(
+                                            preferences: widget.preferences,
+                                            countryCode: widget.countryCode,
+                                            phoneNumber: widget.phoneNumber),
+                                      ),
+                                      (route) => false);
+                                }
+                              });
+                        ;
+                      },
                 child: const Text('Submit'),
               ),
             ),
             Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: displayLoadingIcon(_loadingIconState)),
-            Text("Hint: 1234"), // TODO remove, for debugging
           ],
         ));
   }
