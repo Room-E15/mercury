@@ -104,7 +104,6 @@ class VerificationViewState extends State<VerificationView> {
                         });
 
                         // when the server responds, it should change to display a result symbol
-
                           setState(() {
                                 LoadingState.success;
                           });
@@ -126,7 +125,6 @@ class VerificationViewState extends State<VerificationView> {
                                       (route) => false);
                                 }
                               });
-                        ;
                       },
                 child: const Text('Submit'),
               ),
