@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:http/http.dart' as http;
 import '../models/member.dart';
@@ -15,7 +16,7 @@ class DatabaseServices {
       "phoneNumber": phoneNumber,
     };
     var body = json.encode(data);
-    var url = Uri.parse('$baseURL/add');
+    var url = Uri.parse('$baseURL/demo/add');
 
     http.Response response = await http.post(
       url,
@@ -29,7 +30,7 @@ class DatabaseServices {
   }
 
   static Future<List<Member>> getMembers() async {
-    var url = Uri.parse(baseURL);
+    var url = Uri.parse('$baseURL/demo');
     http.Response response = await http.get(
       url,
       headers: headers,
