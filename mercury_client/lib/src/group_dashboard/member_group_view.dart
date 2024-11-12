@@ -19,7 +19,7 @@ class MemberGroupView extends StatelessWidget {
     return Row(
       children: [
         Text(
-          member.name,
+          "${member.firstName} ${member.lastName}",
           style: TextStyle(
             fontSize: 14.0,
             fontWeight: FontWeight.w400,
@@ -36,7 +36,7 @@ class MemberGroupView extends StatelessWidget {
     return Row(
       children: [
         Text(
-          leader.name,
+          "${leader.firstName} ${leader.lastName}",
           style: TextStyle(
             fontSize: 14.0,
             fontWeight: FontWeight.w400,

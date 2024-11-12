@@ -24,7 +24,7 @@ class LeaderGroupView extends StatelessWidget {
     return Row(
       children: [
         Text(
-          member.name,
+          "${member.firstName} ${member.lastName}",
           style: TextStyle(
             fontSize: 14.0,
             fontWeight: FontWeight.w400,
@@ -140,7 +140,7 @@ class LeaderGroupView extends StatelessWidget {
                       ],
                     ),
                   ),
-                  if (!group.isMember)
+                  if (group.isLeader)
                     Padding(
                       padding:
                           const EdgeInsetsDirectional.fromSTEB(16, 12, 16, 16),
@@ -341,12 +341,12 @@ class LeaderGroupView extends StatelessWidget {
     log("Querying for safe responses");
 
     return [
-      Member(3, "Julius Caesar", 1, 1234567890, Response(true, 97, 10.0, 10.0)),
-      Member(6, "Ramos Remus", 1, 1234567890, Response(true, 23, 10.0, 10.0)),
+      Member("3", "Julius", "Caesar", "1", "1234567890", GroupResponse(true, 97, 10.0, 10.0)),
+      Member("6", "Ramos", "Remus", "1", "1234567890", GroupResponse(true, 23, 10.0, 10.0)),
       Member(
-          1, "Albert Einstein", 1, 1234567890, Response(true, 73, 10.0, 10.0)),
+          "1", "Albert", "Einstein", "1", "1234567890", GroupResponse(true, 73, 10.0, 10.0)),
       Member(
-          2, "Giorno Giovanna", 1, 1098765432, Response(true, 82, 10.0, 10.0))
+          "2", "Giorno", "Giovanna", "1", "1098765432", GroupResponse(true, 82, 10.0, 10.0))
     ];
   }
 
@@ -354,13 +354,13 @@ class LeaderGroupView extends StatelessWidget {
     log("Querying for unsafe responses");
 
     return [
-      Member(4, "Brutus", 1, 1234567890, Response(false, 54, 10.0, 10.0))
+      Member("4", "Brutus", "", "1", "1234567890", GroupResponse(false, 54, 10.0, 10.0))
     ];
   }
 
   List<Member> getNoResponses() {
     log("Querying for unsafe responses");
 
-    return [Member(5, "Charlemagne", 1, 1234567890, null)];
+    return [Member("5", "Charlemagne", "III", "1", "1234567890", null)];
   }
 }
