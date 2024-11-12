@@ -13,6 +13,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class Alert {
     @Id
+    @Getter
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 

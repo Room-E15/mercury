@@ -1,3 +1,4 @@
+
 package com.mercury.demo.entities;
 
 import jakarta.persistence.Entity;
@@ -5,44 +6,34 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.NaturalId;
 
-
-@Getter
 @Entity
-@AllArgsConstructor
 @NoArgsConstructor
-public class MemberAlertStatus {
-   public enum Status {
-        UNSEEN,
-        SEEN,
-        SAFE,
-        UNSAFE
-    }
-
+public class Membership {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @NotNull
-    @Setter
-    private Long alertId;
-
-    @NotNull
+    @Getter
     @Setter
     private String memberId;
 
-    @NotNull
+    @Getter
     @Setter
-    private Status status;
+    private Long groupId;
 
-    public MemberAlertStatus(final Long alertId, final String memberId,
-                             final Status status) {
-        this.alertId = alertId;
+    @NotNull
+    @Getter
+    @Setter
+    private boolean isLeader;
+
+    public Membership(final String memberId, final Long groupId, final boolean isLeader) {
         this.memberId = memberId;
-        this.status = status;
+        this.groupId = groupId;
+        this.isLeader = isLeader;
     }
 }
