@@ -39,6 +39,10 @@ public class SendAlertController {
                     membership.getMemberId(),
                     Status.UNSEEN));
         });
+
+        // TODO send push notification, email notification, SMS notification based on client preferences after
+        //  alert is logged
+
         return alert;  // return inserted object to confirm success
     }
 
