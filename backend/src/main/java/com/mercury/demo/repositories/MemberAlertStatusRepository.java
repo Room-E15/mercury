@@ -7,5 +7,5 @@ import org.springframework.data.repository.CrudRepository;
 import java.util.List;
 
 public interface MemberAlertStatusRepository extends CrudRepository<MemberAlertStatus, Integer> {
-    List<MemberAlertStatus> findByMemberIdAndStatus(Long memberId, Status status);
+    List<MemberAlertStatus> findByMemberIdAndStatus(String memberId, Status status);
 }

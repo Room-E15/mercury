@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "mercury_requests",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}
