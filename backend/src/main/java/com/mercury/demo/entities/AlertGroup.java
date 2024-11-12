@@ -5,35 +5,28 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotNull;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.NaturalId;
+import lombok.ToString;
 
 @Entity
 @NoArgsConstructor
-public class Membership {
+@EqualsAndHashCode
+public class AlertGroup {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @Getter
+    @Setter
     private Long id;
-
-    @Getter
-    @Setter
-    private String memberId;
-
-    @Getter
-    @Setter
-    private Long groupId;
 
     @NotNull
     @Getter
     @Setter
-    private boolean isLeader;
+    private String groupName;
 
-    public Membership(final String memberId, final Long groupId, final boolean isLeader) {
-        this.memberId = memberId;
-        this.groupId = groupId;
-        this.isLeader = isLeader;
+    public AlertGroup(final String groupName) {
+        this.groupName = groupName;
     }
 }
-

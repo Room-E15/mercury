@@ -38,7 +38,7 @@ class ProfileView extends StatelessWidget {
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             Center(
               child: QrImageView(
-                  data: 'phone:${preferences.getString('id')}',
+                  data: '${preferences.getString('id')}',
                   version: QrVersions.auto,
                   backgroundColor: Colors.white,
                   size: 200.0),

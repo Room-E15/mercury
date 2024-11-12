@@ -38,6 +38,7 @@ class VerificationView extends StatefulWidget {
 class VerificationViewState extends State<VerificationView> {
   final codeController = TextEditingController();
   var _loadingIconState = LoadingState.nothing;
+  var _verificationToken = "1234";
 
   Widget displayLoadingIcon(LoadingState state) {
     // TODO add nice animations for check (slowly fills in) and X (shakes widget)
@@ -60,10 +61,12 @@ class VerificationViewState extends State<VerificationView> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    requestServerSendCode(
-        widget.countryCode, widget.phoneNumber, widget.carrier);
+  void initState() {
+    super.initState();
+  }
 
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
           leading: IconButton(
@@ -83,6 +86,7 @@ class VerificationViewState extends State<VerificationView> {
               padding: const EdgeInsets.all(16),
               child: TextField(
                 controller: codeController,
+                keyboardType: TextInputType.number,
                 decoration: const InputDecoration(
                   labelText: 'Verification Code',
                 ),
@@ -91,72 +95,43 @@ class VerificationViewState extends State<VerificationView> {
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: ElevatedButton(
-                onPressed: () {
-                  // when you press the button, it should cause a loading symbol
-                  setState(() {
-                    _loadingIconState = LoadingState.loading;
-                  });
+                onPressed: (_verificationToken == "")
+                    ? null
+                    : () {
+                        // when you press the button, it should cause a loading symbol
+                        setState(() {
+                          _loadingIconState = LoadingState.loading;
+                        });
 
-                  // when the server responds, it should change to display a result symbol
-
-                  requestServerCheckCode(codeController.text,
-                          widget.countryCode, widget.phoneNumber)
-                      .then((response) async {
-                    final codeIsCorrect = response.$1, user = response.$2;
-
-                    setState(() {
-                      _loadingIconState = codeIsCorrect
-                          ? LoadingState.success
-                          : LoadingState.failure;
-                    });
-
-                    if (codeIsCorrect) {
-                      // TODO currently have 2 second delay for "check" animation, make less jank
-                      final animationDelay = 2;
-
-                      // if the user is registered, log their info and send them to the homepage
-                      if (user is RegisteredUserInfo) {
-                        logUserInfo(widget.preferences, user).then((future) {
-                          Future.delayed(Duration(seconds: animationDelay), () {
-                            if (context.mounted) {
-                              Navigator.pushNamedAndRemoveUntil(context,
-                                  HomeView.routeName, (route) => false);
-                            }
+                        // when the server responds, it should change to display a result symbol
+                          setState(() {
+                                LoadingState.success;
                           });
-                        });
 
-                        // otherwise, send them to the registration page
-                      } else {
-                        Future.delayed(Duration(seconds: animationDelay), () {
-                          if (context.mounted) {
-                          Navigator.pushAndRemoveUntil(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context2) => RegisterView(
-                                    preferences: widget.preferences,
-                                    countryCode: widget.countryCode,
-                                    phoneNumber: widget.phoneNumber),
-                              ),
-                              (route) => false);
-                          }
-                        });
-                      }
-                    } else {
-                      // if the code is incorrect, reset the loading icon
-                      await Future.delayed(const Duration(seconds: 2));
-                      setState(() {
-                        _loadingIconState = LoadingState.nothing;
-                      });
-                    }
-                  });
-                },
+                            // TODO currently have 2 second delay for "check" animation, make less jank
+                            final animationDelay = 2;
+
+                              Future.delayed(Duration(seconds: animationDelay),
+                                  () {
+                                if (context.mounted) {
+                                  Navigator.pushAndRemoveUntil(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context2) => RegisterView(
+                                            preferences: widget.preferences,
+                                            countryCode: widget.countryCode,
+                                            phoneNumber: widget.phoneNumber),
+                                      ),
+                                      (route) => false);
+                                }
+                              });
+                      },
                 child: const Text('Submit'),
               ),
             ),
             Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: displayLoadingIcon(_loadingIconState)),
-            Text("Hint: 1234"), // TODO remove, for debugging
           ],
         ));
   }

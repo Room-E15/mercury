@@ -1,30 +1,50 @@
+import 'dart:convert';
 import 'dart:developer';
 
+import 'package:mercury_client/src/entities/responses/sms_dispatch_response.dart';
+import 'package:mercury_client/src/entities/responses/sms_verify_response.dart';
 import 'package:mercury_client/src/entities/user_info.dart';
+import 'package:mercury_client/src/entities/group.dart';
 import 'package:mercury_client/src/services/globals.dart';
 import 'package:http/http.dart';
 
 
-Future<void> requestServerSendCode(
+Future<SMSDispatchResponse> requestServerSendCode(
     String countryCode, String phoneNumber, String carrier) async {
-  // TODO implement
   log('[INFO] Asking server to send verification code');
-  return Future.delayed(const Duration(seconds: 2));
+
+  final uri = Uri.parse('$baseURL/sms/dispatch');
+  final Response response = await post(
+    uri,
+    body: {
+      'countryCode': "1",
+      'phoneNumber': phoneNumber,
+      'carrier': "att",
+    },
+  );
+  
+  return SMSDispatchResponse.fromJson(jsonDecode(response.body));
 }
 
 // if the user is registered, returns a FullUserInfo object
 // Returns true if code is working and false if it is not
 // Returns the User's Info if they are registered, and null otherwise
-Future<(bool, RegisteredUserInfo?)> requestServerCheckCode(
-    String code, String countryCode, String phoneNumber) async {
-  // TODO implement, currently placeholder
-  log('[INFO] Asking server to check verification code: $code');
-  log('[INFO] Checking server for phone registration status...');
+Future<SMSVerifyResponse> requestServerCheckCode(
+    String code, String token) async {
+  log('[INFO] Asking server to check verification code: $code and return registration status');
 
-  return Future.delayed(const Duration(seconds: 2), () {
-    // temp code check, temp user is not registered return
-    return (code == '1234', null);
-  });
+  final uri = Uri.parse('$baseURL/sms/verify');
+  final Response response = await post(
+    uri,
+    body: {
+      'token': token,
+      'code': code,
+    },
+  );
+
+  print(response.body);
+
+  return SMSVerifyResponse.fromJson(jsonDecode(response.body));
 }
 
 // returns the user's ID if they were successfully registered
@@ -32,7 +52,7 @@ Future<String?> requestServerRegisterUser(UserInfo user) async {
   log('[INFO] Sending user data to server...');
 
   // Prepare the data for the HTTP request
-    final uri = Uri.parse('$baseURL/add');
+    final uri = Uri.parse('$baseURL/member/addMember');
     final response = await post(
       uri,
       body: {
@@ -54,4 +74,61 @@ Future<String?> requestServerRegisterUser(UserInfo user) async {
       log('[ERROR] Failed to send user data to server.');
       return null;
     }
+}
+
+// loads in the group objects to use for the dashboard
+Future<List<Group>> fetchServerGroups(String memberId) async {
+  // TODO implement and make async
+  log('Querying server for groups...');
+
+  // Prepare the data for the HTTP request
+  final uri = Uri.parse('$baseURL/group/getGroups');
+  final response = await post(
+    uri,
+    body: {
+      'memberId': memberId.toString(),
+    },
+  ).onError((obj, stackTrace) {
+    log('[ERROR] Failed to send group data to server.');
+    return Response('', 500);
+  });
+
+  // Log response
+  if (response.statusCode == 200) {
+    log('[INFO] Group identification data sent successfully!');
+  } else {
+    log('[ERROR] Failed to send group identification to server.');
+    // TODO figure out something better to do if registration fails
+  }
+
+  log("Body: ${response.body}");
+  List<dynamic> jsonList = jsonDecode(response.body);
+  List<Group> groupList = jsonList.map((json) => Group.fromJson(json)).toList();
+  return Future.value(groupList);
+}
+
+// loads in the group objects to use for the dashboard
+Future<void> requestServerCreateGroup(String memberId, String groupName) async {
+  log('Requesting Group creation...');
+
+  // Prepare the data for the HTTP request
+  final uri = Uri.parse('$baseURL/group/createGroup');
+  final response = await post(
+    uri,
+    body: {
+      'memberId': memberId,
+      'groupName': groupName,
+    },
+  ).onError((obj, stackTrace) {
+    log('[ERROR] Failed to send group data to server.');
+    return Response('', 500);
+  });
+
+  // Log response
+  if (response.statusCode == 200) {
+    log('[INFO] Group data sent successfully!');
+  } else {
+    log('[ERROR] Failed to send group information to server.');
+    // TODO figure out something better to do if registration fails
+  }
 }
