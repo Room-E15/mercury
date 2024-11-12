@@ -1,44 +1,32 @@
 package com.mercury.demo.entities;
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 import org.hibernate.annotations.UuidGenerator;
 
+@Getter
 @Entity
 @NoArgsConstructor
-@ToString
 public class Member {
     @Id
-    @UuidGenerator
-    @Getter
     @Setter
+    @UuidGenerator
     private String id;
 
     @NotNull
-    @Getter
-    @Setter
     private String firstName;
 
     @NotNull
-    @Getter
-    @Setter
     private String lastName;
 
     @NotNull
-    @Getter
-    @Setter
     private String countryCode;
 
     @NotNull
-    @Getter
-    @Setter
     private String phoneNumber;
 
     public Member(final String firstName, final String lastName, final String countryCode, final String phoneNumber) {

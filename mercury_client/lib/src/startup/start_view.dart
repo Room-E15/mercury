@@ -16,8 +16,7 @@ class StartView extends StatelessWidget {
   final selectedCode = "+1"; // Current selected value
   final countryCodeOptions = [
     '+1',
-    '+2',
-    '+3'
+    '+39'
   ]; // Options list  TODO get from somewhere
   final phoneCarrierOptions = [
     'AT&T',
@@ -57,9 +56,11 @@ class StartView extends StatelessWidget {
                               child: Text(option),
                             );
                           }).toList(),
-                          onChanged: (String? newValue) {},
+                          onChanged: (String? newValue) {
+                            countryCodeController.text = newValue!;
+                          },
                           decoration: const InputDecoration(
-                            labelText: 'Country Code',
+                            labelText: 'Country',
                           ),
                         ),
                       ),
@@ -70,6 +71,7 @@ class StartView extends StatelessWidget {
                         padding: const EdgeInsets.all(16.0),
                         child: TextFormField(
                           controller: phoneNumberController,
+                        keyboardType: TextInputType.phone,
                           decoration: const InputDecoration(
                             labelText: 'Phone Number',
                           ),
@@ -82,6 +84,7 @@ class StartView extends StatelessWidget {
                             }
                             return null;
                           },
+                          onChanged: (value) => phoneNumberController.text = value,
                         ),
                       ),
                     ),
@@ -96,7 +99,9 @@ class StartView extends StatelessWidget {
                         child: Text(option),
                       );
                     }).toList(),
-                    onChanged: (String? newValue) {},
+                    onChanged: (String? newValue) {
+                      phoneCarrierController.text = newValue!;
+                    },
                     decoration: const InputDecoration(
                       labelText: 'Network Carrier',
                     ),
@@ -114,6 +119,9 @@ class StartView extends StatelessWidget {
                     onPressed: () {
                       // Validate returns true if the form is valid, or false otherwise.
                       if (_formKey.currentState!.validate()) {
+                        if (countryCodeController.text == '') {
+                          countryCodeController.text = selectedCode;
+                        }
                         // If the form is valid, display a snackbar. In the real world,
                         // you'd often call a server or save the information in a database.
                         Navigator.push(
