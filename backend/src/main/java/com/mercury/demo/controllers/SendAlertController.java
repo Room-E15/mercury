@@ -23,8 +23,8 @@ public class SendAlertController {
     @Autowired
     private MembershipRepository membershipRepository;
 
-    @PostMapping(path="/store")
-    public @ResponseBody Alert storeAlert(@RequestParam String title,
+    @PostMapping(path="/send")
+    public @ResponseBody Alert sendAlert(@RequestParam String title,
                                          @RequestParam String description,
                                          @RequestParam String location,  // TODO figure out location representation
                                          @RequestParam Long groupId) {
