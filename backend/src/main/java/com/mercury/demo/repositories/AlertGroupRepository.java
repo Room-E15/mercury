@@ -7,5 +7,5 @@ import java.util.List;
 
 // This will be AUTO IMPLEMENTED by Spring into a Bean called groupRepository
 // CRUD refers Create, Read, Update, Delete
-public interface AlertGroupRepository extends CrudRepository<AlertGroup, Long> {
+public interface AlertGroupRepository extends CrudRepository<AlertGroup, String> {
 }

@@ -10,19 +10,19 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.UuidGenerator;
 
+@Getter
 @Entity
 @NoArgsConstructor
 @EqualsAndHashCode
 public class AlertGroup {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Getter
     @Setter
+    @UuidGenerator
     private String id;
 
     @NotNull
-    @Getter
     @Setter
     private String groupName;
 

@@ -8,27 +8,25 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.UuidGenerator;
 
+@Getter
 @Entity
 @NoArgsConstructor
 public class Alert {
     @Id
-    @Getter
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+    @UuidGenerator
+    private String id;
 
     @NotNull
-    @Getter
     @Setter
     private String groupId;
 
     @NotNull
-    @Getter
     @Setter
     private String title;
 
     @NotNull
-    @Getter
     @Setter
     private String description;
 
