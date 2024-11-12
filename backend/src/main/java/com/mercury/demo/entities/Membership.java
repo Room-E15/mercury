@@ -23,14 +23,14 @@ public class Membership {
 
     @Getter
     @Setter
-    private Long groupId;
+    private String groupId;
 
     @NotNull
     @Getter
     @Setter
     private boolean isLeader;
 
-    public Membership(final String memberId, final Long groupId, final boolean isLeader) {
+    public Membership(final String memberId, final String groupId, final boolean isLeader) {
         this.memberId = memberId;
         this.groupId = groupId;
         this.isLeader = isLeader;

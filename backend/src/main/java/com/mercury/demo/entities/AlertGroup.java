@@ -19,7 +19,7 @@ public class AlertGroup {
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Getter
     @Setter
-    private Long id;
+    private String id;
 
     @NotNull
     @Getter

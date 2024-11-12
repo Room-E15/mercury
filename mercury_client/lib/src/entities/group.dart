@@ -1,7 +1,7 @@
 import 'member.dart';
 
 class Group {
-  final int id;
+  final String id;
   final String name;
   final int memberCount;
   final int? responseCount;
@@ -64,7 +64,7 @@ class GroupResponse {
 class GroupTestData {
   static const List<Group> groups = [
     Group(
-        id: 1,
+        id: "b74ccc08-9608-4db0-bbb2-17faa1fa0d0c",
         name: "Cal Poly Software",
         memberCount: 36,
         responseCount: 12,
@@ -73,7 +73,7 @@ class GroupTestData {
         members: MemberTestData.members,
         leaders: MemberTestData.leaders),
     Group(
-        id: 2,
+        id: "39d4e389-805d-4384-9191-304a5031ad66",
         name: "Cal Poly Architecture",
         memberCount: 36,
         responseCount: 24,
@@ -82,7 +82,7 @@ class GroupTestData {
         members: MemberTestData.members,
         leaders: MemberTestData.leaders),
     Group(
-        id: 3,
+        id: "73ed0ccc-11a7-451a-9f37-0f306c162050",
         name: "U Chicago",
         memberCount: 36,
         responseCount: 36,
@@ -91,7 +91,7 @@ class GroupTestData {
         members: MemberTestData.members,
         leaders: MemberTestData.leaders),
     Group(
-        id: 4,
+        id: "ecaa9eef-05bd-44ab-a7a7-73dc8cac6a9c",
         name: "That Group",
         memberCount: 36,
         responseCount: 12,

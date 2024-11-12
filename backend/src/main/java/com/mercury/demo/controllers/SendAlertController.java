@@ -23,13 +23,14 @@ public class SendAlertController {
     @Autowired
     private MembershipRepository membershipRepository;
 
+    // TODO add permission checks to make sure the user senging an alert is a leader
     @PostMapping(path="/send")
-    public @ResponseBody Alert sendAlert(@RequestParam String title,
-                                         @RequestParam String description,
-                                         @RequestParam String location,  // TODO figure out location representation
-                                         @RequestParam Long groupId) {
-
-        Alert alert = alertRepository.save(new Alert(groupId, title, description, location));
+    public @ResponseBody Alert sendAlert(@RequestParam String memberId,
+                                         @RequestParam String groupId,
+                                         @RequestParam String title,
+                                         @RequestParam String description) {
+        // TODO add check here for userId permissions, check if they're a leader of this group
+        Alert alert = alertRepository.save(new Alert(groupId, title, description));
 
         // Populate MemberAlertStatus table for each member in the group
         membershipRepository.findByGroupId(alert.getGroupId()).forEach(membership -> {

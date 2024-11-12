@@ -8,7 +8,7 @@ class QRPresentView extends StatelessWidget {
     required this.groupName,
   });
 
-  final int groupId;
+  final String groupId;
   final String groupName;
 
   @override

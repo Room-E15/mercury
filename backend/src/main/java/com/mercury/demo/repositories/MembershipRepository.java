@@ -12,5 +12,5 @@ public interface MembershipRepository extends CrudRepository<Membership, Long> {
     // Find membership by memberId
     List<Membership> findByMemberId(String memberId);
     // Find membership by memberId
-    List<Membership> findByGroupId(Long groupId);
+    List<Membership> findByGroupId(String groupId);
 }
