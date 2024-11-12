@@ -6,9 +6,9 @@ import '../models/member.dart';
 
 import 'globals.dart';
 
-class DatabaseServices{
-
-  static Future<Member> addMember(String firstName, String lastName, String countryCode, String phoneNumber) async {
+class DatabaseServices {
+  static Future<Member> addMember(String firstName, String lastName,
+      String countryCode, String phoneNumber) async {
     Map data = {
       "firstName": firstName,
       "lastName": lastName,
@@ -23,7 +23,6 @@ class DatabaseServices{
       headers: headers,
       body: body,
     );
-    log(response.body);
     Map responseMap = jsonDecode(response.body);
     Member member = Member.fromMap(responseMap);
 
@@ -36,7 +35,6 @@ class DatabaseServices{
       url,
       headers: headers,
     );
-    log(response.body);
     List responseList = jsonDecode(response.body);
     List<Member> members = [];
     for (Map memberMap in responseList) {
@@ -45,5 +43,4 @@ class DatabaseServices{
     }
     return members;
   }
-
 }
