@@ -38,7 +38,7 @@ class VerificationView extends StatefulWidget {
 class VerificationViewState extends State<VerificationView> {
   final codeController = TextEditingController();
   var _loadingIconState = LoadingState.nothing;
-  var _verificationToken = "";
+  var _verificationToken = "1234";
 
   Widget displayLoadingIcon(LoadingState state) {
     // TODO add nice animations for check (slowly fills in) and X (shakes widget)
@@ -63,15 +63,6 @@ class VerificationViewState extends State<VerificationView> {
   @override
   void initState() {
     super.initState();
-    requestServerSendCode(
-            widget.countryCode, widget.phoneNumber, widget.carrier)
-        .then((response) {
-      if (response.carrierFound) {
-        setState(() {
-          _verificationToken = response.token;
-        });
-      }
-    });
   }
 
   @override
@@ -113,37 +104,13 @@ class VerificationViewState extends State<VerificationView> {
                         });
 
                         // when the server responds, it should change to display a result symbol
-
-                        requestServerCheckCode(
-                                codeController.text, _verificationToken)
-                            .then((response) async {
-                          final codeIsCorrect = response.correctCode, user = response.userInfo;
-
                           setState(() {
-                            _loadingIconState = codeIsCorrect
-                                ? LoadingState.success
-                                : LoadingState.failure;
+                                LoadingState.success;
                           });
 
-                          if (codeIsCorrect) {
                             // TODO currently have 2 second delay for "check" animation, make less jank
                             final animationDelay = 2;
 
-                            // if the user is registered, log their info and send them to the homepage
-                            if (user is RegisteredUserInfo) {
-                              logUserInfo(widget.preferences, user)
-                                  .then((future) {
-                                Future.delayed(
-                                    Duration(seconds: animationDelay), () {
-                                  if (context.mounted) {
-                                    Navigator.pushNamedAndRemoveUntil(context,
-                                        HomeView.routeName, (route) => false);
-                                  }
-                                });
-                              });
-
-                              // otherwise, send them to the registration page
-                            } else {
                               Future.delayed(Duration(seconds: animationDelay),
                                   () {
                                 if (context.mounted) {
@@ -158,15 +125,6 @@ class VerificationViewState extends State<VerificationView> {
                                       (route) => false);
                                 }
                               });
-                            }
-                          } else {
-                            // if the code is incorrect, reset the loading icon
-                            await Future.delayed(const Duration(seconds: 2));
-                            setState(() {
-                              _loadingIconState = LoadingState.nothing;
-                            });
-                          }
-                        });
                       },
                 child: const Text('Submit'),
               ),

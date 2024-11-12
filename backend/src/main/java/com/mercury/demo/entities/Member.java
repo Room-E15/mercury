@@ -13,23 +13,20 @@ import org.hibernate.annotations.UuidGenerator;
 @NoArgsConstructor
 public class Member {
     @Id
+    @Setter
     @UuidGenerator
     private String id;
 
     @NotNull
-    @Setter
     private String firstName;
 
     @NotNull
-    @Setter
     private String lastName;
 
     @NotNull
-    @Setter
     private String countryCode;
 
     @NotNull
-    @Setter
     private String phoneNumber;
 
     public Member(final String firstName, final String lastName, final String countryCode, final String phoneNumber) {
