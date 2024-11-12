@@ -8,7 +8,8 @@ import 'settings/settings_controller.dart';
 import 'settings/settings_view.dart';
 import 'profile/profile_view.dart';
 import 'startup/start_view.dart';
-import 'home/home_view.dart';
+// import 'home/home_view.dart';
+import 'home/dev_home_view.dart'; // TODO remove before merging
 import 'join_server_prompt/join_server_prompt_view.dart';
 
 /// The Widget that configures your application.
@@ -105,8 +106,9 @@ class MyApp extends StatelessWidget {
                     case HomeView.routeName:
                       return HomeView(
                         preferences: sharedPreferences,
-                          isManager: true,
-                          dummyValues: true,);  // TODO remove isManager
+                        isManager: true,
+                        // dummyValues: true,
+                      ); // TODO remove isManager
                     case QRScanView.routeName:
                       return const QRScanView();
                     case JoinServerPromptView.routeName:
@@ -114,17 +116,18 @@ class MyApp extends StatelessWidget {
                     default:
                       return HomeView(
                         preferences: sharedPreferences,
-                          isManager: true,
-                          dummyValues: true,); // TODO remove isManager
+                        isManager: true,
+                        // dummyValues: true, // TODO remove isManager
+                      );
                   }
                 },
               );
             },
             home: sharedPreferences.getBool('registered') == true
                 ? HomeView(
-                        preferences: sharedPreferences,
+                    preferences: sharedPreferences,
                     isManager: true, // TODO remove isManager
-                    dummyValues: true,
+                    // dummyValues: true,
                   )
                 : StartView(preferences: sharedPreferences));
       },
