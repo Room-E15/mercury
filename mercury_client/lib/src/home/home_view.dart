@@ -1,10 +1,12 @@
 import 'dart:collection';
 import 'dart:developer';
+import 'package:easy_refresh/easy_refresh.dart';
 import 'package:mercury_client/src/join_server_prompt/join_server_prompt_view.dart';
 import 'package:flutter/material.dart';
 import 'package:mercury_client/src/utils/widgets.dart';
 import 'package:mercury_client/src/utils/server_calls.dart';
 import 'package:mercury_client/src/create_group/create_group_view.dart';
+import 'package:mercury_client/src/join_group/join_group_view.dart';
 import 'package:mercury_client/src/send_alert/send_alert_view.dart';
 import 'package:mercury_client/src/settings/settings_view.dart';
 import 'package:mercury_client/src/entities/alert.dart';
@@ -44,7 +46,7 @@ class HomeViewState extends State<HomeView> {
   @override
   void initState() {
     super.initState();
-    
+
     String memberId = widget.preferences.getString('id')!;
 
     // If dummyValues is enabled, create dummy classes
@@ -242,41 +244,120 @@ class HomeViewState extends State<HomeView> {
           log("Snapshot: ${snapshot.data!}");
           // When future completes successfully, show the list of groups
           final groups = snapshot.data!;
+          String memberId = widget.preferences.getString('id')!;
 
-          return ListView.builder(
-            restorationId: 'groupList',
-            itemCount:
-                groups.length + 1, // Extra item for the "Add Group" button
-            itemBuilder: (context, index) {
-              if (index < groups.length) {
-                if (filterSearch == "" ||
-                    groups[index]
-                        .name
-                        .toLowerCase()
-                        .contains(filterSearch.toLowerCase())) {
-                  return _groupWidgetBuilder(context, index, groups);
-                } else {
-                  return SizedBox.shrink();
-                }
-              } else {
-                return IconButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => CreateGroupView(key: widget.key, preferences: widget.preferences),
+          return EasyRefresh(
+              onRefresh: () async {
+                futureGroups = fetchServerGroups(memberId);
+              },
+              header: ClassicHeader(
+                dragText: "Pull down to refresh",
+                armedText: "Release to refresh",
+                readyText: "Refreshing...",
+                processingText: "Loading groups...",
+                failedText: "Refresh failed",
+                noMoreText: "No more data",
+              ),
+              child: ListView.builder(
+                restorationId: 'groupList',
+                itemCount:
+                    groups.length + 1, // Extra item for the "Add Group" button
+                itemBuilder: (context, index) {
+                  if (index < groups.length) {
+                    if (filterSearch == "" ||
+                        groups[index]
+                            .name
+                            .toLowerCase()
+                            .contains(filterSearch.toLowerCase())) {
+                      return _groupWidgetBuilder(context, index, groups);
+                    } else {
+                      return SizedBox.shrink();
+                    }
+                  } else {
+                    return IconButton(
+                      onPressed: () {
+                        showModalBottomSheet(
+                          context: context,
+                          shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.only(
+                                  topLeft: Radius.circular(16.0),
+                                  topRight: Radius.circular(16.0))),
+                          builder: (BuildContext context) {
+                            return Container(
+                              width: 360,
+                              height: 90,
+                              padding: EdgeInsets.fromLTRB(16, 10, 16, 5),
+                              child: Column(children: [
+                                SizedBox(
+                                  width: 40.0,
+                                  height: 4.0,
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                        color: Colors.white54,
+                                        shape: BoxShape.rectangle,
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(8.0))),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.only(top: 10),
+                                ),
+                                Row(
+                                  children: [
+                                    FilledButton(
+                                      onPressed: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                CreateGroupView(
+                                                    key: widget.key,
+                                                    preferences:
+                                                        widget.preferences),
+                                          ),
+                                        );
+                                      },
+                                      child: const Padding(
+                                        padding: EdgeInsets.all(2),
+                                        child: Text("CREATE GROUP"),
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: EdgeInsets.only(left: 20),
+                                    ),
+                                    FilledButton(
+                                      onPressed: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => JoinGroupView(
+                                                key: widget.key,
+                                                preferences:
+                                                    widget.preferences),
+                                          ),
+                                        );
+                                      },
+                                      child: const Padding(
+                                        padding: EdgeInsets.all(8),
+                                        child: Text("JOIN GROUP"),
+                                      ),
+                                    )
+                                  ],
+                                )
+                              ]),
+                            );
+                          },
+                        );
+                      },
+                      icon: const Icon(
+                        Icons.add_circle_outline,
+                        size: 40,
+                        color: Color(0xFF4F378B),
                       ),
                     );
-                  },
-                  icon: const Icon(
-                    Icons.add_circle_outline,
-                    size: 40,
-                    color: Color(0xFF4F378B),
-                  ),
-                );
-              }
-            },
-          );
+                  }
+                },
+              ));
         }
       },
     );

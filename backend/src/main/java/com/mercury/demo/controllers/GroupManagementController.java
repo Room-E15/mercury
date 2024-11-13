@@ -4,6 +4,7 @@ import com.mercury.demo.entities.AlertGroup;
 import com.mercury.demo.entities.Member;
 import com.mercury.demo.entities.Membership;
 import com.mercury.demo.entities.responses.GetGroupsResponse;
+import com.mercury.demo.entities.responses.JoinGroupResponse;
 import com.mercury.demo.repositories.AlertGroupRepository;
 import com.mercury.demo.repositories.MemberRepository;
 import com.mercury.demo.repositories.MembershipRepository;
@@ -53,16 +54,18 @@ public class GroupManagementController {
     @PostMapping(path="/getGroups") // Map ONLY POST Requests
     public @ResponseBody List<GetGroupsResponse> getGroups (@RequestParam String memberId
     ) {
+        // TODO: List groups by at first Leader groups then alphabetized
         final List<Membership> membershipList = membershipRepository.findByMemberId(memberId);
         List<GetGroupsResponse> groupResponseList = new ArrayList<>();
 
-        for (Membership membership : membershipList) {
+        for (final Membership membership : membershipList) {
             final AlertGroup correspondingGroup = alertGroupRepository.findById(membership.getGroupId()).orElseThrow(() -> new RuntimeException(
                     String.format("Corresponding group with groupId %s not found.", membership.getGroupId())));
 
             final List<Membership> allMembersInGroup = membershipRepository.findByGroupId(correspondingGroup.getId());
             final Map<Membership, Member> membersByMembership = allMembersInGroup.stream().collect(Collectors.toMap(Function.identity(),
                     newMembership -> memberRepository.findById(newMembership.getMemberId()).orElseThrow(() -> new RuntimeException(String.format("Corresponding member with memberId %s not found.", membership.getMemberId())))));
+
             final List<Member> membersList = membersByMembership.entrySet().stream().filter(entry -> !entry.getKey().isLeader()).map(Map.Entry::getValue).toList();
             final List<Member> leadersList = membersByMembership.entrySet().stream().filter(entry -> entry.getKey().isLeader()).map(Map.Entry::getValue).toList();
 
@@ -72,5 +75,18 @@ public class GroupManagementController {
 
         }
         return groupResponseList;
+    }
+
+    @PostMapping(path="/joinGroup") // Map ONLY POST Requests
+    public @ResponseBody JoinGroupResponse joinGroup (@RequestParam String memberId,
+                                                      @RequestParam Long groupId
+    ) {
+        final Member user = memberRepository.findById(memberId).orElseThrow(() -> new RuntimeException(String.format("User with the id %s not found", memberId)));
+        final AlertGroup group = alertGroupRepository.findById(groupId).orElseThrow(() -> new RuntimeException(String.format("Group with the id %s not found", groupId)));
+
+        Membership membership = new Membership(user.getId(), group.getId(), false);
+        membership = membershipRepository.save(membership);
+
+        return new JoinGroupResponse(memberId, groupId, membership.getId());
     }
 }
