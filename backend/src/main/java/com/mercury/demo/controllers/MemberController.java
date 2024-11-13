@@ -4,7 +4,6 @@ import com.mercury.demo.entities.Member;
 import com.mercury.demo.repositories.MemberRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -26,14 +25,9 @@ public class MemberController {
         // @ResponseBody means the returned String is the response, not a view name
         // @RequestParam means it is a parameter from the GET or POST request
 
-        Member n = new Member(firstName, lastName, countryCode, phoneNumber);
-        n = memberRepository.save(n);
-        return n.getId();
-    }
-
-    @GetMapping(path="/all")
-    public @ResponseBody Iterable<Member> getAllUsers() {
-        // This returns a JSON or XML with the users
-        return memberRepository.findAll();
+        Member member = new Member(firstName, lastName, countryCode, phoneNumber);
+        System.out.println("Member: " + member);
+        member = memberRepository.save(member);
+        return member.getId();
     }
 }

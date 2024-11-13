@@ -1,9 +1,11 @@
 import 'dart:collection';
 import 'dart:developer';
+import 'package:easy_refresh/easy_refresh.dart';
 import 'package:mercury_client/src/join_server_prompt/join_server_prompt_view.dart';
 import 'package:flutter/material.dart';
 import 'package:mercury_client/src/utils/widgets.dart';
 import 'package:mercury_client/src/create_group/create_group_view.dart';
+import 'package:mercury_client/src/join_group/join_group_view.dart';
 import 'package:mercury_client/src/send_alert/send_alert_view.dart';
 import 'package:mercury_client/src/settings/settings_view.dart';
 import 'package:mercury_client/src/entities/data/alert.dart';
@@ -39,12 +41,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 //   List<Group> groups = List.empty();
 //   Future<List<Group>>? futureGroups;
 
-//   // TODO: Use easy-refresh package to refresh async fetch
-//   @override
-//   void initState() {
-//     super.initState();
-    
-//     String memberId = widget.preferences.getString('id')!;
+  // TODO: Use easy-refresh package to refresh async fetch
+  @override
+  void initState() {
+    super.initState();
+
+    String memberId = widget.preferences.getString('id')!;
 
 //     // If dummyValues is enabled, create dummy classes
 //     if (widget.dummyValues) {
@@ -224,62 +226,141 @@ import 'package:shared_preferences/shared_preferences.dart';
 //     );
 //   }
 
-//   Widget _waitForGroupPopulation(BuildContext context, String filterSearch) {
-//     return FutureBuilder<List<Group>>(
-//       future: futureGroups,
-//       builder: (context, snapshot) {
-//         if (snapshot.connectionState == ConnectionState.waiting) {
-//           // Show a loading indicator while waiting for the future to complete
-//           return Center(child: CircularProgressIndicator());
-//         } else if (snapshot.hasError) {
-//           // Show an error message if the future completes with an error
-//           return Center(child: Text("Error: ${snapshot.error}"));
-//         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-//           // Show a message if no groups are found
-//           return SizedBox.shrink();
-//         } else {
-//           log("Snapshot: ${snapshot.data!}");
-//           // When future completes successfully, show the list of groups
-//           final groups = snapshot.data!;
+  Widget _waitForGroupPopulation(BuildContext context, String filterSearch) {
+    return FutureBuilder<List<Group>>(
+      future: futureGroups,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          // Show a loading indicator while waiting for the future to complete
+          return Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          // Show an error message if the future completes with an error
+          return Center(child: Text("Error: ${snapshot.error}"));
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          // Show a message if no groups are found
+          return SizedBox.shrink();
+        } else {
+          log("Snapshot: ${snapshot.data!}");
+          // When future completes successfully, show the list of groups
+          final groups = snapshot.data!;
+          String memberId = widget.preferences.getString('id')!;
 
-//           return ListView.builder(
-//             restorationId: 'groupList',
-//             itemCount:
-//                 groups.length + 1, // Extra item for the "Add Group" button
-//             itemBuilder: (context, index) {
-//               if (index < groups.length) {
-//                 if (filterSearch == "" ||
-//                     groups[index]
-//                         .name
-//                         .toLowerCase()
-//                         .contains(filterSearch.toLowerCase())) {
-//                   return _groupWidgetBuilder(context, index, groups);
-//                 } else {
-//                   return SizedBox.shrink();
-//                 }
-//               } else {
-//                 return IconButton(
-//                   onPressed: () {
-//                     Navigator.push(
-//                       context,
-//                       MaterialPageRoute(
-//                         builder: (context) => CreateGroupView(key: widget.key, preferences: widget.preferences),
-//                       ),
-//                     );
-//                   },
-//                   icon: const Icon(
-//                     Icons.add_circle_outline,
-//                     size: 40,
-//                     color: Color(0xFF4F378B),
-//                   ),
-//                 );
-//               }
-//             },
-//           );
-//         }
-//       },
-//     );
-//   }
+          return EasyRefresh(
+              onRefresh: () async {
+                futureGroups = fetchServerGroups(memberId);
+              },
+              header: ClassicHeader(
+                dragText: "Pull down to refresh",
+                armedText: "Release to refresh",
+                readyText: "Refreshing...",
+                processingText: "Loading groups...",
+                failedText: "Refresh failed",
+                noMoreText: "No more data",
+              ),
+              child: ListView.builder(
+                restorationId: 'groupList',
+                itemCount:
+                    groups.length + 1, // Extra item for the "Add Group" button
+                itemBuilder: (context, index) {
+                  if (index < groups.length) {
+                    if (filterSearch == "" ||
+                        groups[index]
+                            .name
+                            .toLowerCase()
+                            .contains(filterSearch.toLowerCase())) {
+                      return _groupWidgetBuilder(context, index, groups);
+                    } else {
+                      return SizedBox.shrink();
+                    }
+                  } else {
+                    return IconButton(
+                      onPressed: () {
+                        showModalBottomSheet(
+                          context: context,
+                          shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.only(
+                                  topLeft: Radius.circular(16.0),
+                                  topRight: Radius.circular(16.0))),
+                          builder: (BuildContext context) {
+                            return Container(
+                              width: 360,
+                              height: 90,
+                              padding: EdgeInsets.fromLTRB(16, 10, 16, 5),
+                              child: Column(children: [
+                                SizedBox(
+                                  width: 40.0,
+                                  height: 4.0,
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                        color: Colors.white54,
+                                        shape: BoxShape.rectangle,
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(8.0))),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.only(top: 10),
+                                ),
+                                Row(
+                                  children: [
+                                    FilledButton(
+                                      onPressed: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                CreateGroupView(
+                                                    key: widget.key,
+                                                    preferences:
+                                                        widget.preferences),
+                                          ),
+                                        );
+                                      },
+                                      child: const Padding(
+                                        padding: EdgeInsets.all(2),
+                                        child: Text("CREATE GROUP"),
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: EdgeInsets.only(left: 20),
+                                    ),
+                                    FilledButton(
+                                      onPressed: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => JoinGroupView(
+                                                key: widget.key,
+                                                preferences:
+                                                    widget.preferences),
+                                          ),
+                                        );
+                                      },
+                                      child: const Padding(
+                                        padding: EdgeInsets.all(8),
+                                        child: Text("JOIN GROUP"),
+                                      ),
+                                    )
+                                  ],
+                                )
+                              ]),
+                            );
+                          },
+                        );
+                      },
+                      icon: const Icon(
+                        Icons.add_circle_outline,
+                        size: 40,
+                        color: Color(0xFF4F378B),
+                      ),
+                    );
+                  }
+                },
+              ));
+        }
+      },
+    );
+  }
 
 //   @override
 //   Widget build(BuildContext context) {
