@@ -1,15 +1,9 @@
-// Form widget from Flutter
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
-import 'package:mercury_client/src/entities/group.dart';
-import 'package:mercury_client/src/entities/requests/server_requests.dart';
+import 'package:mercury_client/src/entities/data/group.dart';
+import 'package:mercury_client/src/entities/requests/alert_requests.dart';
 import 'package:mercury_client/src/utils/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../profile/profile_view.dart';
-import 'package:http/http.dart' as http;
-import '../services/globals.dart';
-import 'dart:convert';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
@@ -27,38 +21,6 @@ class SendAlertView extends StatelessWidget {
 
   final SharedPreferencesWithCache preferences;
   final Group group;
-
-  Future<void> _submitForm(BuildContext context) async {
-    if (formKey.currentState!.validate()) {
-      // Process data.
-      final title = titleController.text;
-      final description = descriptionController.text;
-
-      var data = {
-        'memberId': preferences.getString('id'),
-        'groupId': group.id,
-        'title': title,
-        'description': description,
-      };
-
-      var url = Uri.parse('$baseURL/alert/send');
-      final response = await http.post(
-        url,
-        body: data,
-      ).onError((error, stackTrace) {
-        return http.Response('', 500);
-      });
-
-      if (response.statusCode == 200) {
-        log('Cool to submit form!');
-      } else {
-        log('Failed to submit form to server $hostname!');
-      }
-      if (context.mounted) {
-        Navigator.pop(context);
-      }
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -159,10 +121,18 @@ class SendAlertView extends StatelessWidget {
                           padding: const EdgeInsets.all(16),
                           child: FilledButton(
                             onPressed: () {
-                              // Validate returns true if the form is valid, or false otherwise.
-                                // If the form is valid, display a snackbar. In the real world,
-                                // you'd often call a server or save the information in a database.
-                                _submitForm(context);
+                              if (formKey.currentState!.validate()) {
+                                AlertRequests.saveAlert(
+                                        preferences.getString('id') ?? '',
+                                        group.id,
+                                        titleController.text,
+                                        descriptionController.text)
+                                    .then((value) {
+                                  if (context.mounted) {
+                                    Navigator.pop(context);
+                                  }
+                                });
+                              }
                             },
                             child: const Text('SEND ALERT'),
                           ),

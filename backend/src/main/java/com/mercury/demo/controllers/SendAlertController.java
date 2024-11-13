@@ -48,18 +48,22 @@ public class SendAlertController {
     }
 
     @GetMapping(path="/get")
-    public @ResponseBody List<MemberAlertStatus> getLatestAlerts(@RequestParam String memberId) {
+    public @ResponseBody List<MemberAlertStatus> getLatestAlerts(@RequestParam final String memberId) {
         return statusRepository.findByMemberIdAndStatus(memberId, Status.UNSEEN);
     }
 
     @PutMapping(path= "/confirm")  // TODO should this be /confirm, or /get/confirm?
-    public @ResponseBody List<MemberAlertStatus> confirmAlertsSeen(@RequestParam List<MemberAlertStatus> alertStatuses) {
-        statusRepository.saveAll(alertStatuses.stream().map(alertStatus -> new MemberAlertStatus(
-                alertStatus.getId(),
-                alertStatus.getAlertId(),
-                alertStatus.getMemberId(),
-                Status.SEEN)).toList());
+    public @ResponseBody List<MemberAlertStatus> confirmAlertsSeen(@RequestParam final String memberId,
+                                                                   @RequestParam final List<MemberAlertStatus> alertStatuses) {
+        if (alertStatuses.stream().allMatch((alertStatus -> alertStatus.getMemberId().equals(memberId)))) {
+            statusRepository.saveAll(alertStatuses.stream().map(alertStatus -> new MemberAlertStatus(
+                    alertStatus.getId(),
+                    alertStatus.getAlertId(),
+                    alertStatus.getMemberId(),
+                    Status.SEEN)).toList());
 
-        return alertStatuses;  // return resource to confirm success
+            return alertStatuses;  // return resource to confirm success
+        }
+        return null;
     }
 }

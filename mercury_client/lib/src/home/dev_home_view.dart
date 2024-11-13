@@ -39,7 +39,7 @@ class HomeViewState extends State<HomeView> {
   @override
   void initState() {
     super.initState();
-    AlertRequests.fetchAlerts().then((value) => setState(() {
+    AlertRequests.fetchAlerts(widget.preferences.getString('id') ?? '').then((value) => setState(() {
           _alerts = Queue.from(AlertTestData.alerts); // Toggle between items
         }));
   }
@@ -308,7 +308,7 @@ class HomeViewState extends State<HomeView> {
                           icon: Icon(Icons.close, color: Colors.black),
                           iconSize: 24,
                           onPressed: () async {
-                            AlertRequests.saveResponse(isSafe: false)
+                            AlertRequests.saveAlertResponse(isSafe: false)
                                 .then((value) => setState(() {
                                       _alerts
                                           .removeFirst(); // Toggle between items
@@ -332,7 +332,7 @@ class HomeViewState extends State<HomeView> {
                           icon: Icon(Icons.check, color: Colors.black),
                           iconSize: 24,
                           onPressed: () async {
-                            AlertRequests.saveResponse(isSafe: true)
+                            AlertRequests.saveAlertResponse(isSafe: true)
                                 .then((value) => setState(() {
                                       _alerts
                                           .removeFirst(); // Toggle between items
