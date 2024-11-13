@@ -139,7 +139,7 @@ class HomeViewState extends State<HomeView> {
               context,
               MaterialPageRoute(
                 builder: (context) =>
-                    LeaderGroupView(key: widget.key, group: group),
+                    LeaderGroupView(key: widget.key, group: group, preferences: widget.preferences),
               ),
             );
           }
@@ -206,7 +206,7 @@ class HomeViewState extends State<HomeView> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => SendAlertView(),
+                              builder: (context) => SendAlertView(preferences: widget.preferences, group: group),
                             ),
                           );
                         },

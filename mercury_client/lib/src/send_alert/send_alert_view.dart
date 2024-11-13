@@ -1,46 +1,60 @@
 // Form widget from Flutter
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
+import 'package:mercury_client/src/entities/group.dart';
 import 'package:mercury_client/src/utils/widgets.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../profile/profile_view.dart';
 import 'package:http/http.dart' as http;
 import '../services/globals.dart';
+import 'dart:convert';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 class SendAlertView extends StatelessWidget {
   SendAlertView({
     super.key,
+    required this.preferences,
+    required this.group,
   });
-
-  static const routeName = '/send_alert';
 
   final formKey = GlobalKey<FormState>();
 
   final TextEditingController titleController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
 
-  Future<void> _submitForm() async {
+  final SharedPreferencesWithCache preferences;
+  final Group group;
+
+  Future<void> _submitForm(BuildContext context) async {
     if (formKey.currentState!.validate()) {
+      // Process data.
       final title = titleController.text;
       final description = descriptionController.text;
 
-      final uri = Uri.parse('$baseURL/sendAlert');
+      var data = {
+        'memberId': preferences.getString('id'),
+        'groupId': group.id,
+        'title': title,
+        'description': description,
+      };
+
+      var url = Uri.parse('$baseURL/alert/send');
       final response = await http.post(
-        uri,
-        body: {
-          'title': title,
-          'description': description,
-        },
-      );
+        url,
+        body: data,
+      ).onError((error, stackTrace) {
+        return http.Response('', 500);
+      });
 
       if (response.statusCode == 200) {
-        ScaffoldMessenger.of(navigatorKey.currentContext!).showSnackBar(
-          SnackBar(content: Text('Form submitted successfully!')),
-        );
+        log('Cool to submit form!');
       } else {
-        ScaffoldMessenger.of(navigatorKey.currentContext!).showSnackBar(
-          SnackBar(content: Text('Failed to submit form!')),
-        );
+        log('Failed to submit form to server $hostname!');
+      }
+      if (context.mounted) {
+        Navigator.pop(context);
       }
     }
   }
@@ -131,25 +145,6 @@ class SendAlertView extends StatelessWidget {
                             labelText: 'Description (Optional)',
                           ),
                         ),
-                        const Row(
-                          children: [
-                            Text("Location (Recommended)",
-                                textAlign: TextAlign.left),
-                          ],
-                        ),
-                        const Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            // Google Maps logic here
-                            Placeholder(
-                              color: Color(0xFF4F378B), // Color of the cross
-                              strokeWidth: 2.0, // Thickness of the cross lines
-                              fallbackWidth: 280.0, // Width if not constrained
-                              // fallbackHeight:
-                              //     280.0, // Height if not constrained
-                            ),
-                          ],
-                        ),
                       ],
                     ),
                   ),
@@ -164,14 +159,9 @@ class SendAlertView extends StatelessWidget {
                           child: FilledButton(
                             onPressed: () {
                               // Validate returns true if the form is valid, or false otherwise.
-                              if (formKey.currentState!.validate()) {
                                 // If the form is valid, display a snackbar. In the real world,
                                 // you'd often call a server or save the information in a database.
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('Sending Alert')),
-                                );
-                                _submitForm();
-                              }
+                                _submitForm(context);
                             },
                             child: const Text('SEND ALERT'),
                           ),

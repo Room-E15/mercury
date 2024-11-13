@@ -1,5 +1,5 @@
 import 'dart:developer';
-
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:mercury_client/src/utils/widgets.dart';
 import '../settings/settings_view.dart';
@@ -14,9 +14,12 @@ class LeaderGroupView extends StatelessWidget {
   const LeaderGroupView({
     super.key,
     required this.group,
+    required this.preferences,
   });
 
   final Group group;
+
+  final SharedPreferencesWithCache preferences;
 
   Widget _memberWidgetBuilder(context, index, memberList) {
     final member = memberList[index];
@@ -153,7 +156,7 @@ class LeaderGroupView extends StatelessWidget {
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) =>
-                                        SendAlertView(),
+                                        SendAlertView(preferences: preferences, group: group),
                                   ),
                                 );
                               },
