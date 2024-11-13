@@ -132,3 +132,29 @@ Future<void> requestServerCreateGroup(String memberId, String groupName) async {
     // TODO figure out something better to do if registration fails
   }
 }
+
+// allows the member to join another group
+Future<void> requestServerJoinGroup(String memberId, String groupId) async {
+  log('Requesting Group join...');
+
+  // Prepare the data for the HTTP request
+  final uri = Uri.parse('$baseURL/group/joinGroup');
+  final response = await post(
+    uri,
+    body: {
+      'memberId': memberId,
+      'groupId': groupId,
+    },
+  ).onError((obj, stackTrace) {
+    log('[ERROR] Failed to send group join packet data to server.');
+    return Response('', 500);
+  });
+
+  // Log response
+  if (response.statusCode == 200) {
+    log('[INFO] Join group data sent successfully!');
+  } else {
+    log('[ERROR] Failed to send group join information to server.');
+    // TODO figure out something better to do if registration fails
+  }
+}
