@@ -33,6 +33,12 @@ public class Carrier {
     }
 
     public String formatTextGateway(final String countryCode, final String phoneNumber) {
-        return (includeCountryCodeInEmail ? countryCode : "") + phoneNumber + "@" + textGateway;
+        final String prefix;
+        if (includeCountryCodeInEmail) {
+            prefix = String.format("%s%s", countryCode, phoneNumber);
+        } else {
+            prefix = phoneNumber;
+        }
+        return String.format("%s@%s", prefix, textGateway);
     }
 }

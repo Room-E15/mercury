@@ -17,13 +17,16 @@ public class SMSEmailService implements SMSManager {
     private JavaMailSender mailSender;
 
     @Override
-    public void dispatchSMS(String code, String countryCode, String phoneNumber, Carrier carrier) {
+    public void dispatchSMS(final String code,
+                            final String countryCode,
+                            final String phoneNumber,
+                            final Carrier carrier) {
         try {
-            String toAddress = carrier.formatTextGateway(countryCode, phoneNumber);
-            MimeMessage message = mailSender.createMimeMessage();
+            final String toAddress = carrier.formatTextGateway(countryCode, phoneNumber);
+            final MimeMessage message = mailSender.createMimeMessage();
             message.setFrom(new InternetAddress("mercury@asacco.dev"));
             message.setRecipient(Message.RecipientType.TO, new InternetAddress(toAddress));
-            String htmlContent = " Welcome to Mercury! Your verification code is: " + code;
+            final String htmlContent = " Welcome to Mercury! Your verification code is: " + code;
             message.setText(htmlContent);
 
             mailSender.send(message);

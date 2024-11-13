@@ -20,72 +20,60 @@ import com.mercury.demo.mail.SMSEmailService;
 import com.mercury.demo.repositories.CarrierRepository;
 import com.mercury.demo.repositories.SMSVerificationRepository;
 
+import java.security.SecureRandom;
 import java.util.Optional;
 
 @Controller // This means that this class is a Controller
-@RequestMapping(path="/sms") // This means URL's start with /demo (after Application path)
+@RequestMapping(path = "/sms") // This means URL's start with /demo (after Application path)
 public class SMSVerificationController {
-    @Autowired
-    private SMSVerificationRepository smsVerificationRepository;
+    @Autowired private SMSVerificationRepository smsVerificationRepository;
+    @Autowired private CarrierRepository carrierRepository;
+    @Autowired private SMSEmailService mailService;
+    @Autowired private MemberRepository memberRepository;
 
-    @Autowired
-    private CarrierRepository carrierRepository;
-
-    @Autowired
-    private SMSEmailService mailService;
-
-    @Autowired
-    private MemberRepository memberRepository;
-
-    @PostMapping(path="/dispatch") // Map ONLY POST Requests
-    public @ResponseBody SMSDispatchResponse requestSMSDispatch (@RequestParam String countryCode,
-                                                                 @RequestParam String phoneNumber,
-                                                                 @RequestParam String carrier
-            ) {
-        // TODO: Add these to database on server init. Currently necessary here since db is recreated on server start
-        carrierRepository.save(new Carrier("at&t", "AT&T", "txt.att.net", false));
-        carrierRepository.save(new Carrier("verizon", "Verizon", "vtext.com", false));
-
+    @PostMapping(path = "/dispatch") // Map ONLY POST Requests
+    public @ResponseBody SMSDispatchResponse requestSMSDispatch(@RequestParam final String countryCode,
+                                                                @RequestParam final String phoneNumber,
+                                                                @RequestParam final String carrier) {
         // Calculate expiration time (15 minutes from current moment)
-        long expiration = (System.currentTimeMillis() / 1000) + 60 * 15; // 15 minutes
+        final long expiration = (System.currentTimeMillis() / 1000) + 60 * 15; // 15 minutes
 
         // Generate random 6 digit code
-        StringBuilder code = new StringBuilder();
+        final StringBuilder code = new StringBuilder();
+        final SecureRandom secureRandom = new SecureRandom();
         for (int i = 0; i < 6; i++) {
-            code.append((int) (Math.random() * 10));
+            code.append(secureRandom.nextInt(10));
         }
-        String hash = DigestUtils.md5DigestAsHex(code.toString().getBytes());
+        final String hash = DigestUtils.md5DigestAsHex(code.toString().getBytes());
 
         // Check if carrier os supported
-        Optional<Carrier> optionalCarrier = carrierRepository.findById(carrier);
+        final Optional<Carrier> optionalCarrier = carrierRepository.findById(carrier);
         if (optionalCarrier.isEmpty()) {
             return new SMSDispatchResponse(false, null);
         }
-        Carrier c = optionalCarrier.get();
+        final Carrier c = optionalCarrier.get();
 
         // Send the text
         mailService.dispatchSMS(code.toString(), countryCode, phoneNumber, c);
 
         // Register SMSVerification session
         SMSVerification smsVerification = new SMSVerification(countryCode, phoneNumber, expiration, hash);
-        smsVerificationRepository.save(smsVerification);
+        smsVerification = smsVerificationRepository.save(smsVerification);
 
         // Return token to be used for /verify session lookup
         return new SMSDispatchResponse(true, smsVerification.getId());
     }
 
-    @PostMapping(path="/verify") // Map ONLY POST Requests
-    public @ResponseBody SMSVerifyResponse verifySMSCode (@RequestParam String token,
-                                                          @RequestParam String code
-            ) {
-        memberRepository.save(new Member("Aidan", "Sacco", "1", "6503958675"));
-
+    @PostMapping(path = "/verify") // Map ONLY POST Requests
+    public @ResponseBody SMSVerifyResponse verifySMSCode(@RequestParam final String token,
+                                                         @RequestParam final String code
+    ) throws Exception {
         // Search for SMSVerification session using given token
-        Optional<SMSVerification> optionalSMSVerificationSession = smsVerificationRepository.findById(token);
+        final Optional<SMSVerification> optionalSMSVerificationSession = smsVerificationRepository.findById(token);
         if (optionalSMSVerificationSession.isEmpty()) {
             return new SMSVerifyResponse(false, null);
         }
-        SMSVerification smsVerification = optionalSMSVerificationSession.get();
+        final SMSVerification smsVerification = optionalSMSVerificationSession.get();
 
         // Hash the given code and compare to what we have stored in the db
         String codeHash = DigestUtils.md5DigestAsHex(code.getBytes());
@@ -94,15 +82,10 @@ public class SMSVerificationController {
         }
 
         // At this point, we know the verification code was correct. Prepare the response info
-        Member userInfo = null;
-
         // Check to see if a user exists with this phone number
-        Optional<Member> member = memberRepository.findByPhoneNumberAndCountryCode(
+        final Member userInfo = memberRepository.findByPhoneNumberAndCountryCode(
                 smsVerification.getPhoneNumber(),
-                smsVerification.getCountryCode());
-        if (member.isPresent()) {
-            userInfo = member.get();
-        }
+                smsVerification.getCountryCode()).orElseThrow(() -> new Exception("Member Not Found"));
 
         // We are done with the verification session, so delete it
         smsVerificationRepository.deleteById(token);
@@ -112,7 +95,7 @@ public class SMSVerificationController {
     }
 
     // TODO: Remove this method, it's only for debugging
-    @GetMapping(path="/all")
+    @GetMapping(path = "/all")
     public @ResponseBody Iterable<SMSVerification> getAllPendingVerifications() {
         // This returns a JSON or XML with the users
         return smsVerificationRepository.findAll();

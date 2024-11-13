@@ -1,6 +1,7 @@
 package com.mercury.demo.entities;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -33,7 +34,10 @@ public class SMSVerification {
     @Setter
     private long expiration;
 
-    public SMSVerification(final String countryCode, final String phoneNumber, final long expiration, final String verificationCodeHash) {
+    public SMSVerification(final String countryCode,
+                           final String phoneNumber,
+                           final long expiration,
+                           final String verificationCodeHash) {
         this.countryCode = countryCode;
         this.phoneNumber = phoneNumber;
         this.expiration = expiration;
