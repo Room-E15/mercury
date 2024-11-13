@@ -1,4 +1,4 @@
-import 'package:mercury_client/src/entities/user_info.dart';
+import 'package:mercury_client/src/entities/data/user_info.dart';
 
 class SMSVerifyResponse {
   final bool correctCode;

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mercury_client/src/entities/requests/alert_requests.dart';
 import 'package:mercury_client/src/utils/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:developer';
@@ -6,8 +7,8 @@ import 'dart:collection';
 import '../create_group/create_group_view.dart';
 import '../send_alert/send_alert_view.dart';
 import '../settings/settings_view.dart';
-import '../entities/alert.dart';
-import '../entities/group.dart';
+import '../entities/data/alert.dart';
+import '../entities/data/group.dart';
 import '../group_dashboard/leader_group_view.dart';
 import '../group_dashboard/member_group_view.dart';
 import '../join_server_prompt/join_server_prompt_view.dart';
@@ -32,28 +33,15 @@ class HomeView extends StatefulWidget {
 
 class HomeViewState extends State<HomeView> {
   // Will call fetchServerAlert
-  Queue<Alert> _alerts = Queue.from(AlertTestData.alerts);
+  Queue<Alert> _alerts = Queue();
   String filterSearch = "";
 
-  // TODO make async
-  void fetchServerAlert() {
-    log("Fetching alerts");
-
-    setState(() {
-      _alerts = Queue.from(AlertTestData.alerts); // Toggle between items
-    });
-
-    // while (true) {
-    //   GetAlertsFromServer
-    // }
-  }
-
-  // TODO make async
-  void respondToAlert() {
-    log("Alert response sent");
-    setState(() {
-      _alerts.removeFirst(); // Toggle between items
-    });
+  @override
+  void initState() {
+    super.initState();
+    AlertRequests.fetchAlerts().then((value) => setState(() {
+          _alerts = Queue.from(AlertTestData.alerts); // Toggle between items
+        }));
   }
 
   Widget _groupWidgetBuilder(context, index) {
@@ -316,12 +304,15 @@ class HomeViewState extends State<HomeView> {
                           borderRadius: BorderRadius.circular(8.0),
                         ),
                         child: IconButton(
+                          // BAD BUTTON
                           icon: Icon(Icons.close, color: Colors.black),
                           iconSize: 24,
-                          onPressed: () {
-                            setState(() {
-                              respondToAlert(); // Toggle between items
-                            });
+                          onPressed: () async {
+                            AlertRequests.saveResponse(isSafe: false)
+                                .then((value) => setState(() {
+                                      _alerts
+                                          .removeFirst(); // Toggle between items
+                                    }));
                           },
                         ),
                       ),
@@ -337,12 +328,15 @@ class HomeViewState extends State<HomeView> {
                           borderRadius: BorderRadius.circular(8.0),
                         ),
                         child: IconButton(
+                          // GOOD BUTTON
                           icon: Icon(Icons.check, color: Colors.black),
                           iconSize: 24,
-                          onPressed: () {
-                            setState(() {
-                              respondToAlert(); // Toggle between items
-                            });
+                          onPressed: () async {
+                            AlertRequests.saveResponse(isSafe: true)
+                                .then((value) => setState(() {
+                                      _alerts
+                                          .removeFirst(); // Toggle between items
+                                    }));
                           },
                         ),
                       ),
@@ -389,8 +383,9 @@ class HomeViewState extends State<HomeView> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) =>
-                                  CreateGroupView(key: widget.key, preferences: widget.preferences),
+                              builder: (context) => CreateGroupView(
+                                  key: widget.key,
+                                  preferences: widget.preferences),
                             ),
                           );
                         },

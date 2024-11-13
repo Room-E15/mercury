@@ -1,9 +1,9 @@
 // Form widget from Flutter
 import 'package:flutter/material.dart';
+import 'package:mercury_client/src/entities/requests/server_requests.dart';
 import 'package:mercury_client/src/utils/widgets.dart';
 import '../profile/profile_view.dart';
 import 'package:http/http.dart' as http;
-import '../services/globals.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
@@ -19,12 +19,13 @@ class SendAlertView extends StatelessWidget {
   final TextEditingController titleController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
 
+  // TODO remove, switched to new server requests style
   Future<void> _submitForm() async {
     if (formKey.currentState!.validate()) {
       final title = titleController.text;
       final description = descriptionController.text;
 
-      final uri = Uri.parse('$baseURL/sendAlert');
+      final uri = Uri.parse('${ServerRequests.baseURL}/sendAlert');
       final response = await http.post(
         uri,
         body: {

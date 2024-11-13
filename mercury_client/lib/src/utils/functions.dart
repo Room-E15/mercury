@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mercury_client/src/entities/user_info.dart';
+import 'package:mercury_client/src/entities/data/user_info.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 Future<T?> showPopup<T>(BuildContext context, String title, String content,

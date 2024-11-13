@@ -1,11 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:mercury_client/src/entities/user_info.dart';
-import 'package:mercury_client/src/home/home_view.dart';
 import 'package:mercury_client/src/startup/register_view.dart';
-import 'package:mercury_client/src/utils/functions.dart';
-import 'package:mercury_client/src/utils/server_calls.dart';
 import 'package:mercury_client/src/utils/widgets.dart';
 
 enum LoadingState {

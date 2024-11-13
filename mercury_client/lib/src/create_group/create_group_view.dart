@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:mercury_client/src/home/dev_home_view.dart';
+import 'package:mercury_client/src/entities/requests/group_requests.dart';
 import 'package:mercury_client/src/utils/widgets.dart';
-import 'package:mercury_client/src/home/home_view.dart';
-import 'package:mercury_client/src/utils/server_calls.dart';
+// import 'package:mercury_client/src/home/home_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class CreateGroupView extends StatelessWidget {
@@ -52,15 +53,15 @@ class CreateGroupView extends StatelessWidget {
                     onPressed: () {
                       // Validate returns true if the form is valid, or false otherwise.
                       if (formKey.currentState!.validate()) {
-                        requestServerCreateGroup(memberId, groupNameController.text);
-                        Navigator.push(
+                        GroupRequests.requestCreateGroup(memberId, groupNameController.text);
+                        Navigator.push(  // TODO change to pushNamed
                             context,
                             MaterialPageRoute(
                               // TODO change to use routing table
                               builder: (context) => HomeView(
                                   isManager: true,
-                                  preferences: preferences,
-                                  dummyValues: false),
+                                  preferences: preferences),
+                                  // dummyValues: false),  // TODO bring back dummyValues
                             ));
                       }
                     },

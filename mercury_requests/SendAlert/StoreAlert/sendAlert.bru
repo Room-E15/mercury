@@ -5,7 +5,14 @@ meta {
 }
 
 post {
-  url: http://localhost:8080/alert/store
-  body: none
+  url: http://192.168.1.103:8080/alert/send
+  body: multipartForm
   auth: none
+}
+
+body:multipart-form {
+  memberId: member1
+  groupId: group1
+  title: Bomb Threat
+  description: Run!
 }
