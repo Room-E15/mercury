@@ -3,14 +3,18 @@ package com.mercury.demo.entities;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotNull;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.annotations.UuidGenerator;
 
-@Getter
 @Entity
+@Getter
 @NoArgsConstructor
+@ToString
+@EqualsAndHashCode
 public class Member {
     @Id
     @Setter
