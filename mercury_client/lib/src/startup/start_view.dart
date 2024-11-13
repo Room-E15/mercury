@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:mercury_client/src/utils/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'package:mercury_client/src/utils/widgets.dart';
 
 import 'verification_view.dart';
 

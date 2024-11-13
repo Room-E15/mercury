@@ -61,4 +61,30 @@ class GroupRequests extends ServerRequests {
       log('[ERROR] Failed to send group data to server.');
     }
   }
+
+// allows the member to join another group
+  static Future<void> requestJoinGroup(String memberId, String groupId) async {
+    log('Requesting Group join...');
+
+    // Prepare the data for the HTTP request
+    final uri = Uri.parse('${ServerRequests.baseURL}$subURL/joinGroup');
+    final response = await post(
+      uri,
+      body: {
+        'memberId': memberId,
+        'groupId': groupId,
+      },
+    ).onError((obj, stackTrace) {
+      log('[ERROR] Failed to send group join packet data to server.');
+      return Response('', 500);
+    });
+
+    // Log response
+    if (response.statusCode == 200) {
+      log('[INFO] Join group data sent successfully!');
+    } else {
+      log('[ERROR] Failed to send group join information to server.');
+      // TODO figure out something better to do if registration fails
+    }
+  }
 }

@@ -100,7 +100,7 @@ public class TestGroupManagementController {
         // Stubbings for functions that cannot be unit-tested as they are handled by external packages
         Mockito.when(mockMemberRepository.findById(MEMBER.getId())).thenReturn(Optional.empty());
 
-        Assertions.assertThrows(RuntimeException.class, () -> controller.joinGroup(MEMBER.getId(), 123L));
+        Assertions.assertThrows(RuntimeException.class, () -> controller.joinGroup(MEMBER.getId(), "1234567890"));
 
         Mockito.verify(mockMemberRepository, Mockito.times(1)).findById(MEMBER.getId());
     }

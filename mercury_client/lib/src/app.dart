@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:mercury_client/src/qr_scan/qr_scan_view.dart';
+
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'settings/settings_controller.dart';
-import 'settings/settings_view.dart';
-import 'profile/profile_view.dart';
-import 'startup/start_view.dart';
-// import 'home/home_view.dart';
-import 'home/dev_home_view.dart'; // TODO remove before merging
-import 'join_server_prompt/join_server_prompt_view.dart';
+import 'package:mercury_client/src/qr_scan/qr_scan_view.dart';
+import 'package:mercury_client/src/settings/settings_controller.dart';
+import 'package:mercury_client/src/settings/settings_view.dart';
+import 'package:mercury_client/src/profile/profile_view.dart';
+import 'package:mercury_client/src/startup/start_view.dart';
+import 'package:mercury_client/src/home/home_view.dart';
+import 'package:mercury_client/src/join_server_prompt/join_server_prompt_view.dart';
+// import 'home/dev_home_view.dart'; // TODO remove before merging
 
 /// The Widget that configures your application.
 class MyApp extends StatelessWidget {
@@ -107,7 +108,7 @@ class MyApp extends StatelessWidget {
                       return HomeView(
                         preferences: sharedPreferences,
                         isManager: true,
-                        // dummyValues: true,
+                        dummyValues: true,
                       ); // TODO remove isManager
                     case QRScanView.routeName:
                       return const QRScanView();
@@ -117,7 +118,7 @@ class MyApp extends StatelessWidget {
                       return HomeView(
                         preferences: sharedPreferences,
                         isManager: true,
-                        // dummyValues: true, // TODO remove isManager
+                        dummyValues: true, // TODO remove isManager
                       );
                   }
                 },
@@ -127,7 +128,7 @@ class MyApp extends StatelessWidget {
                 ? HomeView(
                     preferences: sharedPreferences,
                     isManager: true, // TODO remove isManager
-                    // dummyValues: true,
+                    dummyValues: true,
                   )
                 : StartView(preferences: sharedPreferences));
       },

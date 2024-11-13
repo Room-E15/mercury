@@ -1,5 +1,5 @@
-// Form widget from Flutter
 import 'package:flutter/material.dart';
+
 import 'package:mercury_client/src/utils/widgets.dart';
 import 'package:mercury_client/src/qr_scan/qr_scan_view.dart';
 

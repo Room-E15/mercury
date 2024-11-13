@@ -6,19 +6,10 @@ class Member {
   final String lastName;
   final String countryCode;
   final String phoneNumber;
-  final GroupResponse? response; // TODO remove, seems redundant
+  final GroupResponse? response;
 
   const Member(this.id, this.firstName, this.lastName, this.countryCode,
       this.phoneNumber, this.response);
-
-  // TODO bandaid solution, make sure this works
-  const Member.softInit(
-      {required this.firstName,
-      required this.lastName,
-      required this.countryCode,
-      required this.phoneNumber})
-      : id = "",
-        response = null;
 
   // Factory constructor to create a Group instance from JSON
   factory Member.fromJson(dynamic json) {
@@ -32,15 +23,6 @@ class Member {
     );
   }
 
-  // TODO ported from merge, make sure this works
-  factory Member.fromMap(Map memberMap) {
-    return Member.softInit(
-      firstName: memberMap['firstName'],
-      lastName: memberMap['lastName'],
-      countryCode: memberMap['countryCode'],
-      phoneNumber: memberMap['phoneNumber'],
-    );
-  }
 }
 
 class MemberTestData {

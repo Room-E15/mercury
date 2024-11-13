@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'package:mercury_client/src/entities/requests/group_requests.dart';
 import 'package:mercury_client/src/utils/widgets.dart';
 import 'package:mercury_client/src/home/home_view.dart';
-import 'package:mercury_client/src/utils/server_calls.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class JoinGroupView extends StatelessWidget {
   final TextEditingController groupIdController = TextEditingController();
@@ -14,7 +15,7 @@ class JoinGroupView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-  final String memberId = preferences.getString('id')!;
+    final String memberId = preferences.getString('id')!;
 
     return Scaffold(
       appBar: AppBar(
@@ -52,16 +53,9 @@ class JoinGroupView extends StatelessWidget {
                     onPressed: () {
                       // Validate returns true if the form is valid, or false otherwise.
                       if (formKey.currentState!.validate()) {
-                        requestServerJoinGroup(memberId, groupIdController.text);
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              // TODO change to use routing table
-                              builder: (context) => HomeView(
-                                  isManager: true,
-                                  preferences: preferences,
-                                  dummyValues: false),
-                            ));
+                        GroupRequests.requestJoinGroup(
+                            memberId, groupIdController.text);
+                        Navigator.pushNamed(context, HomeView.routeName);
                       }
                     },
                     child: const Text('Submit'),

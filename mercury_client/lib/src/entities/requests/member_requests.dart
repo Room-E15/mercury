@@ -1,11 +1,14 @@
+import 'dart:convert';
 import 'dart:developer';
 
 import 'package:http/http.dart';
 import 'package:mercury_client/src/entities/data/user_info.dart';
 import 'package:mercury_client/src/entities/requests/server_requests.dart';
+import 'package:mercury_client/src/entities/data/member.dart';
 
 class MemberRequests extends ServerRequests {
-  static final subURL = "/member";
+  static const subURL = "/member";
+  static const headers = {"Content-Type": "application/json"};
 
   // returns the user's ID if they were successfully registered
   static Future<String?> requestRegisterUser(UserInfo user) async {
@@ -33,5 +36,16 @@ class MemberRequests extends ServerRequests {
       log('[ERROR] Failed to send user data to server.');
       return null;
     }
+  }
+
+  static Future<List<Member>> fetchMembers() async {
+    Response response = await get(
+      Uri.parse('${ServerRequests.baseURL}$subURL/all'),
+      headers: headers,
+    );
+
+    return jsonDecode(response.body)
+        .map((memberMap) => Member.fromMap(memberMap))
+        .toList();
   }
 }

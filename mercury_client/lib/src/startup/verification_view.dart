@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:mercury_client/src/entities/requests/sms_requests.dart';
+import 'package:mercury_client/src/home/dev_home_view.dart';
+import 'package:mercury_client/src/entities/data/user_info.dart';
+import 'package:mercury_client/src/utils/functions.dart';
 import 'package:mercury_client/src/startup/register_view.dart';
 import 'package:mercury_client/src/utils/widgets.dart';
 
@@ -59,7 +63,7 @@ class VerificationViewState extends State<VerificationView> {
   @override
   void initState() {
     super.initState();
-    requestServerSendCode(
+    SmsRequests.requestSendCode(
             widget.countryCode, widget.phoneNumber, widget.carrier)
         .then((response) {
       if (response.carrierFound) {
@@ -110,10 +114,11 @@ class VerificationViewState extends State<VerificationView> {
 
                         // when the server responds, it should change to display a result symbol
 
-                        requestServerCheckCode(
+                        SmsRequests.requestCheckCode(
                                 codeController.text, _verificationToken)
                             .then((response) async {
-                          final codeIsCorrect = response.correctCode, user = response.userInfo;
+                          final codeIsCorrect = response.correctCode,
+                              user = response.userInfo;
 
                           setState(() {
                             _loadingIconState = codeIsCorrect

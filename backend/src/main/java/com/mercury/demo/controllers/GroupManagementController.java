@@ -79,7 +79,7 @@ public class GroupManagementController {
 
     @PostMapping(path="/joinGroup") // Map ONLY POST Requests
     public @ResponseBody JoinGroupResponse joinGroup (@RequestParam String memberId,
-                                                      @RequestParam Long groupId
+                                                      @RequestParam String groupId
     ) {
         final Member user = memberRepository.findById(memberId).orElseThrow(() -> new RuntimeException(String.format("User with the id %s not found", memberId)));
         final AlertGroup group = alertGroupRepository.findById(groupId).orElseThrow(() -> new RuntimeException(String.format("Group with the id %s not found", groupId)));

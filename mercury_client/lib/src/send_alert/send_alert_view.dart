@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import 'package:mercury_client/src/entities/data/group.dart';
 import 'package:mercury_client/src/entities/requests/alert_requests.dart';
+import 'package:mercury_client/src/profile/profile_view.dart';
 import 'package:mercury_client/src/utils/widgets.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import '../profile/profile_view.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 class SendAlertView extends StatelessWidget {
+  static const routeName = '/send_alert';
+
   SendAlertView({
     super.key,
     required this.preferences,

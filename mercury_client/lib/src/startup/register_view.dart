@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:mercury_client/src/home/dev_home_view.dart';  // TODO remove
-import 'package:mercury_client/src/entities/requests/member_requests.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+// import 'package:mercury_client/src/home/dev_home_view.dart';  // TODO remove
+import 'package:mercury_client/src/home/home_view.dart';
+import 'package:mercury_client/src/entities/requests/member_requests.dart';
 import 'package:mercury_client/src/startup/loading_view.dart';
 import 'package:mercury_client/src/entities/data/user_info.dart';
 import 'package:mercury_client/src/utils/functions.dart';
 import 'package:mercury_client/src/utils/widgets.dart';
-// import 'package:mercury_client/src/home/home_view.dart';
 
 class RegisterView extends StatelessWidget {
   static const routeName = '/register';

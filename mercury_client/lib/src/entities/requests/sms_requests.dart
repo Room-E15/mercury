@@ -16,9 +16,9 @@ class SmsRequests extends ServerRequests {
     final Response response = await post(
       Uri.parse('${ServerRequests.baseURL}$subURL/dispatch'),
       body: {
-        'countryCode': "1",
+        'countryCode': countryCode.replaceAll('+', ''),
         'phoneNumber': phoneNumber,
-        'carrier': "att",
+        'carrier': carrier.toLowerCase(),
       },
     );
 
