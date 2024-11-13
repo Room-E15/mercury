@@ -67,7 +67,7 @@ public class SMSVerificationController {
     @PostMapping(path = "/verify") // Map ONLY POST Requests
     public @ResponseBody SMSVerifyResponse verifySMSCode(@RequestParam final String token,
                                                          @RequestParam final String code
-    ) throws Exception {
+    ) {
         // Search for SMSVerification session using given token
         final Optional<SMSVerification> optionalSMSVerificationSession = smsVerificationRepository.findById(token);
         if (optionalSMSVerificationSession.isEmpty()) {
@@ -85,7 +85,7 @@ public class SMSVerificationController {
         // Check to see if a user exists with this phone number
         final Member userInfo = memberRepository.findByPhoneNumberAndCountryCode(
                 smsVerification.getPhoneNumber(),
-                smsVerification.getCountryCode()).orElseThrow(() -> new Exception("Member Not Found"));
+                smsVerification.getCountryCode()).orElse(null);
 
         // We are done with the verification session, so delete it
         smsVerificationRepository.deleteById(token);
