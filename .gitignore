@@ -2,3 +2,4 @@
 .idea/
 target/
 *.sqlite
+mercury_client/env_dev.json
