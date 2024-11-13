@@ -16,7 +16,7 @@ class DatabaseServices {
       "phoneNumber": phoneNumber,
     };
     var body = json.encode(data);
-    var url = Uri.parse('$baseURL/demo/add');
+    var url = Uri.parse('$baseURL/member/addMember');
 
     http.Response response = await http.post(
       url,
@@ -30,7 +30,7 @@ class DatabaseServices {
   }
 
   static Future<List<Member>> getMembers() async {
-    var url = Uri.parse('$baseURL/demo');
+    var url = Uri.parse('$baseURL/member/all');
     http.Response response = await http.get(
       url,
       headers: headers,

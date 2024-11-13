@@ -11,34 +11,26 @@ import lombok.ToString;
 import org.hibernate.annotations.UuidGenerator;
 
 @Entity
+@Getter
 @NoArgsConstructor
 @ToString
 @EqualsAndHashCode
 public class Member {
     @Id
-    @UuidGenerator
-    @Getter
     @Setter
+    @UuidGenerator
     private String id;
 
     @NotNull
-    @Getter
-    @Setter
     private String firstName;
 
     @NotNull
-    @Getter
-    @Setter
     private String lastName;
 
     @NotNull
-    @Getter
-    @Setter
     private String countryCode;
 
     @NotNull
-    @Getter
-    @Setter
     private String phoneNumber;
 
     public Member(final String firstName, final String lastName, final String countryCode, final String phoneNumber) {
