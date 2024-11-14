@@ -29,7 +29,6 @@ class AlertRequests extends ServerRequests {
   }
 
   static Future<List<Alert>> fetchAlerts(final String memberId) async {
-    // TODO implement
     log("Fetching alerts");
     final response =
         await get(Uri.parse('${ServerRequests.baseURL}$subURL/get'), headers: {

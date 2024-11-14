@@ -1,12 +1,16 @@
-import 'package:flutter/material.dart';
-import 'package:mercury_client/widgets/logo.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:async';
+import 'dart:developer';
 
+import 'package:flutter/material.dart';
+
+import 'package:mercury_client/pages/home/home_view.dart';
+import 'package:mercury_client/widgets/logo.dart';
 import 'package:mercury_client/pages/register/log_user_info.dart';
 import 'package:mercury_client/models/requests/sms_requests.dart';
-import 'package:mercury_client/pages/home/dev_home_view.dart';
 import 'package:mercury_client/models/data/user_info.dart';
 import 'package:mercury_client/pages/register/register_view.dart';
+
+import 'package:shared_preferences/shared_preferences.dart';
 
 enum LoadingState {
   nothing,
@@ -71,6 +75,10 @@ class VerificationViewState extends State<VerificationView> {
           _verificationToken = response.token;
         });
       }
+    }).onError((object, stackTrace) {
+      // TODO figure out what to do on this screen if you can't connect to the server
+      // TODO SERIOUSLY SHOW AN ERROR HERE IT'S BAD
+      log('Error sending verification code: $object');
     });
   }
 

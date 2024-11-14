@@ -40,8 +40,9 @@ class JoinGroupView extends StatelessWidget {
                     validator: (value) {
                       if (value == null) {
                         return 'Please enter some text';
-                      } else if (!RegExp(r'^[0-9]+$').hasMatch(value)) {
-                        return 'Please only use only numeric characters';
+                      } else if (!RegExp(r'[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}').hasMatch(value)) {
+                        return 'Please enter in format 8-4-4-4-12';
+                        //7756e438-109f-47c7-8eb8-82f67d3fb69d
                       }
                       return null;
                     },

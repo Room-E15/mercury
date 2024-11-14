@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-import 'package:mercury_client/pages/home/dev_home_view.dart';
 import 'package:mercury_client/models/requests/group_requests.dart';
+import 'package:mercury_client/pages/home/home_view.dart';
 import 'package:mercury_client/widgets/logo.dart';
-// import 'package:mercury_client/src/home/home_view.dart';
+
 import 'package:shared_preferences/shared_preferences.dart';
 
 class CreateGroupView extends StatelessWidget {
@@ -16,7 +16,7 @@ class CreateGroupView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-  final String memberId = preferences.getString('id')!;
+    final String memberId = preferences.getString('id')!;
 
     return Scaffold(
       appBar: AppBar(
@@ -54,16 +54,13 @@ class CreateGroupView extends StatelessWidget {
                     onPressed: () {
                       // Validate returns true if the form is valid, or false otherwise.
                       if (formKey.currentState!.validate()) {
-                        GroupRequests.requestCreateGroup(memberId, groupNameController.text);
-                        Navigator.push(  // TODO change to pushNamed
-                            context,
-                            MaterialPageRoute(
-                              // TODO change to use routing table
-                              builder: (context) => HomeView(
-                                  isManager: true,
-                                  preferences: preferences),
-                                  // dummyValues: false),  // TODO bring back dummyValues
-                            ));
+                        GroupRequests.requestCreateGroup(
+                            memberId, groupNameController.text);
+                        Navigator.pushNamed(
+                          // TODO change to pushNamed
+                          context,
+                          HomeView.routeName,
+                        );
                       }
                     },
                     child: const Text('Submit'),

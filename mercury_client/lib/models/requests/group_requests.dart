@@ -35,7 +35,7 @@ class GroupRequests extends ServerRequests {
     List<dynamic> jsonList = jsonDecode(response.body);
     List<Group> groupList =
         jsonList.map((json) => Group.fromJson(json)).toList();
-    return Future.value(groupList);
+    return groupList;
   }
 
   static Future<void> requestCreateGroup(
