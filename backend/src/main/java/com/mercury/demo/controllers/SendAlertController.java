@@ -49,7 +49,7 @@ public class SendAlertController {
     @PutMapping(path= "/confirm")  // TODO should this be /confirm, or /get/confirm?
     public @ResponseBody List<MemberAlertStatus> confirmAlertsSeen(@RequestParam List<MemberAlertStatus> alertStatuses) {
         statusRepository.saveAll(alertStatuses.stream().map(alertStatus -> new MemberAlertStatus(
-                alertStatus.getAlertId(),
+                alertStatus.getId(),
                 alertStatus.getAlertId(),
                 alertStatus.getMemberId(),
                 Status.SEEN)).toList());

@@ -40,7 +40,10 @@ Future<SMSVerifyResponse> requestServerCheckCode(
       'token': token,
       'code': code,
     },
-  );
+  ).onError((obj, stackTrace) {
+      log('[ERROR] Failed to send user data to server. Stacktrace: $stackTrace');
+      return Response('', 500);
+    });
 
   return SMSVerifyResponse.fromJson(jsonDecode(response.body));
 }
@@ -101,7 +104,7 @@ Future<List<Group>> fetchServerGroups(String memberId) async {
 
   log("Body: ${response.body}");
   List<dynamic> jsonList = jsonDecode(response.body);
-  List<Group> groupList = jsonList.map((json) => Group.fromJson(json)).toList();
+  List<Group> groupList = jsonList.isEmpty ? List.empty() : jsonList.map((json) => Group.fromJson(json)).toList();
   return Future.value(groupList);
 }
 

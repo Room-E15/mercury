@@ -93,11 +93,4 @@ public class SMSVerificationController {
         // Respond with userInfo (if user exists) and note that the code was valid
         return new SMSVerifyResponse(true, userInfo);
     }
-
-    // TODO: Remove this method, it's only for debugging
-    @GetMapping(path = "/all")
-    public @ResponseBody Iterable<SMSVerification> getAllPendingVerifications() {
-        // This returns a JSON or XML with the users
-        return smsVerificationRepository.findAll();
-    }
 }

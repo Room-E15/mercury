@@ -5,31 +5,30 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotNull;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 @Entity
 @NoArgsConstructor
+@Getter
+@Setter
+@EqualsAndHashCode()
+@ToString
 public class Alert {
     @Id
-    @Getter
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     @NotNull
-    @Getter
-    @Setter
     private Long groupId;
 
     @NotNull
-    @Getter
-    @Setter
     private String title;
 
     @NotNull
-    @Getter
-    @Setter
     private String description;
 
     // TODO figure out proper data representation for location. Possibilities:
@@ -39,8 +38,6 @@ public class Alert {
     // - Should we allow for multiple??
 
     @NotNull
-    @Getter
-    @Setter
     private String location;
 
     public Alert(Long groupId, String title, String description, String location) {

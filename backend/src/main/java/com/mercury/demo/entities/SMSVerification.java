@@ -10,6 +10,7 @@ import lombok.Setter;
 import org.hibernate.annotations.UuidGenerator;
 
 @Getter
+@Setter
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
@@ -19,19 +20,15 @@ public class SMSVerification {
     private String id;
 
     @NotNull
-    @Setter
     private String phoneNumber;
 
     @NotNull
-    @Setter
     private String countryCode;
 
     @NotNull
-    @Setter
     private String verificationCodeHash;
 
     @NotNull
-    @Setter
     private long expiration;
 
     public SMSVerification(final String countryCode,

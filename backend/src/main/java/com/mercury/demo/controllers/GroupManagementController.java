@@ -74,6 +74,7 @@ public class GroupManagementController {
                     0, membership.isLeader(), membersList, leadersList));
 
         }
+        System.out.println(groupResponseList);
         return groupResponseList;
     }
 

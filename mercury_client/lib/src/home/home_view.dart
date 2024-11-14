@@ -237,9 +237,6 @@ class HomeViewState extends State<HomeView> {
         } else if (snapshot.hasError) {
           // Show an error message if the future completes with an error
           return Center(child: Text("Error: ${snapshot.error}"));
-        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          // Show a message if no groups are found
-          return SizedBox.shrink();
         } else {
           log("Snapshot: ${snapshot.data!}");
           // When future completes successfully, show the list of groups
@@ -249,6 +246,9 @@ class HomeViewState extends State<HomeView> {
           return EasyRefresh(
               onRefresh: () async {
                 futureGroups = fetchServerGroups(memberId);
+                setState(() {
+                   // Toggle between items
+                });
               },
               header: ClassicHeader(
                 dragText: "Pull down to refresh",

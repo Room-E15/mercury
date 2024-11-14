@@ -9,20 +9,20 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 @Entity
 @NoArgsConstructor
 @EqualsAndHashCode
+@ToString
+@Getter
+@Setter
 public class AlertGroup {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Getter
-    @Setter
     private Long id;
 
     @NotNull
-    @Getter
-    @Setter
     private String groupName;
 
     public AlertGroup(final String groupName) {
