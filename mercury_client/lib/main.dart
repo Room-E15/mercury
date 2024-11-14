@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'src/app.dart';
-import 'src/settings/settings_controller.dart';
-import 'src/settings/settings_service.dart';
+import 'src/pages/settings/settings_controller.dart';
+import 'src/pages/settings/settings_service.dart';
 
 void main() async {
   WidgetsFlutterBinding

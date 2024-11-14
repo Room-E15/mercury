@@ -1,22 +1,21 @@
 import 'package:flutter/material.dart';
-
-import 'package:mercury_client/src/home/dev_home_view.dart';
-import 'package:mercury_client/src/entities/requests/group_requests.dart';
-import 'package:mercury_client/src/utils/widgets.dart';
-// import 'package:mercury_client/src/home/home_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class CreateGroupView extends StatelessWidget {
-  final TextEditingController groupNameController = TextEditingController();
+import 'package:mercury_client/src/entities/requests/group_requests.dart';
+import 'package:mercury_client/src/utils/widgets.dart';
+import 'package:mercury_client/src/pages/home/home_view.dart';
+
+class JoinGroupView extends StatelessWidget {
+  final TextEditingController groupIdController = TextEditingController();
   final SharedPreferencesWithCache preferences;
 
   final formKey = GlobalKey<FormState>();
 
-  CreateGroupView({super.key, required this.preferences});
+  JoinGroupView({super.key, required this.preferences});
 
   @override
   Widget build(BuildContext context) {
-  final String memberId = preferences.getString('id')!;
+    final String memberId = preferences.getString('id')!;
 
     return Scaffold(
       appBar: AppBar(
@@ -26,7 +25,7 @@ class CreateGroupView extends StatelessWidget {
         children: [
           const Padding(
               padding: EdgeInsetsDirectional.fromSTEB(40, 180, 40, 40),
-              child: Text("Lets get a new group started!")),
+              child: Text("Lets join a group!")),
           Form(
             key: formKey,
             child: Column(
@@ -34,15 +33,15 @@ class CreateGroupView extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.all(20.0),
                   child: TextFormField(
-                    controller: groupNameController,
+                    controller: groupIdController,
                     decoration: const InputDecoration(
-                      labelText: 'Group Name',
+                      labelText: 'Group Id',
                     ),
                     validator: (value) {
                       if (value == null) {
                         return 'Please enter some text';
-                      } else if (!RegExp(r'^[a-zA-Z0-9 ]+$').hasMatch(value)) {
-                        return 'Please only use only alphanumeric characters';
+                      } else if (!RegExp(r'^[0-9]+$').hasMatch(value)) {
+                        return 'Please only use only numeric characters';
                       }
                       return null;
                     },
@@ -54,16 +53,9 @@ class CreateGroupView extends StatelessWidget {
                     onPressed: () {
                       // Validate returns true if the form is valid, or false otherwise.
                       if (formKey.currentState!.validate()) {
-                        GroupRequests.requestCreateGroup(memberId, groupNameController.text);
-                        Navigator.push(  // TODO change to pushNamed
-                            context,
-                            MaterialPageRoute(
-                              // TODO change to use routing table
-                              builder: (context) => HomeView(
-                                  isManager: true,
-                                  preferences: preferences),
-                                  // dummyValues: false),  // TODO bring back dummyValues
-                            ));
+                        GroupRequests.requestJoinGroup(
+                            memberId, groupIdController.text);
+                        Navigator.pushNamed(context, HomeView.routeName);
                       }
                     },
                     child: const Text('Submit'),

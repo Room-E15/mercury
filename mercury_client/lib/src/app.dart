@@ -4,13 +4,13 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:mercury_client/src/qr_scan/qr_scan_view.dart';
-import 'package:mercury_client/src/settings/settings_controller.dart';
-import 'package:mercury_client/src/settings/settings_view.dart';
-import 'package:mercury_client/src/profile/profile_view.dart';
-import 'package:mercury_client/src/startup/start_view.dart';
-import 'package:mercury_client/src/home/home_view.dart';
-import 'package:mercury_client/src/join_server_prompt/join_server_prompt_view.dart';
+import 'package:mercury_client/src/pages/qr/qr_scan_view.dart';
+import 'package:mercury_client/src/pages/settings/settings_controller.dart';
+import 'package:mercury_client/src/pages/settings/settings_view.dart';
+import 'package:mercury_client/src/pages/profile/profile_view.dart';
+import 'package:mercury_client/src/pages/register/start_view.dart';
+import 'package:mercury_client/src/pages/home/home_view.dart';
+import 'package:mercury_client/src/pages/join_server_prompt/join_server_prompt_view.dart';
 // import 'home/dev_home_view.dart'; // TODO remove before merging
 
 /// The Widget that configures your application.

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
 // import 'package:mercury_client/src/home/dev_home_view.dart';  // TODO remove
-import 'package:mercury_client/src/home/home_view.dart';  
+import 'package:mercury_client/src/pages/home/home_view.dart';  
 import 'package:mercury_client/src/utils/widgets.dart';
 
 class QRScanView extends StatefulWidget {

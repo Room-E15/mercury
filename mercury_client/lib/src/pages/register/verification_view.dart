@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:mercury_client/src/entities/requests/sms_requests.dart';
-import 'package:mercury_client/src/home/dev_home_view.dart';
+import 'package:mercury_client/src/pages/home/dev_home_view.dart';
 import 'package:mercury_client/src/entities/data/user_info.dart';
 import 'package:mercury_client/src/utils/functions.dart';
-import 'package:mercury_client/src/startup/register_view.dart';
+import 'package:mercury_client/src/pages/register/register_view.dart';
 import 'package:mercury_client/src/utils/widgets.dart';
 
 enum LoadingState {

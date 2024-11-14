@@ -6,15 +6,15 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:mercury_client/src/entities/requests/alert_requests.dart';
 import 'package:mercury_client/src/utils/widgets.dart';
-import 'package:mercury_client/src/create_group/create_group_view.dart';
-import 'package:mercury_client/src/send_alert/send_alert_view.dart';
-import 'package:mercury_client/src/settings/settings_view.dart';
+import 'package:mercury_client/src/pages/create_group/create_group_view.dart';
+import 'package:mercury_client/src/pages/send_alert/send_alert_view.dart';
+import 'package:mercury_client/src/pages/settings/settings_view.dart';
 import 'package:mercury_client/src/entities/data/alert.dart';
 import 'package:mercury_client/src/entities/data/group.dart';
-import 'package:mercury_client/src/group_dashboard/leader_group_view.dart';
-import 'package:mercury_client/src/group_dashboard/member_group_view.dart';
-import 'package:mercury_client/src/join_server_prompt/join_server_prompt_view.dart';
-import 'package:mercury_client/src/profile/profile_view.dart';
+import 'package:mercury_client/src/pages/group_dashboard/leader_group_view.dart';
+import 'package:mercury_client/src/pages/group_dashboard/member_group_view.dart';
+import 'package:mercury_client/src/pages/join_server_prompt/join_server_prompt_view.dart';
+import 'package:mercury_client/src/pages/profile/profile_view.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({
