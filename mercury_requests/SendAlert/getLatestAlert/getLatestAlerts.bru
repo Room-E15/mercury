@@ -5,7 +5,11 @@ meta {
 }
 
 get {
-  url: http://localhost:8080/alert/get
+  url: http://localhost:8080/alert/get?memberId=member1
   body: none
   auth: none
+}
+
+params:query {
+  memberId: member1
 }

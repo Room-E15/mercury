@@ -6,6 +6,18 @@ meta {
 
 put {
   url: http://localhost:8080/alert/confirm
-  body: none
+  body: multipartForm
   auth: none
+}
+
+body:json {
+  {
+    "memberId": "member1",
+    "alertStatuses": []
+  }
+}
+
+body:multipart-form {
+  memberId: member1
+  alertStatuses: 
 }

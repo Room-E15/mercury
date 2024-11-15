@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class TestGroupManagementController {
-    private static Member MEMBER = new Member("Giorno", "Giovanna", "123",
+    private static final Member MEMBER = new Member("Giorno", "Giovanna", "123",
             "1226765555");
     private static final AlertGroup ALERT_GROUP = new AlertGroup("AIA");
 
@@ -74,7 +74,7 @@ public class TestGroupManagementController {
     @Test
     public void testJoinGroup() {
         final AlertGroup alertGroup = new AlertGroup("AIA");
-        alertGroup.setId(123L);
+        alertGroup.setId("1234567890");
         final Member member = new Member("Test", "ing", "1", "1234567890");
         member.setId("123");
 
@@ -100,7 +100,7 @@ public class TestGroupManagementController {
         // Stubbings for functions that cannot be unit-tested as they are handled by external packages
         Mockito.when(mockMemberRepository.findById(MEMBER.getId())).thenReturn(Optional.empty());
 
-        Assertions.assertThrows(RuntimeException.class, () -> controller.joinGroup(MEMBER.getId(), 123L));
+        Assertions.assertThrows(RuntimeException.class, () -> controller.joinGroup(MEMBER.getId(), "1234567890"));
 
         Mockito.verify(mockMemberRepository, Mockito.times(1)).findById(MEMBER.getId());
     }
@@ -122,7 +122,7 @@ public class TestGroupManagementController {
     @Test
     public void testGetGroupWithOneMember() {
         final AlertGroup alertGroup = new AlertGroup("AIA");
-        alertGroup.setId(123L);
+        alertGroup.setId("1234567890");
         MEMBER.setId("123");
         final Membership membership = new Membership(MEMBER.getId(), alertGroup.getId(), true);
         membership.setId(1L);
@@ -145,7 +145,7 @@ public class TestGroupManagementController {
     @Test
     public void testGetGroupWithTwoMembers() {
         final AlertGroup alertGroup = new AlertGroup("AIA");
-        alertGroup.setId(123L);
+        alertGroup.setId("1234567890");
         MEMBER.setId("123");
         final Member memberTwo = new Member("Test", "ing", "4", "1234567890");
         memberTwo.setId("1234");
@@ -174,10 +174,10 @@ public class TestGroupManagementController {
     @Test
     public void testGetGroupWithTwoGroups() {
         final AlertGroup alertGroup = new AlertGroup("AIA");
-        alertGroup.setId(123L);
+        alertGroup.setId("1234567890");
         MEMBER.setId("123");
         final AlertGroup alertGroupTwo = new AlertGroup("Test");
-        alertGroupTwo.setId(122L);
+        alertGroupTwo.setId("1234567890");
         final Membership membership = new Membership(MEMBER.getId(), alertGroup.getId(), true);
         membership.setId(1L);
         final Membership membershipTwo = new Membership(MEMBER.getId(), alertGroupTwo.getId(), false);
@@ -207,7 +207,7 @@ public class TestGroupManagementController {
     @Test
     public void testGetGroupGroupNotFound() {
         MEMBER.setId("123");
-        final Membership membership = new Membership(MEMBER.getId(), 123L, true);
+        final Membership membership = new Membership(MEMBER.getId(), "1234567890", true);
         membership.setId(1L);
 
         Mockito.when(mockMembershipRepository.findByMemberId(MEMBER.getId())).thenReturn(List.of(membership));
@@ -223,7 +223,7 @@ public class TestGroupManagementController {
     @Test
     public void testGetGroupMemberNotFound() {
         final AlertGroup alertGroup = new AlertGroup("AIA");
-        alertGroup.setId(123L);
+        alertGroup.setId("1234567890");
         final Membership membership = new Membership("123", alertGroup.getId(), true);
         membership.setId(1L);
 

@@ -29,7 +29,7 @@ public class MemberAlertStatus {
 
     @NotNull
     @Setter
-    private Long alertId;
+    private String alertId;
 
     @NotNull
     @Setter
@@ -39,7 +39,7 @@ public class MemberAlertStatus {
     @Setter
     private Status status;
 
-    public MemberAlertStatus(final Long alertId, final String memberId,
+    public MemberAlertStatus(final String alertId, final String memberId,
                              final Status status) {
         this.alertId = alertId;
         this.memberId = memberId;
