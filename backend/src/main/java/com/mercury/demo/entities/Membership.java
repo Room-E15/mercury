@@ -24,12 +24,14 @@ public class Membership {
 
     private String memberId;
 
-    private Long groupId;
+    @Getter
+    @Setter
+    private String groupId;
 
     @NotNull
     private boolean isLeader;
 
-    public Membership(final String memberId, final Long groupId, final boolean isLeader) {
+    public Membership(final String memberId, final String groupId, final boolean isLeader) {
         this.memberId = memberId;
         this.groupId = groupId;
         this.isLeader = isLeader;

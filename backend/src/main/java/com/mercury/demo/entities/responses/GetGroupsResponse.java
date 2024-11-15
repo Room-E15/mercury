@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 
 public class GetGroupsResponse extends HashMap<String, Object> {
-    public GetGroupsResponse(final Long id, final String name, final int memberCount, final int responseCount,
+    public GetGroupsResponse(final String id, final String name, final int memberCount, final int responseCount,
                              final int unsafe, final boolean isLeader, final List<Member> members, final List<Member> leaders) {
         super.put("id", id);
         super.put("name", name);
@@ -18,7 +18,7 @@ public class GetGroupsResponse extends HashMap<String, Object> {
         super.put("leaders", leaders);
     }
 
-    public GetGroupsResponse(final Long id, final String name, final int memberCount,
+    public GetGroupsResponse(final String id, final String name, final int memberCount,
                              final int unsafe, final boolean isLeader, final List<Member> members, final List<Member> leaders) {
         super.put("id", id);
         super.put("name", name);

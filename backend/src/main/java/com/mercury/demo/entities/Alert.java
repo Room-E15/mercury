@@ -10,6 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.UuidGenerator;
 
 @Entity
 @NoArgsConstructor
@@ -19,11 +20,11 @@ import lombok.ToString;
 @ToString
 public class Alert {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+    @UuidGenerator
+    private String id;
 
     @NotNull
-    private Long groupId;
+    private String groupId;
 
     @NotNull
     private String title;
@@ -35,15 +36,11 @@ public class Alert {
     // - Latitude, Longitude, Radius
     // - Address, Radius
     // - Selectable region
-    // - Should we allow for multiple??
+    // - Should we allow for multiple?
 
-    @NotNull
-    private String location;
-
-    public Alert(Long groupId, String title, String description, String location) {
+    public Alert(String groupId, String title, String description) {
         this.groupId = groupId;
         this.title = title;
         this.description = description;
-        this.location = location;
     }
 }
