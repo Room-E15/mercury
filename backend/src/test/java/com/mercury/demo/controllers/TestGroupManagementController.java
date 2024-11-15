@@ -61,8 +61,6 @@ public class TestGroupManagementController {
 
     @Test
     public void testCreateGroupUserNotFound() {
-        final AlertGroup expectedAlertGroup = new AlertGroup("AIA");
-
         // Stubbings for functions that cannot be unit-tested as they are handled by external packages
         Mockito.when(mockMemberRepository.findById(MEMBER.getId())).thenReturn(Optional.empty());
 
@@ -80,13 +78,12 @@ public class TestGroupManagementController {
 
         final Membership membership = new Membership(member.getId(), alertGroup.getId(), false);
 
-        final Membership membershipWithId = membership;
-        final JoinGroupResponse expectedJoinGroupResponse = new JoinGroupResponse(member.getId(), alertGroup.getId(), membershipWithId.getId());
+        final JoinGroupResponse expectedJoinGroupResponse = new JoinGroupResponse(member.getId(), alertGroup.getId(), membership.getId());
 
         // Stubbings for functions that cannot be unit-tested as they are handled by external packages
         Mockito.when(mockMemberRepository.findById(member.getId())).thenReturn(Optional.of(member));
         Mockito.when(mockAlertGroupRepository.findById(alertGroup.getId())).thenReturn(Optional.of(alertGroup));
-        Mockito.when(mockMembershipRepository.save(membership)).thenReturn(membershipWithId);
+        Mockito.when(mockMembershipRepository.save(membership)).thenReturn(membership);
 
         Assertions.assertEquals(expectedJoinGroupResponse, controller.joinGroup(member.getId(), alertGroup.getId()));
 
@@ -152,7 +149,7 @@ public class TestGroupManagementController {
         final Membership membership = new Membership(MEMBER.getId(), alertGroup.getId(), true);
         membership.setId(1L);
         final Membership membershipTwo = new Membership(memberTwo.getId(), alertGroup.getId(), false);
-        membership.setId(2L);
+        membershipTwo.setId(2L);
         final GetGroupsResponse expectedGetGroupsResponse = new GetGroupsResponse(alertGroup.getId(), alertGroup.getGroupName(), 2, 0, true, List.of(memberTwo), List.of(MEMBER));
 
         Mockito.when(mockMembershipRepository.findByMemberId(MEMBER.getId())).thenReturn(List.of(membership));
@@ -177,11 +174,11 @@ public class TestGroupManagementController {
         alertGroup.setId("1234567890");
         MEMBER.setId("123");
         final AlertGroup alertGroupTwo = new AlertGroup("Test");
-        alertGroupTwo.setId("1234567890");
+        alertGroupTwo.setId("1234567891");
         final Membership membership = new Membership(MEMBER.getId(), alertGroup.getId(), true);
         membership.setId(1L);
         final Membership membershipTwo = new Membership(MEMBER.getId(), alertGroupTwo.getId(), false);
-        membership.setId(2L);
+        membershipTwo.setId(2L);
         final List<GetGroupsResponse> expectedGetGroupsResponse = List.of(
                 new GetGroupsResponse(alertGroup.getId(), alertGroup.getGroupName(), 1, 0, true, List.of(), List.of(MEMBER)),
                 new GetGroupsResponse(alertGroupTwo.getId(), alertGroupTwo.getGroupName(), 1, 0, false, List.of(MEMBER), List.of()));
