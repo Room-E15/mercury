@@ -23,7 +23,7 @@ public class SendAlertController {
     @Autowired
     private MembershipRepository membershipRepository;
 
-    // TODO add permission checks to make sure the user sending an alert is a leader
+    // TODO add permission checks to make sure the user senging an alert is a leader
     @PostMapping(path="/send")
     public @ResponseBody Alert sendAlert(@RequestParam final String memberId,
                                          @RequestParam final String groupId,
