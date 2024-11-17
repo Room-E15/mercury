@@ -6,15 +6,20 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 
-@Getter
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
+@Setter
+@EqualsAndHashCode
+@ToString
 public class MemberAlertStatus {
    public enum Status {
         UNSEEN,
@@ -28,15 +33,12 @@ public class MemberAlertStatus {
     private Long id;
 
     @NotNull
-    @Setter
     private String alertId;
 
     @NotNull
-    @Setter
     private String memberId;
 
     @NotNull
-    @Setter
     private Status status;
 
     public MemberAlertStatus(final String alertId, final String memberId,

@@ -5,29 +5,31 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotNull;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.annotations.UuidGenerator;
 
-@Getter
 @Entity
 @NoArgsConstructor
+@Getter
+@Setter
+@EqualsAndHashCode
+@ToString
 public class Alert {
     @Id
     @UuidGenerator
     private String id;
 
     @NotNull
-    @Setter
     private String groupId;
 
     @NotNull
-    @Setter
     private String title;
 
     @NotNull
-    @Setter
     private String description;
 
     public Alert(String groupId, String title, String description) {

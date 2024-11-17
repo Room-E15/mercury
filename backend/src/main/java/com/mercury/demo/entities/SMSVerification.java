@@ -4,34 +4,35 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.annotations.UuidGenerator;
 
-@Getter
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
+@Setter
+@EqualsAndHashCode
+@ToString
 public class SMSVerification {
     @Id
     @UuidGenerator
     private String id;
 
     @NotNull
-    @Setter
     private String phoneNumber;
 
     @NotNull
-    @Setter
     private String countryCode;
 
     @NotNull
-    @Setter
     private String verificationCodeHash;
 
     @NotNull
-    @Setter
     private long expiration;
 
     public SMSVerification(final String countryCode,

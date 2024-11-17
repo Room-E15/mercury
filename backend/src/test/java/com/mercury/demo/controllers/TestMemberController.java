@@ -21,7 +21,7 @@ public class TestMemberController {
     private MemberController controller;
 
     @BeforeEach
-    public void setUp() {
+    public void setup() {
         MockitoAnnotations.openMocks(this); // Initializes mocks and injects them into the controller
     }
 
@@ -37,5 +37,4 @@ public class TestMemberController {
 
         Mockito.verify(mockMemberRepository, Mockito.times(1)).save(MEMBER);
     }
-
 }
