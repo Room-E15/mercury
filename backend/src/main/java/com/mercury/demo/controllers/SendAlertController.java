@@ -64,6 +64,6 @@ public class SendAlertController {
 
             return alertStatuses;  // return resource to confirm success
         }
-        return null;
+        return List.of();
     }
 }
