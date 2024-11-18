@@ -12,10 +12,12 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.UuidGenerator;
 
-@Getter
 @Entity
 @NoArgsConstructor
+@Getter
+@Setter
 @EqualsAndHashCode
+@ToString
 public class AlertGroup {
     @Id
     @Setter
@@ -23,7 +25,6 @@ public class AlertGroup {
     private String id;
 
     @NotNull
-    @Setter
     private String groupName;
 
     public AlertGroup(final String groupName) {

@@ -24,8 +24,6 @@ public class Membership {
 
     private String memberId;
 
-    @Getter
-    @Setter
     private String groupId;
 
     @NotNull
