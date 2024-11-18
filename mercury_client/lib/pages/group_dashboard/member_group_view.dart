@@ -5,6 +5,7 @@ import 'package:mercury_client/models/data/group.dart';
 import 'package:mercury_client/pages/join_server_prompt/join_server_prompt_view.dart';
 import 'package:mercury_client/pages/profile/profile_view.dart';
 import 'package:mercury_client/widgets/logo.dart';
+import 'package:mercury_client/widgets/group_widgets.dart';
 
 class MemberGroupView extends StatelessWidget {
   const MemberGroupView({
@@ -138,7 +139,6 @@ class MemberGroupView extends StatelessWidget {
             ),
           ),
           // Leader view card!
-          // Member view card!
           Card(
             clipBehavior: Clip.antiAliasWithSaveLayer,
             shape: const RoundedRectangleBorder(
@@ -238,7 +238,10 @@ class MemberGroupView extends StatelessWidget {
                     restorationId: 'memberList',
                     itemCount: group.members.length, // Number of blank cards
                     // build all the group tiles dynamically using builder method
-                    itemBuilder: _memberWidgetBuilder,
+                    itemBuilder: (context, index) {
+                      final member = group.members[index];
+                      return memberWidgetBuilder(context, member);
+                    },
                   ),
                 ),
               ],
