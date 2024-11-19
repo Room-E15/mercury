@@ -21,9 +21,13 @@ import java.util.List;
 import java.util.UUID;
 
 public class TestSendAlertController {
-    private static final Alert ALERT = new Alert("Earthquake in Milan", "5.4 magnitude Earthquake struck Milan", "Milan Central");
+    private static final String DESCRIPTION = "5.4 magnitude Earthquake struck Milan";
+    private static final String TITLE = "Earthquake in Milan";
+    private static final String GROUP_ID = "123";
+    private static final Alert ALERT = new Alert(GROUP_ID, TITLE, DESCRIPTION);
     private static final Member MEMBER = new Member("Giorno", "Giovanna", "39", "12345678910");
     private static final String USER_ID = UUID.randomUUID().toString();
+    private static final String NO_USER_ID = "Gone";
 
     @Mock
     private AlertRepository mockAlertRepository;
@@ -44,19 +48,19 @@ public class TestSendAlertController {
     @Test
     public void testSendAlert() {
         final AlertGroup group = new AlertGroup("AIA");
-        final MemberAlertStatus alertStatusWithoutId = new MemberAlertStatus("456", USER_ID, MemberAlertStatus.Status.UNSEEN);
-        final MemberAlertStatus alertStatusWithId = new MemberAlertStatus("456", USER_ID, MemberAlertStatus.Status.UNSEEN);
+        final MemberAlertStatus alertStatusWithoutId = new MemberAlertStatus(GROUP_ID, USER_ID, MemberAlertStatus.Status.UNSEEN);
+        final MemberAlertStatus alertStatusWithId = new MemberAlertStatus(GROUP_ID, USER_ID, MemberAlertStatus.Status.UNSEEN);
         alertStatusWithId.setId(678L);
-        group.setId("123");
-        final Membership membership = new Membership(USER_ID, "123", true);
-        final Alert expectedAlert = new Alert("123", "Earthquake in Milan", "5.4 magnitude Earthquake struck Milan");
-        expectedAlert.setId("456");
+        group.setId(GROUP_ID);
+        final Membership membership = new Membership(USER_ID, GROUP_ID, true);
+        final Alert expectedAlert = new Alert(GROUP_ID, TITLE, DESCRIPTION);
+        expectedAlert.setId(GROUP_ID);
 
         Mockito.when(mockAlertRepository.save(ALERT)).thenReturn(expectedAlert);
-        Mockito.when(mockMembershipRepository.findByGroupId("123")).thenReturn(List.of(membership));
-        Mockito.when(mockStatusRepository.save(new MemberAlertStatus("456", USER_ID, MemberAlertStatus.Status.UNSEEN))).thenReturn(alertStatusWithoutId);
+        Mockito.when(mockMembershipRepository.findByGroupId(GROUP_ID)).thenReturn(List.of(membership));
+        Mockito.when(mockStatusRepository.save(new MemberAlertStatus(GROUP_ID, USER_ID, MemberAlertStatus.Status.UNSEEN))).thenReturn(alertStatusWithoutId);
 
-        Assertions.assertEquals(expectedAlert, controller.sendAlert("abcd", "Earthquake in Milan", "5.4 magnitude Earthquake struck Milan", "Milan Central"));
+        Assertions.assertEquals(expectedAlert, controller.sendAlert("abcd", GROUP_ID, TITLE, DESCRIPTION));
 
         Mockito.verify(mockAlertRepository, Mockito.times(1)).save(ALERT);
         Mockito.verify(mockMembershipRepository, Mockito.times(1)).findByGroupId("123");
@@ -65,8 +69,8 @@ public class TestSendAlertController {
 
     @Test
     public void testGetLatestAlerts() {
-        final MemberAlertStatus statusOne = new MemberAlertStatus("456", USER_ID, MemberAlertStatus.Status.UNSEEN);
-        final MemberAlertStatus statusTwo = new MemberAlertStatus("456", USER_ID, MemberAlertStatus.Status.UNSEEN);
+        final MemberAlertStatus statusOne = new MemberAlertStatus(GROUP_ID, USER_ID, MemberAlertStatus.Status.UNSEEN);
+        final MemberAlertStatus statusTwo = new MemberAlertStatus(GROUP_ID, USER_ID, MemberAlertStatus.Status.UNSEEN);
         final List<MemberAlertStatus> expectedAlerts = List.of(statusOne, statusTwo);
 
         Mockito.when(mockStatusRepository.findByMemberIdAndStatus(MEMBER.getId(), MemberAlertStatus.Status.UNSEEN)).thenReturn(List.of(statusOne, statusTwo));
@@ -77,7 +81,7 @@ public class TestSendAlertController {
 
     @Test
     public void testConfirmAlertsSeen() {
-        final MemberAlertStatus statusOneSeen = new MemberAlertStatus("456", USER_ID, MemberAlertStatus.Status.SEEN);
+        final MemberAlertStatus statusOneSeen = new MemberAlertStatus(GROUP_ID, USER_ID, MemberAlertStatus.Status.SEEN);
         final MemberAlertStatus statusOneUnseen = new MemberAlertStatus("789", USER_ID, MemberAlertStatus.Status.UNSEEN);
         final MemberAlertStatus statusTwoSeen = new MemberAlertStatus("12", USER_ID, MemberAlertStatus.Status.SEEN);
         final MemberAlertStatus statusTwoUnseen = new MemberAlertStatus("34", USER_ID, MemberAlertStatus.Status.UNSEEN);
@@ -93,10 +97,10 @@ public class TestSendAlertController {
 
     @Test
     public void testConfirmAlertsSeenWithNoAlerts() {
-        final MemberAlertStatus statusOneSeen = new MemberAlertStatus("456", "Gone", MemberAlertStatus.Status.SEEN);
-        final MemberAlertStatus statusOneUnseen = new MemberAlertStatus("789", "Gone", MemberAlertStatus.Status.UNSEEN);
-        final MemberAlertStatus statusTwoSeen = new MemberAlertStatus("12", "Gone", MemberAlertStatus.Status.SEEN);
-        final MemberAlertStatus statusTwoUnseen = new MemberAlertStatus("34", "Gone", MemberAlertStatus.Status.UNSEEN);
+        final MemberAlertStatus statusOneSeen = new MemberAlertStatus(GROUP_ID, NO_USER_ID, MemberAlertStatus.Status.SEEN);
+        final MemberAlertStatus statusOneUnseen = new MemberAlertStatus("789", NO_USER_ID, MemberAlertStatus.Status.UNSEEN);
+        final MemberAlertStatus statusTwoSeen = new MemberAlertStatus("12", NO_USER_ID, MemberAlertStatus.Status.SEEN);
+        final MemberAlertStatus statusTwoUnseen = new MemberAlertStatus("34", NO_USER_ID, MemberAlertStatus.Status.UNSEEN);
         final List<MemberAlertStatus> notCorrectAlerts = List.of(statusOneSeen, statusOneUnseen, statusTwoSeen, statusTwoUnseen);
         final List<MemberAlertStatus> expectedAlerts = List.of();
 

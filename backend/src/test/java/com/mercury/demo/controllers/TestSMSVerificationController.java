@@ -26,6 +26,7 @@ import java.util.Optional;
 public class TestSMSVerificationController {
     private static final Member MEMBER = new Member("Giorno", "Giovanna", "39", "12345678910");
     private static final String CARRIER_NAME = "Verizon";
+    private static final String FAKE_CARRIER = "SimpleMobile";
 
     @Mock
     private SMSVerificationRepository mockSmsVerificationRepository;
@@ -64,11 +65,11 @@ public class TestSMSVerificationController {
     public void testRequestSMSDispatchWithoutCarrier() {
         final SMSDispatchResponse expectedDispatchResponse = new SMSDispatchResponse(false, null);
 
-        Mockito.when(mockCarrierRepository.findById("SimpleMobile")).thenReturn(Optional.empty());
+        Mockito.when(mockCarrierRepository.findById(FAKE_CARRIER)).thenReturn(Optional.empty());
 
-        Assertions.assertEquals(expectedDispatchResponse, controller.requestSMSDispatch(MEMBER.getCountryCode(), MEMBER.getPhoneNumber(), "SimpleMobile"));
+        Assertions.assertEquals(expectedDispatchResponse, controller.requestSMSDispatch(MEMBER.getCountryCode(), MEMBER.getPhoneNumber(), FAKE_CARRIER));
 
-        Mockito.verify(mockCarrierRepository, Mockito.times(1)).findById("SimpleMobile");
+        Mockito.verify(mockCarrierRepository, Mockito.times(1)).findById(FAKE_CARRIER);
     }
 
     @Test

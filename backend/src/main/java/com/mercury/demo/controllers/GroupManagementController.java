@@ -3,6 +3,7 @@ package com.mercury.demo.controllers;
 import com.mercury.demo.entities.AlertGroup;
 import com.mercury.demo.entities.Member;
 import com.mercury.demo.entities.Membership;
+import com.mercury.demo.entities.exceptions.DatabaseStateException;
 import com.mercury.demo.entities.responses.GetGroupsResponse;
 import com.mercury.demo.entities.responses.JoinGroupResponse;
 import com.mercury.demo.repositories.AlertGroupRepository;
@@ -41,7 +42,7 @@ public class GroupManagementController {
         final Optional<Member> user = memberRepository.findById(memberId);
 
         if (user.isEmpty()) {
-            throw new RuntimeException(String.format("User with the id %s not found", memberId));
+            throw new DatabaseStateException(String.format("User with the id %s not found", memberId));
         }
         group = alertGroupRepository.save(group);
 
@@ -59,12 +60,12 @@ public class GroupManagementController {
         List<GetGroupsResponse> groupResponseList = new ArrayList<>();
 
         for (final Membership membership : membershipList) {
-            final AlertGroup correspondingGroup = alertGroupRepository.findById(membership.getGroupId()).orElseThrow(() -> new RuntimeException(
+            final AlertGroup correspondingGroup = alertGroupRepository.findById(membership.getGroupId()).orElseThrow(() -> new DatabaseStateException(
                     String.format("Corresponding group with groupId %s not found.", membership.getGroupId())));
 
             final List<Membership> allMembersInGroup = membershipRepository.findByGroupId(correspondingGroup.getId());
             final Map<Membership, Member> membersByMembership = allMembersInGroup.stream().collect(Collectors.toMap(Function.identity(),
-                    newMembership -> memberRepository.findById(newMembership.getMemberId()).orElseThrow(() -> new RuntimeException(String.format("Corresponding member with memberId %s not found.", membership.getMemberId())))));
+                    newMembership -> memberRepository.findById(newMembership.getMemberId()).orElseThrow(() -> new DatabaseStateException(String.format("Corresponding member with memberId %s not found.", membership.getMemberId())))));
 
             final List<Member> membersList = membersByMembership.entrySet().stream().filter(entry -> !entry.getKey().isLeader()).map(Map.Entry::getValue).toList();
             final List<Member> leadersList = membersByMembership.entrySet().stream().filter(entry -> entry.getKey().isLeader()).map(Map.Entry::getValue).toList();
@@ -81,8 +82,8 @@ public class GroupManagementController {
     public @ResponseBody JoinGroupResponse joinGroup (@RequestParam String memberId,
                                                       @RequestParam String groupId
     ) {
-        final Member user = memberRepository.findById(memberId).orElseThrow(() -> new RuntimeException(String.format("User with the id %s not found", memberId)));
-        final AlertGroup group = alertGroupRepository.findById(groupId).orElseThrow(() -> new RuntimeException(String.format("Group with the id %s not found", groupId)));
+        final Member user = memberRepository.findById(memberId).orElseThrow(() -> new DatabaseStateException(String.format("User with the id %s not found", memberId)));
+        final AlertGroup group = alertGroupRepository.findById(groupId).orElseThrow(() -> new DatabaseStateException(String.format("Group with the id %s not found", groupId)));
 
         Membership membership = new Membership(user.getId(), group.getId(), false);
         membership = membershipRepository.save(membership);
