@@ -32,6 +32,10 @@ public class SMSVerification {
 
     @NotNull
     @Setter
+    private boolean verified = false;
+
+    @NotNull
+    @Setter
     private long expiration;
 
     public SMSVerification(final String countryCode,

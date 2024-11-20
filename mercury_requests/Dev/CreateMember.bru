@@ -1,0 +1,18 @@
+meta {
+  name: CreateMember
+  type: http
+  seq: 4
+}
+
+post {
+  url: http://localhost:8080/dev/member/create
+  body: multipartForm
+  auth: none
+}
+
+body:multipart-form {
+  firstName: Davide
+  lastName: Falessi
+  countryCode: 39
+  phoneNumber: 1234567890
+}
