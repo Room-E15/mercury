@@ -16,7 +16,7 @@ class RegisterView extends StatelessWidget {
   final lastNameController = TextEditingController();
 
   final SharedPreferencesWithCache preferences;
-  final String countryCode;
+  final int countryCode;
   final String phoneNumber;
 
   RegisterView({

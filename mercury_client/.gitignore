@@ -47,3 +47,4 @@ app.*.map.json
 
 # Mercury client packages
 
+!.vscode/launch.json

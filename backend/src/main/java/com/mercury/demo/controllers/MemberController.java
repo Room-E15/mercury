@@ -1,6 +1,7 @@
 package com.mercury.demo.controllers;
 
 import com.mercury.demo.entities.Member;
+import com.mercury.demo.entities.SMSVerification;
 import com.mercury.demo.entities.responses.MemberAddResponse;
 import com.mercury.demo.repositories.MemberRepository;
 import com.mercury.demo.repositories.SMSVerificationRepository;
@@ -8,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
+import java.util.Optional;
 
 @Controller // This means that this class is a Controller
 @RequestMapping(path = "/member") // This means URL's start with /demo (after Application path)
@@ -21,26 +22,23 @@ public class MemberController {
     private SMSVerificationRepository smsVerificationRepository;
 
     @PostMapping(path = "/addMember") // Map ONLY POST Requests
-    public @ResponseBody HashMap<String, Object> addNewMember(@RequestParam String firstName,
-                                                              @RequestParam String lastName,
-                                                              @RequestParam String countryCode,
-                                                              @RequestParam String phoneNumber
+    public @ResponseBody MemberAddResponse addNewMember(@RequestParam String firstName,
+                                                        @RequestParam String lastName,
+                                                        @RequestParam int countryCode,
+                                                        @RequestParam String phoneNumber
     ) {
-        final MemberAddResponse[] response = new MemberAddResponse[1];
-
-        smsVerificationRepository
-                .findByPhoneNumberAndCountryCodeAndVerified(phoneNumber, countryCode, true)
-                .ifPresentOrElse(
-                        (verification) -> {
-                            Member member = new Member(firstName, lastName, countryCode, phoneNumber);
-                            System.out.println("Member: " + member);
-                            member = memberRepository.save(member);
-                            response[0] = new MemberAddResponse(member);
-                        }, () -> {
-                            response[0] = new MemberAddResponse("The phone number has not yet been verified.");
-                        }
-                );
-
-        return response[0];
+        Optional<SMSVerification> sv = smsVerificationRepository
+                .getFirstByPhoneNumberAndCountryCodeAndVerified(phoneNumber, countryCode, true);
+        if (sv.isPresent()) {
+            Member member = new Member(firstName, lastName, countryCode, phoneNumber);
+            System.out.println("Member: " + member);
+            member = memberRepository.save(member);
+            smsVerificationRepository.deleteAll(
+                    smsVerificationRepository.findAllByPhoneNumberAndCountryCode(phoneNumber, countryCode));
+            System.out.println("Member: " + member);
+            return new MemberAddResponse(member);
+        } else {
+            return new MemberAddResponse("The phone number has not yet been verified.");
+        }
     }
 }

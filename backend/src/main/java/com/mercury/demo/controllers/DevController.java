@@ -85,13 +85,13 @@ public class DevController {
 
         final Member[] members = new Member[4];
         members[0] = getMemberOrSaveIfNotExist(
-                new Member("Aidan", "Sacco", "1", "6503958675"));
+                new Member("Aidan", "Sacco", 1, "6503958675"));
         members[1] = getMemberOrSaveIfNotExist(
-                new Member("Cameron", "Wolff", "1", "9499220667"));
+                new Member("Cameron", "Wolff", 1, "9499220667"));
         members[2] = getMemberOrSaveIfNotExist(
-                new Member("Caden", "Upson", "1", "9494320420"));
+                new Member("Caden", "Upson", 1, "9494320420"));
         members[3] = getMemberOrSaveIfNotExist(
-                new Member("Rishi", "Gupta", "1", "4088390474"));
+                new Member("Rishi", "Gupta", 1, "4088390474"));
 
         final AlertGroup[] groups = new AlertGroup[4];
         groups[0] = getGroupOrSaveIfNotExist(new AlertGroup("Aidan's Group"));
@@ -131,7 +131,7 @@ public class DevController {
     @PostMapping("/member/create")
     public @ResponseBody HashMap<String, Object> createMember(@RequestParam String firstName,
                                                               @RequestParam String lastName,
-                                                              @RequestParam String countryCode,
+                                                              @RequestParam int countryCode,
                                                               @RequestParam String phoneNumber
     ) {
         final HashMap<String, Object> response = new HashMap<>();
@@ -170,7 +170,7 @@ public class DevController {
 
     @PutMapping("/sms/forceverify")
     public @ResponseBody HashMap<String, Object> forceVerify(@RequestParam String phoneNumber,
-                                                             @RequestParam String countryCode) {
+                                                             @RequestParam int countryCode) {
         final HashMap<String, Object> response = new HashMap<>();
 
         smsVerificationRepository.findByPhoneNumberAndCountryCode(phoneNumber, countryCode).ifPresentOrElse(
@@ -179,6 +179,8 @@ public class DevController {
                         response.put("status", "no-change");
                         response.put("description", "Number already verified.");
                     } else {
+                        verification.setVerified(true);
+                        smsVerificationRepository.save(verification);
                         response.put("status", "success");
                         response.put("description", "Number verified.");
                     }
