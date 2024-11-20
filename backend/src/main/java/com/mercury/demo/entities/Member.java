@@ -11,13 +11,13 @@ import lombok.ToString;
 import org.hibernate.annotations.UuidGenerator;
 
 @Entity
-@Getter
 @NoArgsConstructor
-@ToString
+@Getter
+@Setter
 @EqualsAndHashCode
+@ToString
 public class Member {
     @Id
-    @Setter
     @UuidGenerator
     private String id;
 
