@@ -49,6 +49,15 @@ class AlertRequests extends ServerRequests {
           .map((json) => Alert.fromJson(json))
           .toList();
 
+      // now that we have the alerts, we can mark them as read
+      // TODO guard behind checking if alerts list is empty, we don't need to mark as read if there are no alerts
+      put(
+        Uri.parse('${ServerRequests.baseURL}$subURL/confirm'),
+        body: {
+        'memberId': memberId,
+        'alerts': response.body,
+      });
+
       return alerts;
     } else {
       log('[$subURL] Failed to fetch alerts: ${response.body}');

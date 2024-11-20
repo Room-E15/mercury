@@ -10,7 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 
 @RestController
@@ -26,9 +28,9 @@ public class SendAlertController {
     // TODO add permission checks to make sure the user senging an alert is a leader
     @PostMapping(path="/send")
     public Alert sendAlert(@RequestParam final String memberId,
-                                         @RequestParam final String groupId,
-                                         @RequestParam final String title,
-                                         @RequestParam final String description) {
+                           @RequestParam final String groupId,
+                           @RequestParam final String title,
+                           @RequestParam final String description) {
         // TODO add check here for userId permissions, check if they're a leader of this group
         final Alert alert = alertRepository.save(new Alert(groupId, title, description));
 
@@ -55,18 +57,23 @@ public class SendAlertController {
 
     @PutMapping(path= "/confirm")
     public List<MemberAlertStatus> confirmAlertsSeen(@RequestParam final String memberId,
-                                                                   @RequestParam final List<Alert> alerts) {
-        return null;
-        // TODO fix to work with alerts
-//        if (alertStatuses.stream().allMatch((alertStatus -> alertStatus.getMemberId().equals(memberId)))) {
-//            statusRepository.saveAll(alertStatuses.stream().map(alertStatus -> new MemberAlertStatus(
-//                    alertStatus.getId(),
-//                    alertStatus.getAlertId(),
-//                    alertStatus.getMemberId(),
-//                    Status.SEEN)).toList());
-//
-//            return alertStatuses;  // return resource to confirm success
-//        }
-//        return List.of();
+                                                     @RequestParam final List<Alert> alerts) {
+        List<MemberAlertStatus> alertStatuses = new ArrayList<>();
+        List<String> alertIds = alerts.stream().map(Alert::getId).toList();
+
+        // TODO combine 2 below
+        List<MemberAlertStatus> statuses =  statusRepository.findByAlertIds(alertIds);
+        statuses.forEach(alertStatus -> {
+            if (alertStatus.getMemberId().equals(memberId)) {
+                alertStatuses.add(statusRepository.save(new MemberAlertStatus(
+                        alertStatus.getId(),
+                        alertStatus.getAlertId(),
+                        alertStatus.getMemberId(),
+                        Status.SEEN)));
+            }
+        });
+
+        System.out.println(alertStatuses);
+        return alertStatuses;  // return resource to confirm success
     }
 }
