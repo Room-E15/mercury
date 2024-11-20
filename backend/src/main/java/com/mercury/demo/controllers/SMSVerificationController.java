@@ -87,8 +87,8 @@ public class SMSVerificationController {
                 smsVerification.getPhoneNumber(),
                 smsVerification.getCountryCode()).orElse(null);
 
-        // We are done with the verification session, so delete it
-        smsVerificationRepository.deleteById(token);
+        smsVerification.setVerified(true);
+        smsVerificationRepository.save(smsVerification);
 
         // Respond with userInfo (if user exists) and note that the code was valid
         return new SMSVerifyResponse(true, userInfo);

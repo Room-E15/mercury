@@ -1,0 +1,15 @@
+meta {
+  name: CreateGroup
+  type: http
+  seq: 5
+}
+
+post {
+  url: http://localhost:8080/dev/group/create
+  body: multipartForm
+  auth: none
+}
+
+body:multipart-form {
+  name: That Group
+}
