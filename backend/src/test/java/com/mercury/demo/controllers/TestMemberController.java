@@ -2,6 +2,7 @@ package com.mercury.demo.controllers;
 
 import com.mercury.demo.entities.Member;
 import com.mercury.demo.entities.SMSVerification;
+import com.mercury.demo.entities.responses.MemberAddResponse;
 import com.mercury.demo.repositories.MemberRepository;
 import com.mercury.demo.repositories.SMSVerificationRepository;
 import org.junit.jupiter.api.Assertions;
@@ -12,7 +13,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import java.util.HashMap;
 import java.util.Optional;
 
 public class TestMemberController {
@@ -42,9 +42,7 @@ public class TestMemberController {
         final SMSVerification expectedSMSVerification = new SMSVerification(expectedMember.getCountryCode(),
                                                                             expectedMember.getPhoneNumber(),
                                                                             0L, "");
-        final HashMap<String, Object> expectedResponse = new HashMap<>();
-        expectedResponse.put("id", expectedMember.getId());
-        expectedResponse.put("status", "success");
+        final MemberAddResponse expectedResponse = new MemberAddResponse(expectedMember);
 
         Mockito.when(mockMemberRepository.save(MEMBER)).thenReturn(expectedMember);
         Mockito.when(mockSMSVerificationRepository
