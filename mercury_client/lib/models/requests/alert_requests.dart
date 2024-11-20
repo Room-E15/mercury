@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer';
 
 import 'package:http/http.dart';
@@ -22,14 +23,14 @@ class AlertRequests extends ServerRequests {
     });
 
     if (response.statusCode == 200) {
-      log('Alert saved successfully!');
+      log('[$subURL] Alert saved successfully!');
     } else {
-      log('Failed to submit alert to server ${ServerRequests.baseURL}!');
+      log('[$subURL] Failed to submit alert to server ${ServerRequests.baseURL}!');
     }
   }
 
   static Future<List<Alert>> fetchAlerts(final String memberId) async {
-    log("Fetching alerts");
+    log("[$subURL] Fetching alerts");
     final response = await get(
       Uri.parse('${ServerRequests.baseURL}$subURL/get'),
       headers: {
@@ -40,23 +41,25 @@ class AlertRequests extends ServerRequests {
     });
 
     if (response.statusCode == 200) {
-      log('Alerts fetched successfully!');
-      log('Body: ${response.body}');
-      // TODO figure out how to decode alerts, this is how caden did it
-      // List<dynamic> jsonList = jsonDecode(response.body);
-      // List<Group> groupList =
-      //     jsonList.map((json) => Group.fromJson(json)).toList();
-      // return Future.value(groupList);
-      return AlertTestData.alerts;
+      log('[$subURL] Alerts fetched successfully!');
+      log('[$subURL] Body: ${response.body}');
+
+      List<dynamic> jsonList = jsonDecode(response.body);
+      List<Alert> alerts = jsonList
+          .map((json) => Alert.fromJson(json))
+          .toList();
+
+      return alerts;
     } else {
-      log('Failed to fetch alerts: ${response.body}');
+      log('[$subURL] Failed to fetch alerts: ${response.body}');
+
       return [];
     }
   }
 
   static Future<void> saveAlertResponse({required bool isSafe}) async {
     // TODO implement
-    log("Alert response sent");
+    log("[$subURL] Alert response sent");
     return Future.delayed(Duration(milliseconds: 500));
   }
 }

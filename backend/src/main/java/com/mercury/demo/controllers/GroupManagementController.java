@@ -10,10 +10,7 @@ import com.mercury.demo.repositories.MemberRepository;
 import com.mercury.demo.repositories.MembershipRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,6 +48,7 @@ public class GroupManagementController {
         return "Saved";
     }
 
+    // TODO change to GET request
     @PostMapping(path="/getGroups") // Map ONLY POST Requests
     public @ResponseBody List<GetGroupsResponse> getGroups (@RequestParam String memberId
     ) {

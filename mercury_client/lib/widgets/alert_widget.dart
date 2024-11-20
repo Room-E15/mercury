@@ -50,7 +50,7 @@ Widget alertWidgetBuilder(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  alerts.first.name,
+                  alerts.first.title,
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,

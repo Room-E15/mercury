@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 
-@Controller
+@RestController
 @RequestMapping(path="/alert")
 public class SendAlertController {
     @Autowired
@@ -25,7 +25,7 @@ public class SendAlertController {
 
     // TODO add permission checks to make sure the user senging an alert is a leader
     @PostMapping(path="/send")
-    public @ResponseBody Alert sendAlert(@RequestParam final String memberId,
+    public Alert sendAlert(@RequestParam final String memberId,
                                          @RequestParam final String groupId,
                                          @RequestParam final String title,
                                          @RequestParam final String description) {
@@ -48,22 +48,25 @@ public class SendAlertController {
     }
 
     @GetMapping(path="/get")
-    public @ResponseBody List<MemberAlertStatus> getLatestAlerts(@RequestParam final String memberId) {
-        return statusRepository.findByMemberIdAndStatus(memberId, Status.UNSEEN);
+    public List<Alert> getLatestAlerts(@RequestHeader final String memberId) {
+        List<MemberAlertStatus> alertStatuses = statusRepository.findByMemberIdAndStatusOrStatus(memberId, Status.SEEN, Status.UNSEEN);
+        return alertRepository.findByIds(alertStatuses.stream().map(MemberAlertStatus::getAlertId).toList());
     }
 
-    @PutMapping(path= "/confirm")  // TODO should this be /confirm, or /get/confirm?
-    public @ResponseBody List<MemberAlertStatus> confirmAlertsSeen(@RequestParam final String memberId,
-                                                                   @RequestParam final List<MemberAlertStatus> alertStatuses) {
-        if (alertStatuses.stream().allMatch((alertStatus -> alertStatus.getMemberId().equals(memberId)))) {
-            statusRepository.saveAll(alertStatuses.stream().map(alertStatus -> new MemberAlertStatus(
-                    alertStatus.getId(),
-                    alertStatus.getAlertId(),
-                    alertStatus.getMemberId(),
-                    Status.SEEN)).toList());
-
-            return alertStatuses;  // return resource to confirm success
-        }
-        return List.of();
+    @PutMapping(path= "/confirm")
+    public List<MemberAlertStatus> confirmAlertsSeen(@RequestParam final String memberId,
+                                                                   @RequestParam final List<Alert> alerts) {
+        return null;
+        // TODO fix to work with alerts
+//        if (alertStatuses.stream().allMatch((alertStatus -> alertStatus.getMemberId().equals(memberId)))) {
+//            statusRepository.saveAll(alertStatuses.stream().map(alertStatus -> new MemberAlertStatus(
+//                    alertStatus.getId(),
+//                    alertStatus.getAlertId(),
+//                    alertStatus.getMemberId(),
+//                    Status.SEEN)).toList());
+//
+//            return alertStatuses;  // return resource to confirm success
+//        }
+//        return List.of();
     }
 }

@@ -20,6 +20,7 @@ GitHub Issues - Ticket Tracking
 GitHub Actions - Continuous Integration (CI/CD)
 Sonar Cloud - Code Quality
 Bruno - API Testing
+(TODO) Python + Selenium - Acceptance Testing
 
 # Patterns
 Model View Controller architecture
