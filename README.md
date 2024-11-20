@@ -21,4 +21,10 @@ GitHub Actions - Continuous Integration (CI/CD)
 Sonar Cloud - Code Quality
 Bruno - API Testing
 
+# Patterns
+Model View Controller architecture
+
+Async/Await Parallel Computing
+REST API???
+The Security one Caden mentioned
 

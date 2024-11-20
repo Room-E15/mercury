@@ -30,10 +30,12 @@ class AlertRequests extends ServerRequests {
 
   static Future<List<Alert>> fetchAlerts(final String memberId) async {
     log("Fetching alerts");
-    final response =
-        await get(Uri.parse('${ServerRequests.baseURL}$subURL/get'), headers: {
-      'memberId': memberId,
-    }).onError((error, stackTrace) {
+    final response = await get(
+      Uri.parse('${ServerRequests.baseURL}$subURL/get'),
+      headers: {
+        'memberId': memberId,
+      },
+    ).onError((error, stackTrace) {
       return Response('', 500);
     });
 
@@ -47,7 +49,7 @@ class AlertRequests extends ServerRequests {
       // return Future.value(groupList);
       return AlertTestData.alerts;
     } else {
-      log('Failed to fetch alerts from server ${ServerRequests.baseURL}!');
+      log('Failed to fetch alerts: ${response.body}');
       return [];
     }
   }

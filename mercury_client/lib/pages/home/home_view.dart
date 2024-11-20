@@ -45,9 +45,9 @@ class HomeViewState extends State<HomeView> {
     memberId = widget.preferences.getString('id')!;
     _futureGroups = GroupRequests.fetchGroups(memberId);
     // TODO also add getting an alert while the app is open, how do we do this?
-    AlertRequests.fetchAlerts(memberId).then((value) {
+    AlertRequests.fetchAlerts(memberId).then((alerts) {
       setState(() {
-        _alerts = Queue.from(value); // Toggle between items
+        _alerts = Queue.from(alerts); // Toggle between items
       });
     });
   }
