@@ -21,6 +21,8 @@ dependencies:
   provider: ^6.0.1
   http: ^0.13.4
   easy_refresh: ^3.4.0
+  battery_plus: ^4.0.2
+  geolocator: ^13.0.2
 
 dev_dependencies:
   flutter_test:
