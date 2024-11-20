@@ -2,7 +2,7 @@ package com.mercury.demo.entities;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.Assertions;
 
 public class CarrierTests {
 
@@ -13,8 +13,8 @@ public class CarrierTests {
         final String carrierId = "testmobile";
         final String phoneNumber = "1234567890";
 
-        Carrier carrier = new Carrier(carrierId, carrierName, carrierGateway, false);
-        final String formatted = carrier.formatTextGateway("1", phoneNumber);
-        assertEquals(formatted, "%s@%s".formatted(phoneNumber, carrierGateway));
+        final Carrier carrier = new Carrier(carrierId, carrierName, carrierGateway, false);
+        final String expected = "%s@%s".formatted(phoneNumber, carrierGateway);
+        Assertions.assertEquals(expected, carrier.formatTextGateway(1, phoneNumber));
     }
 }

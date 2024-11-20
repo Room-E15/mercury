@@ -10,7 +10,6 @@ import com.mercury.demo.mail.SMSEmailService;
 import com.mercury.demo.repositories.CarrierRepository;
 import com.mercury.demo.repositories.MemberRepository;
 import com.mercury.demo.repositories.SMSVerificationRepository;
-import org.aspectj.lang.annotation.Before;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,13 +17,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.DigestUtils;
 
 import java.util.Optional;
 
 public class TestSMSVerificationController {
-    private static final Member MEMBER = new Member("Giorno", "Giovanna", "39", "12345678910");
+    private static final Member MEMBER = new Member("Giorno", "Giovanna", 39, "12345678910");
     private static final String CARRIER_NAME = "Verizon";
 
     @Mock
@@ -58,6 +56,7 @@ public class TestSMSVerificationController {
 
         Mockito.verify(mockCarrierRepository, Mockito.times(1)).findById(Mockito.any());
         Mockito.verify(mockSmsVerificationRepository, Mockito.times(1)).save(Mockito.any());
+        Mockito.verify(mockMailService, Mockito.times(1)).dispatchSMS(Mockito.anyString(), Mockito.anyInt(), Mockito.anyString(), Mockito.any());
     }
 
     @Test
@@ -86,7 +85,7 @@ public class TestSMSVerificationController {
         Assertions.assertEquals(expectedVerifyResponse, controller.verifySMSCode(token, code));
 
         Mockito.verify(mockSmsVerificationRepository, Mockito.times(1)).findById(Mockito.any());
-        Mockito.verify(mockMemberRepository, Mockito.times(1)).findByPhoneNumberAndCountryCode(Mockito.any(), Mockito.any());
+        Mockito.verify(mockMemberRepository, Mockito.times(1)).findByPhoneNumberAndCountryCode(Mockito.any(), Mockito.anyInt());
     }
 
     @Test

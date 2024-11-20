@@ -5,6 +5,7 @@ import 'package:http/http.dart';
 import 'package:mercury_client/models/data/user_info.dart';
 import 'package:mercury_client/models/requests/server_requests.dart';
 import 'package:mercury_client/models/data/member.dart';
+import 'package:mercury_client/models/responses/user_creation_response.dart';
 
 class MemberRequests extends ServerRequests {
   static const subURL = "/member";
@@ -13,6 +14,7 @@ class MemberRequests extends ServerRequests {
   // returns the user's ID if they were successfully registered
   static Future<String?> requestRegisterUser(UserInfo user) async {
     log('[INFO] Sending user data to server...');
+    log('User data: ${user.firstName}, ${user.lastName}, ${user.countryCode}, ${user.phoneNumber}');
 
     // Prepare the data for the HTTP request
     final response = await post(
@@ -20,7 +22,7 @@ class MemberRequests extends ServerRequests {
       body: {
         'firstName': user.firstName,
         'lastName': user.lastName,
-        'countryCode': user.countryCode,
+        'countryCode': user.countryCode.toString(),
         'phoneNumber': user.phoneNumber,
       },
     ).onError((obj, stackTrace) {
@@ -31,12 +33,9 @@ class MemberRequests extends ServerRequests {
     // Log response
     if (response.statusCode == 200) {
       log('[INFO] User data sent successfully!');
-      final user = jsonDecode(response.body)['user'];
-      if (user == null) {
-        log('[ERROR] Failed to send user data to server.');
-        return null;
-      }
-      return user['id'];
+      UserCreationResponse userResponse =
+          UserCreationResponse.fromJson(jsonDecode(response.body));
+      return userResponse.user?.id;
     } else {
       log('[ERROR] Failed to send user data to server.');
       return null;
