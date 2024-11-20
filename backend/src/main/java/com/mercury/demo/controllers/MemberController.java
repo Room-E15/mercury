@@ -1,14 +1,12 @@
 package com.mercury.demo.controllers;
 
 import com.mercury.demo.entities.Member;
+import com.mercury.demo.entities.responses.MemberAddResponse;
 import com.mercury.demo.repositories.MemberRepository;
 import com.mercury.demo.repositories.SMSVerificationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 
@@ -28,7 +26,7 @@ public class MemberController {
                                                               @RequestParam String countryCode,
                                                               @RequestParam String phoneNumber
     ) {
-        HashMap<String, Object> response = new HashMap<>();
+        final MemberAddResponse[] response = new MemberAddResponse[1];
 
         smsVerificationRepository
                 .findByPhoneNumberAndCountryCodeAndVerified(phoneNumber, countryCode, true)
@@ -37,14 +35,12 @@ public class MemberController {
                             Member member = new Member(firstName, lastName, countryCode, phoneNumber);
                             System.out.println("Member: " + member);
                             member = memberRepository.save(member);
-                            response.put("status", "success");
-                            response.put("id", member.getId());
+                            response[0] = new MemberAddResponse(member);
                         }, () -> {
-                            response.put("status", "error");
-                            response.put("description", "The phone number has not yet been verified.");
+                            response[0] = new MemberAddResponse("The phone number has not yet been verified.");
                         }
                 );
 
-        return response;
+        return response[0];
     }
 }

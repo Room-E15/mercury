@@ -31,7 +31,12 @@ class MemberRequests extends ServerRequests {
     // Log response
     if (response.statusCode == 200) {
       log('[INFO] User data sent successfully!');
-      return response.body;
+      final user = jsonDecode(response.body)['user'];
+      if (user == null) {
+        log('[ERROR] Failed to send user data to server.');
+        return null;
+      }
+      return user['id'];
     } else {
       log('[ERROR] Failed to send user data to server.');
       return null;
