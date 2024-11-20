@@ -33,6 +33,11 @@ public class SMSVerification {
     private String verificationCodeHash;
 
     @NotNull
+    @Setter
+    private boolean verified = false;
+
+    @NotNull
+    @Setter
     private long expiration;
 
     public SMSVerification(final String countryCode,
