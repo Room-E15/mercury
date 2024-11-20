@@ -36,7 +36,7 @@ public class Carrier {
         this.includeCountryCodeInEmail = includeCountryCodeInEmail;
     }
 
-    public String formatTextGateway(final String countryCode, final String phoneNumber) {
+    public String formatTextGateway(final int countryCode, final String phoneNumber) {
         final String prefix;
         if (includeCountryCodeInEmail) {
             prefix = String.format("%s%s", countryCode, phoneNumber);

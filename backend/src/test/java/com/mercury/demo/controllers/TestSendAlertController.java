@@ -1,7 +1,6 @@
 package com.mercury.demo.controllers;
 
 import com.mercury.demo.entities.Alert;
-import com.mercury.demo.entities.AlertGroup;
 import com.mercury.demo.entities.Member;
 import com.mercury.demo.entities.MemberAlertStatus;
 import com.mercury.demo.entities.Membership;
@@ -15,14 +14,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 import java.util.UUID;
 
 public class TestSendAlertController {
     private static final Alert ALERT = new Alert("Earthquake in Milan", "5.4 magnitude Earthquake struck Milan", "Milan Central");
-    private static final Member MEMBER = new Member("Giorno", "Giovanna", "39", "12345678910");
+    private static final Member MEMBER = new Member("Giorno", "Giovanna", 39, "12345678910");
     private static final String USER_ID = UUID.randomUUID().toString();
 
     @Mock
@@ -43,11 +41,7 @@ public class TestSendAlertController {
 
     @Test
     public void testSendAlert() {
-        final AlertGroup group = new AlertGroup("AIA");
         final MemberAlertStatus alertStatusWithoutId = new MemberAlertStatus("456", USER_ID, MemberAlertStatus.Status.UNSEEN);
-        final MemberAlertStatus alertStatusWithId = new MemberAlertStatus("456", USER_ID, MemberAlertStatus.Status.UNSEEN);
-        alertStatusWithId.setId(678L);
-        group.setId("123");
         final Membership membership = new Membership(USER_ID, "123", true);
         final Alert expectedAlert = new Alert("123", "Earthquake in Milan", "5.4 magnitude Earthquake struck Milan");
         expectedAlert.setId("456");

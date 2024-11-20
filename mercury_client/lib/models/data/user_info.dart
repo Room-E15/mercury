@@ -1,7 +1,7 @@
 class UserInfo {
   final String firstName;
   final String lastName;
-  final String countryCode;
+  final int countryCode;
   final String phoneNumber;
 
   UserInfo({

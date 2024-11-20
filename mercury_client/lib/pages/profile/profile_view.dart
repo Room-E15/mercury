@@ -31,7 +31,7 @@ class ProfileView extends StatelessWidget {
             const Text('Phone Number',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             Text(
-                '${preferences.getString('countryCode')} ${preferences.getString('phoneNumber')}',
+                '+${preferences.getInt('countryCode')} ${preferences.getString('phoneNumber')}',
                 style: const TextStyle(fontSize: 16)),
             const SizedBox(height: 20),
             const Text('QR Code',
