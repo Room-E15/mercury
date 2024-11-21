@@ -1,9 +1,7 @@
 package com.mercury.demo.entities;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import com.mercury.demo.entities.idclass.MemberGroup;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -17,13 +15,12 @@ import lombok.ToString;
 @Setter
 @ToString
 @EqualsAndHashCode
+@IdClass(MemberGroup.class)
 public class Membership {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
-
     private String memberId;
 
+    @Id
     private String groupId;
 
     @NotNull

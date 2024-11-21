@@ -6,6 +6,7 @@ import 'pages/settings/settings_controller.dart';
 import 'pages/settings/settings_service.dart';
 import 'utils/functions.dart';
 import 'dart:developer';
+import 'config/app_config.dart';
 
 void main() async {
   WidgetsFlutterBinding
@@ -39,6 +40,10 @@ void main() async {
       },
     ),
   );
+
+  if (AppConfig.useCaching == false) {
+    sharedPreferences.clear();
+  }
 
   // Load the user's preferred theme while the splash screen is displayed.
   // This prevents a sudden theme change when the app is first displayed.

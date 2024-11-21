@@ -10,7 +10,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UuidGenerator;
+
+import java.time.Instant;
 
 @Entity
 @NoArgsConstructor
@@ -20,8 +23,11 @@ import org.hibernate.annotations.UuidGenerator;
 @ToString
 public class Alert {
     @Id
-    @UuidGenerator
+    @UuidGenerator()
     private String id;
+
+    @CreationTimestamp
+    private Instant creationTime;
 
     @NotNull
     private String groupId;

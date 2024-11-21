@@ -3,7 +3,7 @@ import 'package:mercury_client/widgets/logo.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:mercury_client/models/data/group.dart';
-import 'package:mercury_client/models/requests/alert_requests.dart';
+import 'package:mercury_client/models/requests/send_alert_requests.dart';
 import 'package:mercury_client/pages/profile/profile_view.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -125,7 +125,7 @@ class SendAlertView extends StatelessWidget {
                           child: FilledButton(
                             onPressed: () {
                               if (formKey.currentState!.validate()) {
-                                AlertRequests.saveAlert(
+                                SendAlertRequests.saveAlert(
                                         preferences.getString('id') ?? '',
                                         group.id,
                                         titleController.text,

@@ -3,11 +3,13 @@ import 'dart:developer';
 
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
+import 'package:mercury_client/models/requests/respond_alert_requests.dart';
+import 'package:mercury_client/widgets/alert_widget.dart';
 
-import 'package:mercury_client/widgets/home_widgets.dart';
-import 'package:mercury_client/widgets/loading.dart';
+import 'package:mercury_client/widgets/render_groups.dart';
+import 'package:mercury_client/widgets/loading_widget.dart';
 import 'package:mercury_client/widgets/logo.dart';
-import 'package:mercury_client/models/requests/alert_requests.dart';
+import 'package:mercury_client/models/requests/send_alert_requests.dart';
 import 'package:mercury_client/models/requests/group_requests.dart';
 import 'package:mercury_client/pages/join_server_prompt/join_server_prompt_view.dart';
 import 'package:mercury_client/pages/settings/settings_view.dart';
@@ -45,9 +47,9 @@ class HomeViewState extends State<HomeView> {
     memberId = widget.preferences.getString('id')!;
     _futureGroups = GroupRequests.fetchGroups(memberId);
     // TODO also add getting an alert while the app is open, how do we do this?
-    AlertRequests.fetchAlerts(memberId).then((value) {
+    SendAlertRequests.fetchAlerts(memberId).then((alerts) {
       setState(() {
-        _alerts = Queue.from(value); // Toggle between items
+        _alerts = Queue.from(alerts); // Toggle between items
       });
     });
   }
@@ -108,101 +110,36 @@ class HomeViewState extends State<HomeView> {
       ),
       body: Column(
         children: [
-          _alerts.isNotEmpty
-              ? Container(
-                  padding: EdgeInsets.all(16.0),
-                  child: Row(
-                    children: [
-                      // Alert icon
-                      Container(
-                        width: 50,
-                        height: 50,
-                        decoration: BoxDecoration(
-                          color: Color(0xFF4F378B), // Purple background color
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          Icons.error_outline,
-                          size: 30,
-                        ),
-                      ),
-                      SizedBox(width: 16), // Space between icon and text
-
-                      // Alert text
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              _alerts.first.name,
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            SizedBox(height: 4),
-                            Text(
-                              _alerts.first.description,
-                              style: TextStyle(
-                                fontSize: 14,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      SizedBox(width: 16), // Space between text and buttons
-
-                      // Red dismiss button
-                      Container(
-                        width: 50,
-                        height: 50,
-                        decoration: BoxDecoration(
-                          color: Colors.red,
-                          shape: BoxShape.rectangle,
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                        child: IconButton(
-                          // BAD BUTTON
-                          icon: Icon(Icons.close, color: Colors.black),
-                          iconSize: 24,
-                          onPressed: () async {
-                            AlertRequests.saveAlertResponse(isSafe: false)
-                                .then((value) => setState(() {
-                                      _alerts
-                                          .removeFirst(); // Toggle between items
-                                    }));
-                          },
-                        ),
-                      ),
-                      SizedBox(width: 8), // Space between buttons
-
-                      // Green confirm button
-                      Container(
-                        width: 50,
-                        height: 50,
-                        decoration: BoxDecoration(
-                          color: Colors.green,
-                          shape: BoxShape.rectangle,
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                        child: IconButton(
-                          // GOOD BUTTON
-                          icon: Icon(Icons.check, color: Colors.black),
-                          iconSize: 24,
-                          onPressed: () async {
-                            AlertRequests.saveAlertResponse(isSafe: true)
-                                .then((value) => setState(() {
-                                      _alerts
-                                          .removeFirst(); // Toggle between items
-                                    }));
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                )
-              : SizedBox.shrink(),
+          alertWidgetBuilder(
+            alerts: _alerts,
+            onSafe: () async {
+              RespondAlertRequests.saveAlertResponse(
+                memberId: memberId,
+                alertId: _alerts.first.id,
+                isSafe: true,
+              ).then((serverGotResponse) {
+                if (serverGotResponse) {
+                  setState(() {
+                    _alerts.removeFirst(); // Toggle between items
+                  });
+                }
+              });
+            },
+            onUnsafe: () async {
+              RespondAlertRequests.saveAlertResponse(
+                memberId: memberId,
+                alertId: _alerts.first.id,
+                isSafe: false,
+              ).then((serverGotResponse) {
+                if (serverGotResponse) {
+                  setState(() {
+                    _alerts.removeFirst(); // Toggle between items
+                  });
+                }
+              });
+            },
+          ),
+          // Search Filter Bar
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20.0),
             child: TextField(
@@ -221,6 +158,8 @@ class HomeViewState extends State<HomeView> {
               ),
             ),
           ),
+
+          // Group Tiles and loading spinner
           Expanded(
             child: EasyRefresh(
               onRefresh: () async => setState(() {

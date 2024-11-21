@@ -3,7 +3,7 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 
 // import 'package:mercury_client/src/home/dev_home_view.dart';  // TODO remove
 import 'package:mercury_client/pages/home/home_view.dart';  
-import 'package:mercury_client/widgets/loading.dart';
+import 'package:mercury_client/widgets/loading_widget.dart';
 
 class QRScanView extends StatefulWidget {
   const QRScanView({super.key});
