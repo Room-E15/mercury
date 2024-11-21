@@ -113,22 +113,26 @@ class _RegisterViewState extends State<RegisterView> {
                           context: context,
                           futureIcon:
                               (_futureUserId as Future<String?>).then((userId) {
-                            if (userId == null ) {
+                            if (userId == null) {
                               return const Text(
                                   'Failed to register on server!');
                             } else if (context.mounted && _user != null) {
                               logUserInfo(
-                                  widget.preferences,
-                                  RegisteredUserInfo.fromUser(
-                                    _user as UserInfo,
-                                    userId,
-                                  ));
+                                widget.preferences,
+                                RegisteredUserInfo.fromUser(
+                                  _user as UserInfo,
+                                  userId,
+                                ),
+                              ).then((_) {
+                                if (context.mounted) {
+                                  Navigator.pushNamedAndRemoveUntil(
+                                    context,
+                                    HomeView.routeName,
+                                    (route) => false,
+                                  );
+                                }
+                              });
 
-                              Navigator.pushNamedAndRemoveUntil(
-                                context,
-                                HomeView.routeName,
-                                (route) => false,
-                              );
                               return Icon(Icons.check);
                             }
                           }),

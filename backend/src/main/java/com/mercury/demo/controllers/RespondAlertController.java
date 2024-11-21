@@ -1,7 +1,9 @@
 package com.mercury.demo.controllers;
 
-import com.mercury.demo.entities.AlertResponse;
-import com.mercury.demo.repositories.AlertResponseRepository;
+import com.mercury.demo.entities.MemberAlertResponse;
+import com.mercury.demo.entities.MemberAlertStatus;
+import com.mercury.demo.repositories.MemberAlertResponseRepository;
+import com.mercury.demo.repositories.MemberAlertStatusRepository;
 import com.mercury.demo.repositories.MembershipRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,16 +17,24 @@ public class RespondAlertController {
     @Autowired
     private MembershipRepository membershipRepository;
     @Autowired
-    private AlertResponseRepository responseRepository;
+    private MemberAlertResponseRepository responseRepository;
+    @Autowired
+    private MemberAlertStatusRepository statusRepository;
 
     @PostMapping(path="/save")
-    public AlertResponse saveAlertResponse(@RequestParam final String memberId,
-                                           @RequestParam final Boolean isSafe,
-                                           @RequestParam final Double latitude,
-                                           @RequestParam final Double longitude,
-                                           @RequestParam final Double batteryPercent) {
+    public MemberAlertResponse saveAlertResponse(@RequestParam final String memberId,
+                                                 @RequestParam final String alertId,
+                                                 @RequestParam final Boolean isSafe,
+                                                 @RequestParam final Double latitude,
+                                                 @RequestParam final Double longitude,
+                                                 @RequestParam final Double batteryPercent) {
         if (membershipRepository.findByMemberId(memberId) != null) {
-            return responseRepository.save(new AlertResponse(memberId, isSafe, latitude, longitude, batteryPercent));
+            // update the status
+            MemberAlertStatus status = statusRepository.findByMemberIdAndAlertId(memberId, alertId);
+            status.setStatus(MemberAlertStatus.Status.SEEN);
+            statusRepository.save(status);
+            // then save the response
+            return responseRepository.save(new MemberAlertResponse(memberId, alertId, isSafe, latitude, longitude, batteryPercent));
         }
         return null;
     }
