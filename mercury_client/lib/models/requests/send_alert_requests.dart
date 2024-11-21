@@ -29,6 +29,18 @@ class SendAlertRequests extends ServerRequests {
     }
   }
 
+  // band-aid solution to have alerts fetched in the background while app running
+  static Future<void> backgroundFetchAlerts({
+    required final String memberId,
+    required final Future<void> Function(List<Alert>) onNewAlert,
+  }) async {
+    while (true) {
+      // requests for new alerts are sent immediately after a new alert is received,
+      // or when the HTTP request times out
+      await fetchAlerts(memberId).then(onNewAlert).onError((error, stackTrace) {});
+    }
+  }
+
   static Future<List<Alert>> fetchAlerts(final String memberId) async {
     log("[$subURL] Fetching alerts");
     final response = await get(

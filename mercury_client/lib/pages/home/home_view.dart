@@ -45,12 +45,14 @@ class HomeViewState extends State<HomeView> {
     // Call the async function as the page is initialized
     memberId = widget.preferences.getString('id')!;
     _futureGroups = GroupRequests.fetchGroups(memberId);
-    // TODO also add getting an alert while the app is open, how do we do this?
-    SendAlertRequests.fetchAlerts(memberId).then((alerts) {
-      setState(() {
-        _alerts = Queue.from(alerts); // Toggle between items
-      });
-    });
+
+    SendAlertRequests.backgroundFetchAlerts(
+        memberId: memberId,
+        onNewAlert: (alerts) async {
+          setState(() {
+            _alerts.addAll(alerts);
+          });
+        });
   }
 
   // TODO factor out widgets into separate files so it's not so damn long
