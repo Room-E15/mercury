@@ -30,7 +30,9 @@ class HomeView extends StatefulWidget {
 
 class HomeViewState extends State<HomeView> {
   // Will call fetchServerAlert
-  Queue<Alert> _alerts = Queue();
+  final _alerts = Queue<Alert>();
+  final _alertSet = <Alert>{};
+
   late String memberId;
   late Future<List<Group>> _futureGroups;
 
@@ -50,7 +52,12 @@ class HomeViewState extends State<HomeView> {
         memberId: memberId,
         onNewAlert: (alerts) async {
           setState(() {
-            _alerts.addAll(alerts);
+            for (final alert in alerts) {
+              if (!_alertSet.contains(alert)) {
+                _alertSet.add(alert);
+                _alerts.add(alert);
+              }
+            }
           });
         });
   }
@@ -121,7 +128,9 @@ class HomeViewState extends State<HomeView> {
               ).then((alertId) {
                 if (alertId != null) {
                   setState(() {
-                    if (_alerts.first.id == alertId) _alerts.removeFirst();
+                    if (_alerts.first.id == alertId) {
+                      _alerts.removeFirst();
+                    }
                   });
                 }
               });
@@ -134,7 +143,9 @@ class HomeViewState extends State<HomeView> {
               ).then((alertId) {
                 if (alertId != null) {
                   setState(() {
-                    if (_alerts.first.id == alertId) _alerts.removeFirst();
+                    if (_alerts.first.id == alertId) {
+                      _alerts.removeFirst();
+                    }
                   });
                 }
               });

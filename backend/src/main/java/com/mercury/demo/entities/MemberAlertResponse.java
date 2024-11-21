@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.time.Instant;
@@ -22,7 +23,7 @@ public class MemberAlertResponse {
     private String memberId;
     @Id
     private String alertId;
-    @CreationTimestamp
+    @UpdateTimestamp
     private Instant creationTime;
     @NotNull
     private Boolean isSafe;
@@ -31,9 +32,9 @@ public class MemberAlertResponse {
     @NotNull
     private Double longitude;
     @NotNull
-    private Double batteryPercent;
+    private Integer batteryPercent;
 
-    public MemberAlertResponse(String memberId, String alertId, Boolean isSafe, Double latitude, Double longitude, Double batteryPercent) {
+    public MemberAlertResponse(String memberId, String alertId, Boolean isSafe, Double latitude, Double longitude, Integer batteryPercent) {
         this.memberId = memberId;
         this.alertId = alertId;
         this.isSafe = isSafe;

@@ -27,7 +27,7 @@ public class RespondAlertController {
                                                  @RequestParam final Boolean isSafe,
                                                  @RequestParam final Double latitude,
                                                  @RequestParam final Double longitude,
-                                                 @RequestParam final Double batteryPercent) {
+                                                 @RequestParam final Integer batteryPercent) {
         if (membershipRepository.findByMemberId(memberId) != null) {
             // update the status
             MemberAlertStatus status = statusRepository.findByMemberIdAndAlertId(memberId, alertId);
