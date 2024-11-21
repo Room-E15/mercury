@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 
 import 'package:mercury_client/pages/home/home_view.dart';
 import 'package:mercury_client/widgets/logo.dart';
-import 'package:mercury_client/pages/register/log_user_info.dart';
+import 'package:mercury_client/utils/log_user_info.dart';
 import 'package:mercury_client/models/requests/sms_requests.dart';
 import 'package:mercury_client/models/data/user_info.dart';
 import 'package:mercury_client/pages/register/register_view.dart';

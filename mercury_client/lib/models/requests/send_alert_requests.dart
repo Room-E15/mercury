@@ -5,8 +5,8 @@ import 'package:http/http.dart';
 import 'package:mercury_client/models/data/alert.dart';
 import 'package:mercury_client/models/requests/server_requests.dart';
 
-class AlertRequests extends ServerRequests {
-  static final subURL = "/alert";
+class SendAlertRequests extends ServerRequests {
+  static final subURL = "/sendAlert";
 
   static Future<void> saveAlert(final String memberId, final String groupId,
       final String title, final String description) async {
@@ -55,7 +55,9 @@ class AlertRequests extends ServerRequests {
         Uri.parse('${ServerRequests.baseURL}$subURL/confirm'),
         body: {
         'memberId': memberId,
-        'alerts': response.body,
+        'alerts': jsonEncode(alerts),
+      }).onError((error, stackTrace) {
+        return Response('', 500);
       });
 
       return alerts;
@@ -64,11 +66,5 @@ class AlertRequests extends ServerRequests {
 
       return [];
     }
-  }
-
-  static Future<void> saveAlertResponse({required bool isSafe}) async {
-    // TODO implement
-    log("[$subURL] Alert response sent");
-    return Future.delayed(Duration(milliseconds: 500));
   }
 }

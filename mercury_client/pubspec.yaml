@@ -23,6 +23,7 @@ dependencies:
   easy_refresh: ^3.4.0
   battery_plus: ^4.0.2
   geolocator: ^13.0.2
+  shake_animation_widget: ^3.0.4
 
 dev_dependencies:
   flutter_test:

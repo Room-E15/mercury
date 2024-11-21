@@ -11,8 +11,9 @@ class MemberRequests extends ServerRequests {
   static const headers = {"Content-Type": "application/json"};
 
   // returns the user's ID if they were successfully registered
+  // TODO consider refactoring, this design is kind of disgusting
   static Future<String?> requestRegisterUser(UserInfo user) async {
-    log('[INFO] Sending user data to server...');
+    log('[$subURL] Sending user data to server...');
 
     // Prepare the data for the HTTP request
     final response = await post(
@@ -24,21 +25,22 @@ class MemberRequests extends ServerRequests {
         'phoneNumber': user.phoneNumber,
       },
     ).onError((obj, stackTrace) {
-      log('[ERROR] Failed to send user data to server.');
+      log('[$subURL] Failed to send user data to server.');
       return Response('', 500);
     });
 
     // Log response
     if (response.statusCode == 200) {
-      log('[INFO] User data sent successfully!');
+      log('[$subURL] User data sent successfully!');
       final user = jsonDecode(response.body)['user'];
       if (user == null) {
-        log('[ERROR] Failed to send user data to server.');
+        log('[$subURL] Failed to send user data to server.');
         return null;
       }
+
       return user['id'];
     } else {
-      log('[ERROR] Failed to send user data to server.');
+      log('[$subURL] Failed to send user data to server.');
       return null;
     }
   }

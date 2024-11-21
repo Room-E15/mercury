@@ -1,9 +1,11 @@
 package com.mercury.demo.controllers;
 
 import com.mercury.demo.entities.Alert;
+import com.mercury.demo.entities.AlertResponse;
 import com.mercury.demo.entities.MemberAlertStatus;
 import com.mercury.demo.entities.MemberAlertStatus.Status;
 import com.mercury.demo.repositories.AlertRepository;
+import com.mercury.demo.repositories.AlertResponseRepository;
 import com.mercury.demo.repositories.MemberAlertStatusRepository;
 import com.mercury.demo.repositories.MembershipRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,9 +16,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
-
+// TODO consider splitting into multiple controllers, covers 2 use cases (send alert and respond to alert)
 @RestController
-@RequestMapping(path="/alert")
+@RequestMapping(path="/sendAlert")
 public class SendAlertController {
     @Autowired
     private AlertRepository alertRepository;
@@ -58,10 +60,12 @@ public class SendAlertController {
     @PutMapping(path= "/confirm")
     public List<MemberAlertStatus> confirmAlertsSeen(@RequestParam final String memberId,
                                                      @RequestParam final List<Alert> alerts) {
+        System.out.println("Alerts: " + alerts);
         List<MemberAlertStatus> alertStatuses = new ArrayList<>();
+        if (alerts.get(0) == null) return null;  // TODO remove, bandaid solution
         List<String> alertIds = alerts.stream().map(Alert::getId).toList();
 
-        // TODO combine 2 below
+        // TODO combine 2 lines below this
         List<MemberAlertStatus> statuses =  statusRepository.findByAlertIds(alertIds);
         statuses.forEach(alertStatus -> {
             if (alertStatus.getMemberId().equals(memberId)) {

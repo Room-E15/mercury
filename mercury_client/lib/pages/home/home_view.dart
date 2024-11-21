@@ -2,12 +2,13 @@ import 'dart:collection';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:mercury_client/models/requests/respond_alert_requests.dart';
 import 'package:mercury_client/widgets/alert_widget.dart';
 
 import 'package:mercury_client/widgets/render_groups.dart';
 import 'package:mercury_client/widgets/loading_widget.dart';
 import 'package:mercury_client/widgets/logo.dart';
-import 'package:mercury_client/models/requests/alert_requests.dart';
+import 'package:mercury_client/models/requests/send_alert_requests.dart';
 import 'package:mercury_client/models/requests/group_requests.dart';
 import 'package:mercury_client/pages/join_server_prompt/join_server_prompt_view.dart';
 import 'package:mercury_client/pages/settings/settings_view.dart';
@@ -45,7 +46,7 @@ class HomeViewState extends State<HomeView> {
     memberId = widget.preferences.getString('id')!;
     _futureGroups = GroupRequests.fetchGroups(memberId);
     // TODO also add getting an alert while the app is open, how do we do this?
-    AlertRequests.fetchAlerts(memberId).then((alerts) {
+    SendAlertRequests.fetchAlerts(memberId).then((alerts) {
       setState(() {
         _alerts = Queue.from(alerts); // Toggle between items
       });
@@ -111,16 +112,28 @@ class HomeViewState extends State<HomeView> {
           alertWidgetBuilder(
             alerts: _alerts,
             onSafe: () async {
-              AlertRequests.saveAlertResponse(isSafe: true)
-                  .then((value) => setState(() {
-                        _alerts.removeFirst(); // Toggle between items
-                      }));
+              RespondAlertRequests.saveAlertResponse(
+                memberId: memberId,
+                isSafe: true,
+              ).then((serverGotResponse) {
+                if (serverGotResponse) {
+                  setState(() {
+                    _alerts.removeFirst(); // Toggle between items
+                  });
+                }
+              });
             },
             onUnsafe: () async {
-              AlertRequests.saveAlertResponse(isSafe: false)
-                  .then((value) => setState(() {
-                        _alerts.removeFirst(); // Toggle between items
-                      }));
+              RespondAlertRequests.saveAlertResponse(
+                memberId: memberId,
+                isSafe: false,
+              ).then((serverGotResponse) {
+                if (serverGotResponse) {
+                  setState(() {
+                    _alerts.removeFirst(); // Toggle between items
+                  });
+                }
+              });
             },
           ),
           // Search Filter Bar
