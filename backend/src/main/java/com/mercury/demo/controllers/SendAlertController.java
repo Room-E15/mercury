@@ -1,5 +1,8 @@
 package com.mercury.demo.controllers;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mercury.demo.entities.Alert;
 import com.mercury.demo.entities.AlertResponse;
 import com.mercury.demo.entities.MemberAlertStatus;
@@ -26,6 +29,8 @@ public class SendAlertController {
     private MemberAlertStatusRepository statusRepository;
     @Autowired
     private MembershipRepository membershipRepository;
+
+    ObjectMapper objectMapper = new ObjectMapper();
 
     // TODO add permission checks to make sure the user senging an alert is a leader
     @PostMapping(path="/send")
@@ -59,25 +64,27 @@ public class SendAlertController {
 
     @PutMapping(path= "/confirm")
     public List<MemberAlertStatus> confirmAlertsSeen(@RequestParam final String memberId,
-                                                     @RequestParam final List<Alert> alerts) {
-        System.out.println("Alerts: " + alerts);
-        List<MemberAlertStatus> alertStatuses = new ArrayList<>();
-        if (alerts.get(0) == null) return null;  // TODO remove, bandaid solution
-        List<String> alertIds = alerts.stream().map(Alert::getId).toList();
+                                                     @RequestParam final String jsonAlertIds) {
 
-        // TODO combine 2 lines below this
-        List<MemberAlertStatus> statuses =  statusRepository.findByAlertIds(alertIds);
-        statuses.forEach(alertStatus -> {
-            if (alertStatus.getMemberId().equals(memberId)) {
-                alertStatuses.add(statusRepository.save(new MemberAlertStatus(
-                        alertStatus.getId(),
-                        alertStatus.getAlertId(),
-                        alertStatus.getMemberId(),
-                        Status.SEEN)));
-            }
-        });
 
-        System.out.println(alertStatuses);
-        return alertStatuses;  // return resource to confirm success
+        try {
+            List<String> alertIds = objectMapper.readValue(jsonAlertIds, new TypeReference<List<String>>() {});
+            List<MemberAlertStatus> alertStatuses = new ArrayList<>();
+
+            statusRepository.findByAlertIds(alertIds).forEach(alertStatus -> {
+                if (alertStatus.getMemberId().equals(memberId)) {
+                    alertStatuses.add(statusRepository.save(new MemberAlertStatus(
+                            alertStatus.getId(),
+                            alertStatus.getAlertId(),
+                            alertStatus.getMemberId(),
+                            Status.SEEN)));
+                }
+            });
+
+            return alertStatuses;  // return resource to confirm success
+        } catch (JsonProcessingException e) {
+            System.out.println("ERROR: Could not convert id list: " + jsonAlertIds);
+            return null;
+        }
     }
 }

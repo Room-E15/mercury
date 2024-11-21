@@ -12,6 +12,6 @@ import java.util.stream.Stream;
 public interface MemberAlertStatusRepository extends CrudRepository<MemberAlertStatus, Integer> {
     List<MemberAlertStatus> findByMemberIdAndStatusOrStatus(String memberId, Status statusSeen, Status statusUnseen);
 
-    @Query(value = "SELECT s FROM MemberAlertStatus s WHERE s.id in ?1")
+    @Query(value = "SELECT s FROM MemberAlertStatus s WHERE s.alertId in ?1")
     List<MemberAlertStatus> findByAlertIds(List<String> alertIds);
 }

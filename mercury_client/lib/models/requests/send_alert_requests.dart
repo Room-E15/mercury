@@ -41,21 +41,16 @@ class SendAlertRequests extends ServerRequests {
     });
 
     if (response.statusCode == 200) {
-      log('[$subURL] Alerts fetched successfully!');
-      log('[$subURL] Body: ${response.body}');
+      log('[$subURL] Alerts fetched: ${response.body}');
 
-      List<dynamic> jsonList = jsonDecode(response.body);
-      List<Alert> alerts = jsonList
+      List<Alert> alerts = (jsonDecode(response.body) as List<dynamic>)
           .map((json) => Alert.fromJson(json))
           .toList();
 
       // now that we have the alerts, we can mark them as read
-      // TODO guard behind checking if alerts list is empty, we don't need to mark as read if there are no alerts
-      put(
-        Uri.parse('${ServerRequests.baseURL}$subURL/confirm'),
-        body: {
+      put(Uri.parse('${ServerRequests.baseURL}$subURL/confirm'), body: {
         'memberId': memberId,
-        'alerts': jsonEncode(alerts),
+        'jsonAlertIds': jsonEncode(alerts.map((alert) => alert.id).toList()),
       }).onError((error, stackTrace) {
         return Response('', 500);
       });

@@ -6,6 +6,7 @@ import 'package:geolocator/geolocator.dart';
 class BatteryService {
   final Battery _battery = Battery();
 
+  // TODO change before merging
   Future<int> getBatteryPercentage() async {
     return -1;
     try {
