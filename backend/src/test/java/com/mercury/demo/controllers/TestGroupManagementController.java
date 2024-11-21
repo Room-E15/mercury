@@ -21,7 +21,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public class TestGroupManagementController {
-    private static final Member MEMBER = new Member("Giorno", "Giovanna", "123",
+    private static final Member MEMBER = new Member("Giorno", "Giovanna", 123,
             "1226765555");
     private static final AlertGroup ALERT_GROUP = new AlertGroup("AIA");
     private static final String MEMBER_ID = UUID.randomUUID().toString();
@@ -75,7 +75,7 @@ public class TestGroupManagementController {
     public void testJoinGroup() {
         final AlertGroup alertGroup = new AlertGroup("AIA");
         alertGroup.setId("1234567890");
-        final Member member = new Member("Test", "ing", "1", "1234567890");
+        final Member member = new Member("Test", "ing", 1, "1234567890");
 
         final Membership membership = new Membership(member.getId(), alertGroup.getId(), false);
 
@@ -105,7 +105,7 @@ public class TestGroupManagementController {
 
     @Test
     public void testJoinGroupGroupNotFound() {
-        final Member member = new Member("Test", "ing", "1", "1234567890");
+        final Member member = new Member("Test", "ing", 1, "1234567890");
 
         Mockito.when(mockMemberRepository.findById(member.getId())).thenReturn(Optional.of(member));
         Mockito.when(mockAlertGroupRepository.findById(ALERT_GROUP.getId())).thenReturn(Optional.empty());
@@ -142,7 +142,7 @@ public class TestGroupManagementController {
     public void testGetGroupWithTwoMembers() {
         final AlertGroup alertGroup = new AlertGroup("AIA");
         alertGroup.setId("1234567890");
-        final Member memberTwo = new Member("Test", "ing", "4", "1234567890");
+        final Member memberTwo = new Member("Test", "ing", 4, "1234567890");
         memberTwo.setId("1234");
         final Membership membership = new Membership(MEMBER.getId(), alertGroup.getId(), true);
         membership.setId(1L);
