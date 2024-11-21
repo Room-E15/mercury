@@ -118,10 +118,10 @@ class HomeViewState extends State<HomeView> {
                 memberId: memberId,
                 alertId: _alerts.first.id,
                 isSafe: true,
-              ).then((serverGotResponse) {
-                if (serverGotResponse) {
+              ).then((alertId) {
+                if (alertId != null) {
                   setState(() {
-                    _alerts.removeFirst(); // Toggle between items
+                    if (_alerts.first.id == alertId) _alerts.removeFirst();
                   });
                 }
               });
@@ -131,10 +131,10 @@ class HomeViewState extends State<HomeView> {
                 memberId: memberId,
                 alertId: _alerts.first.id,
                 isSafe: false,
-              ).then((serverGotResponse) {
-                if (serverGotResponse) {
+              ).then((alertId) {
+                if (alertId != null) {
                   setState(() {
-                    _alerts.removeFirst(); // Toggle between items
+                    if (_alerts.first.id == alertId) _alerts.removeFirst();
                   });
                 }
               });

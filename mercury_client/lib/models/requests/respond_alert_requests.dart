@@ -10,7 +10,7 @@ class RespondAlertRequests extends ServerRequests {
   static final batteryService = BatteryService();
 
 
-  static Future<bool> saveAlertResponse({required String memberId, required String alertId, required bool isSafe}) async {
+  static Future<String?> saveAlertResponse({required String memberId, required String alertId, required bool isSafe}) async {
     final location = await locationService.getCurrentLocation();
     final batteryPercent = await batteryService.getBatteryPercentage();
 
@@ -31,7 +31,7 @@ class RespondAlertRequests extends ServerRequests {
 
     final success = response.statusCode == 200;
     log("[$subURL] Alert response sent ${success ? 'successfully' : 'unsuccessfully'}");
-    return success;
+    return success ? alertId : null;
   }
 
 }
