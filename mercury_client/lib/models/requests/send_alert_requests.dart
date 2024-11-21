@@ -35,9 +35,9 @@ class SendAlertRequests extends ServerRequests {
     required final Future<void> Function(List<Alert>) onNewAlert,
   }) async {
     while (true) {
-      // requests for new alerts are sent immediately after a new alert is received,
-      // or when the HTTP request times out
-      await fetchAlerts(memberId).then(onNewAlert).onError((error, stackTrace) {});
+      var future = fetchAlerts(memberId).then(onNewAlert).onError((error, stackTrace) {});
+      await Future.delayed(Duration(seconds: 5));
+      await future;
     }
   }
 
