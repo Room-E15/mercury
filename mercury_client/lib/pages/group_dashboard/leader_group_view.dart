@@ -88,13 +88,13 @@ class LeaderGroupView extends StatelessWidget {
     log("Querying for safe responses");
 
     return [
-      Member("3", "Julius", "Caesar", 1, "1234567890",
+      Member("Julius", "Caesar", 1, "1234567890",
           GroupResponse(true, 97, 10.0, 10.0)),
-      Member("6", "Ramos", "Remus", 1, "1234567890",
+      Member("Ramos", "Remus", 1, "1234567890",
           GroupResponse(true, 23, 10.0, 10.0)),
-      Member("1", "Albert", "Einstein", 1, "1234567890",
+      Member("Albert", "Einstein", 1, "1234567890",
           GroupResponse(true, 73, 10.0, 10.0)),
-      Member("2", "Giorno", "Giovanna", 1, "1098765432",
+      Member("Giorno", "Giovanna", 1, "1098765432",
           GroupResponse(true, 82, 10.0, 10.0))
     ];
   }
@@ -103,7 +103,7 @@ class LeaderGroupView extends StatelessWidget {
     log("Querying for unsafe responses");
 
     return [
-      Member("4", "Brutus", "", 1, "1234567890",
+      Member("Brutus", "", 1, "1234567890",
           GroupResponse(false, 54, 10.0, 10.0))
     ];
   }
@@ -111,6 +111,6 @@ class LeaderGroupView extends StatelessWidget {
   List<Member> getNoResponses() {
     log("Querying for unsafe responses");
 
-    return [Member("5", "Charlemagne", "III", 1, "1234567890", null)];
+    return [Member("Charlemagne", "III", 1, "1234567890", null)];
   }
 }

@@ -1,5 +1,6 @@
 package com.mercury.demo.controllers;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import com.mercury.demo.entities.AlertGroup;
 import com.mercury.demo.entities.Member;
 import com.mercury.demo.entities.Membership;
@@ -52,6 +53,7 @@ public class GroupManagementController {
     }
 
     @PostMapping(path="/getGroups") // Map ONLY POST Requests
+    @JsonView(Member.WithoutIdView.class)
     public @ResponseBody List<GetGroupsResponse> getGroups (@RequestParam String memberId
     ) {
         // TODO: List groups by at first Leader groups then alphabetized
@@ -81,10 +83,10 @@ public class GroupManagementController {
     public @ResponseBody JoinGroupResponse joinGroup (@RequestParam String memberId,
                                                       @RequestParam String groupId
     ) {
-        final Member user = memberRepository.findById(memberId).orElseThrow(() -> new RuntimeException(String.format("User with the id %s not found", memberId)));
+        final Member member = memberRepository.findById(memberId).orElseThrow(() -> new RuntimeException(String.format("User with the id %s not found", memberId)));
         final AlertGroup group = alertGroupRepository.findById(groupId).orElseThrow(() -> new RuntimeException(String.format("Group with the id %s not found", groupId)));
 
-        Membership membership = new Membership(user.getId(), group.getId(), false);
+        Membership membership = new Membership(member.getId(), group.getId(), false);
         membership = membershipRepository.save(membership);
 
         return new JoinGroupResponse(memberId, groupId, membership.getId());

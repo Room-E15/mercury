@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'package:mercury_client/widgets/loading.dart';
 import 'package:mercury_client/pages/qr/qr_scan_view.dart';
 import 'package:mercury_client/widgets/logo.dart';
 
@@ -27,7 +26,7 @@ class JoinServerPromptView extends StatelessWidget {
               icon: const Icon(Icons.arrow_back)),
         ),
         body: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-          const Center(child: Text("Hi, Albert Alertstein")),
+          const Center(child: Text("Welcome to Mercury!")),
           Padding(
             padding: const EdgeInsetsDirectional.fromSTEB(8, 2, 2, 2),
             child: Column(

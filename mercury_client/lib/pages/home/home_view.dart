@@ -1,6 +1,7 @@
 import 'dart:collection';
 import 'dart:developer';
 
+import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 
 import 'package:mercury_client/widgets/home_widgets.dart';
@@ -221,24 +222,39 @@ class HomeViewState extends State<HomeView> {
             ),
           ),
           Expanded(
-            child: loadingWidgetBuilder(
-                context: context,
-                futureIcon: _futureGroups.then((groups) {
-                  if (context.mounted) {
-                    return getGroupWidgets(
-                      widget.key,
-                      context,
-                      widget.preferences,
-                      filterSearch,
-                      groups,
-                      () async => setState(() {
-                        _futureGroups = GroupRequests.fetchGroups(memberId);
-                      }),
-                    );
-                  } else {
-                    return Container();
-                  }
-                })),
+            child: EasyRefresh(
+              onRefresh: () async => setState(() {
+                _futureGroups = GroupRequests.fetchGroups(memberId);
+              }),
+              header: ClassicHeader(
+                dragText: "Pull down to refresh",
+                armedText: "Release to refresh",
+                readyText: "Refreshing...",
+                processingText: "Loading groups...",
+                failedText: "Refresh failed",
+                noMoreText: "No more data",
+              ),
+              child: loadingWidgetBuilder(
+                  context: context,
+                  errorIcon: ListView(children: const [
+                    Padding(
+                        padding: EdgeInsets.symmetric(vertical: 50),
+                        child: Center(child: Text('Error loading groups')))
+                  ]),
+                  futureIcon: _futureGroups.then((groups) {
+                    if (context.mounted) {
+                      return getGroupWidgets(
+                        widget.key,
+                        context,
+                        widget.preferences,
+                        filterSearch,
+                        groups,
+                      );
+                    } else {
+                      return Container();
+                    }
+                  })),
+            ),
           ),
         ],
       ),

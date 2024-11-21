@@ -170,115 +170,102 @@ Future<Widget> getGroupWidgets(
   SharedPreferencesWithCache preferences,
   String filterSearch,
   List<Group> groups,
-  Future<void> Function() onRefresh,
 ) async {
-  return EasyRefresh(
-      onRefresh: onRefresh,
-      header: ClassicHeader(
-        dragText: "Pull down to refresh",
-        armedText: "Release to refresh",
-        readyText: "Refreshing...",
-        processingText: "Loading groups...",
-        failedText: "Refresh failed",
-        noMoreText: "No more data",
-      ),
-      child: ListView.builder(
-        restorationId: 'groupList',
-        itemCount: groups.length + 1, // Extra item for the "Add Group" button
-        itemBuilder: (context, index) {
-          if (index < groups.length) {
-            // normal group tile
-            if (filterSearch == "" ||
-                groups[index]
-                    .name
-                    .toLowerCase()
-                    .contains(filterSearch.toLowerCase())) {
-              return groupWidgetBuilder(
-                  widgetKey, context, preferences, index, groups);
-            } else {
-              return SizedBox.shrink();
-            }
-          } else {
-            // plus icon tile TODO refactor to take out separete widgets
-            return IconButton(
-              onPressed: () {
-                showModalBottomSheet(
-                  context: context,
-                  shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(16.0),
-                          topRight: Radius.circular(16.0))),
-                  builder: (BuildContext context) {
-                    return Container(
-                      width: 360,
-                      height: 90,
-                      padding: EdgeInsets.fromLTRB(16, 10, 16, 5),
-                      child: Column(children: [
-                        SizedBox(
-                          width: 40.0,
-                          height: 4.0,
-                          child: Container(
-                            decoration: BoxDecoration(
-                                color: Colors.white54,
-                                shape: BoxShape.rectangle,
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(8.0))),
+  return ListView.builder(
+    restorationId: 'groupList',
+    itemCount: groups.length + 1, // Extra item for the "Add Group" button
+    itemBuilder: (context, index) {
+      if (index < groups.length) {
+        // normal group tile
+        if (filterSearch == "" ||
+            groups[index]
+                .name
+                .toLowerCase()
+                .contains(filterSearch.toLowerCase())) {
+          return groupWidgetBuilder(
+              widgetKey, context, preferences, index, groups);
+        } else {
+          return SizedBox.shrink();
+        }
+      } else {
+        // plus icon tile TODO refactor to take out separete widgets
+        return IconButton(
+          onPressed: () {
+            showModalBottomSheet(
+              context: context,
+              shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(16.0),
+                      topRight: Radius.circular(16.0))),
+              builder: (BuildContext context) {
+                return Container(
+                  width: 360,
+                  height: 90,
+                  padding: EdgeInsets.fromLTRB(16, 10, 16, 5),
+                  child: Column(children: [
+                    SizedBox(
+                      width: 40.0,
+                      height: 4.0,
+                      child: Container(
+                        decoration: BoxDecoration(
+                            color: Colors.white54,
+                            shape: BoxShape.rectangle,
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(8.0))),
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(top: 10),
+                    ),
+                    Row(
+                      children: [
+                        FilledButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => CreateGroupView(
+                                    key: widgetKey, preferences: preferences),
+                              ),
+                            );
+                          },
+                          child: const Padding(
+                            padding: EdgeInsets.all(2),
+                            child: Text("CREATE GROUP"),
                           ),
                         ),
                         Padding(
-                          padding: EdgeInsets.only(top: 10),
+                          padding: EdgeInsets.only(left: 20),
                         ),
-                        Row(
-                          children: [
-                            FilledButton(
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => CreateGroupView(
-                                        key: widgetKey,
-                                        preferences: preferences),
-                                  ),
-                                );
-                              },
-                              child: const Padding(
-                                padding: EdgeInsets.all(2),
-                                child: Text("CREATE GROUP"),
+                        FilledButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => JoinGroupView(
+                                    key: widgetKey, preferences: preferences),
                               ),
-                            ),
-                            Padding(
-                              padding: EdgeInsets.only(left: 20),
-                            ),
-                            FilledButton(
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => JoinGroupView(
-                                        key: widgetKey,
-                                        preferences: preferences),
-                                  ),
-                                );
-                              },
-                              child: const Padding(
-                                padding: EdgeInsets.all(2),
-                                child: Text("JOIN GROUP"),
-                              ),
-                            )
-                          ],
+                            );
+                          },
+                          child: const Padding(
+                            padding: EdgeInsets.all(2),
+                            child: Text("JOIN GROUP"),
+                          ),
                         )
-                      ]),
-                    );
-                  },
+                      ],
+                    )
+                  ]),
                 );
               },
-              icon: const Icon(
-                Icons.add_circle_outline,
-                size: 40,
-                color: Color(0xFF4F378B),
-              ),
             );
-          }
-        },
-      ));
+          },
+          icon: const Icon(
+            Icons.add_circle_outline,
+            size: 40,
+            color: Color(0xFF4F378B),
+          ),
+        );
+      }
+    },
+  );
 }

@@ -42,7 +42,7 @@ FutureBuilder<T> loadingWidgetBuilder<T>({
   required Future<T> futureIcon,
   Widget loadingIcon =
       const Center(child: CircularProgressIndicator(value: null)),
-  Widget errorIcon = const Center(child: Text('Error loading groups')),
+  Widget errorIcon = const Icon(Icons.error),
 }) {
   return FutureBuilder(
     future: futureIcon,

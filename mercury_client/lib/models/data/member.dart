@@ -1,14 +1,14 @@
 import 'group.dart';
 
 class Member {
-  final String id;
+  // final String id;
   final String firstName;
   final String lastName;
   final int countryCode;
   final String phoneNumber;
   final GroupResponse? response; // TODO remove, seems redundant
 
-  const Member(this.id, this.firstName, this.lastName, this.countryCode,
+  const Member(this.firstName, this.lastName, this.countryCode,
       this.phoneNumber, this.response);
 
   // TODO bandaid solution, make sure this works
@@ -17,13 +17,11 @@ class Member {
       required this.lastName,
       required this.countryCode,
       required this.phoneNumber})
-      : id = "",
-        response = null;
+      : response = null;
 
   // Factory constructor to create a Group instance from JSON
   factory Member.fromJson(dynamic json) {
     return Member(
-      json['id'],
       json['firstName'],
       json['lastName'],
       json['countryCode'],
@@ -45,18 +43,18 @@ class Member {
 
 class MemberTestData {
   static const List<Member> members = [
-    Member("3", "Julius", "Caesar", 1, "1234567890",
+    Member("Julius", "Caesar", 1, "1234567890",
         GroupResponse(true, 97, 10.0, 10.0)),
-    Member("4", "Brutus", "", 1, "1234567890",
+    Member("Brutus", "", 1, "1234567890",
         GroupResponse(false, 54, 10.0, 10.0)),
-    Member("5", "Charlemagne", "III", 1, "1234567890", null),
-    Member("6", "Ramos", "Remus", 1, "1234567890",
+    Member("Charlemagne", "III", 1, "1234567890", null),
+    Member("Ramos", "Remus", 1, "1234567890",
         GroupResponse(true, 23, 10.0, 10.0))
   ];
   static const List<Member> leaders = [
-    Member("1", "Albert", "Einstein", 1, "1234567890",
+    Member("Albert", "Einstein", 1, "1234567890",
         GroupResponse(true, 73, 10.0, 10.0)),
-    Member("2", "Giorno", "Giovanna", 1, "1098765432",
+    Member("Giorno", "Giovanna", 1, "1098765432",
         GroupResponse(true, 82, 10.0, 10.0)),
   ];
 }
