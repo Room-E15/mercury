@@ -10,7 +10,7 @@ class RespondAlertRequests extends ServerRequests {
   static final batteryService = BatteryService();
 
 
-  static Future<bool> saveAlertResponse({required String memberId, required bool isSafe}) async {
+  static Future<bool> saveAlertResponse({required String memberId, required String alertId, required bool isSafe}) async {
     final location = await locationService.getCurrentLocation();
     final batteryPercent = await batteryService.getBatteryPercentage();
 
@@ -19,6 +19,7 @@ class RespondAlertRequests extends ServerRequests {
       Uri.parse('${ServerRequests.baseURL}$subURL/save'),
       body: {
         'memberId': memberId,
+        'alertId': alertId,
         'isSafe': isSafe.toString(),
         'latitude': location?.latitude.toString() ?? '',
         'longitude': location?.longitude.toString() ?? '',

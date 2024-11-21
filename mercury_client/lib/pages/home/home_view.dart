@@ -114,6 +114,7 @@ class HomeViewState extends State<HomeView> {
             onSafe: () async {
               RespondAlertRequests.saveAlertResponse(
                 memberId: memberId,
+                alertId: _alerts.first.id,
                 isSafe: true,
               ).then((serverGotResponse) {
                 if (serverGotResponse) {
@@ -126,6 +127,7 @@ class HomeViewState extends State<HomeView> {
             onUnsafe: () async {
               RespondAlertRequests.saveAlertResponse(
                 memberId: memberId,
+                alertId: _alerts.first.id,
                 isSafe: false,
               ).then((serverGotResponse) {
                 if (serverGotResponse) {

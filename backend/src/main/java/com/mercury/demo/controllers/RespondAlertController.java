@@ -31,7 +31,7 @@ public class RespondAlertController {
         if (membershipRepository.findByMemberId(memberId) != null) {
             // update the status
             MemberAlertStatus status = statusRepository.findByMemberIdAndAlertId(memberId, alertId);
-            status.setStatus(MemberAlertStatus.Status.SEEN);
+            status.setStatus(MemberAlertStatus.Status.RESPONDED);
             statusRepository.save(status);
             // then save the response
             return responseRepository.save(new MemberAlertResponse(memberId, alertId, isSafe, latitude, longitude, batteryPercent));
