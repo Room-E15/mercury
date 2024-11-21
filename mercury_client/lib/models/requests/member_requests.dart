@@ -14,7 +14,6 @@ class MemberRequests extends ServerRequests {
   // returns the user's ID if they were successfully registered
   static Future<String?> requestRegisterUser(UserInfo user) async {
     log('[INFO] Sending user data to server...');
-    log('User data: ${user.firstName}, ${user.lastName}, ${user.countryCode}, ${user.phoneNumber}');
 
     // Prepare the data for the HTTP request
     final response = await post(
