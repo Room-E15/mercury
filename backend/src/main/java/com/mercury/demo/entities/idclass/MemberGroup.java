@@ -8,21 +8,21 @@ import java.util.Objects;
 
 @NoArgsConstructor
 @AllArgsConstructor
-public class MemberAlert implements Serializable {
+public class MemberGroup implements Serializable {
     private String memberId;
-    private String alertId;
+    private String groupId;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        MemberAlert memberAlert = (MemberAlert) o;
+        MemberGroup memberAlert = (MemberGroup) o;
         return memberId.equals(memberAlert.memberId) &&
-                alertId.equals(memberAlert.alertId);
+                groupId.equals(memberAlert.groupId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(memberId, alertId);
+        return Objects.hash(memberId, groupId);
     }
 }

@@ -85,6 +85,6 @@ public class GroupManagementController {
         Membership membership = new Membership(user.getId(), group.getId(), false);
         membership = membershipRepository.save(membership);
 
-        return new JoinGroupResponse(memberId, groupId, membership.getId());
+        return new JoinGroupResponse(memberId, groupId);
     }
 }

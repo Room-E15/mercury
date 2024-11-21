@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mercury.demo.entities.Alert;
 import com.mercury.demo.entities.MemberAlertStatus;
 import com.mercury.demo.entities.MemberAlertStatus.Status;
+import com.mercury.demo.entities.Membership;
 import com.mercury.demo.repositories.AlertRepository;
 import com.mercury.demo.repositories.MemberAlertStatusRepository;
 import com.mercury.demo.repositories.MembershipRepository;
@@ -33,7 +34,13 @@ public class SendAlertController {
                            @RequestParam final String groupId,
                            @RequestParam final String title,
                            @RequestParam final String description) {
-        // TODO add permission check here for userId permissions, check if they're a leader of this group
+        // If the member is not a leader of this group, they should not be able to send an alert
+
+        Membership userMembership = membershipRepository.findByMemberIdAndGroupId(memberId, groupId);
+        if (userMembership != null && !userMembership.isLeader()) {
+            return null;
+        }
+
         final Alert alert = alertRepository.save(new Alert(groupId, title, description));
 
         // Populate MemberAlertStatus table for each member in the group
