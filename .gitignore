@@ -4,3 +4,4 @@ target/
 *.sqlite
 mercury_client/env_dev.json
 mercury_client/android/app/build.gradle
+mercury_client/.env

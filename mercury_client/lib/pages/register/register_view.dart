@@ -11,7 +11,7 @@ class RegisterView extends StatefulWidget {
   static const routeName = '/register';
 
   final SharedPreferencesWithCache preferences;
-  final String countryCode;
+  final int countryCode;
   final String phoneNumber;
 
   const RegisterView({

@@ -23,7 +23,7 @@ class VerificationView extends StatefulWidget {
   static const routeName = '/verify';
 
   final SharedPreferencesWithCache preferences;
-  final String countryCode;
+  final int countryCode;
   final String phoneNumber;
   final String carrier;
 
@@ -70,15 +70,14 @@ class VerificationViewState extends State<VerificationView> {
     SmsRequests.requestSendCode(
             widget.countryCode, widget.phoneNumber, widget.carrier)
         .then((response) {
-      if (response.carrierFound) {
+      if (response != null && response.carrierFound) {
         setState(() {
           _verificationToken = response.token;
         });
+
+        // TODO figure out what to do on this screen if you can't connect to the server
+        // TODO SERIOUSLY SHOW AN ERROR HERE IT'S BAD
       }
-    }).onError((object, stackTrace) {
-      // TODO figure out what to do on this screen if you can't connect to the server
-      // TODO SERIOUSLY SHOW AN ERROR HERE IT'S BAD
-      log('Error sending verification code: $object');
     });
   }
 

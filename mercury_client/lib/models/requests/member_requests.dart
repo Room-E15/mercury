@@ -5,6 +5,7 @@ import 'package:http/http.dart';
 import 'package:mercury_client/models/data/user_info.dart';
 import 'package:mercury_client/models/requests/server_requests.dart';
 import 'package:mercury_client/models/data/member.dart';
+import 'package:mercury_client/models/responses/user_creation_response.dart';
 
 class MemberRequests extends ServerRequests {
   static const subURL = "/member";
@@ -21,7 +22,7 @@ class MemberRequests extends ServerRequests {
       body: {
         'firstName': user.firstName,
         'lastName': user.lastName,
-        'countryCode': user.countryCode,
+        'countryCode': user.countryCode.toString(),
         'phoneNumber': user.phoneNumber,
       },
     ).onError((obj, stackTrace) {
@@ -31,14 +32,10 @@ class MemberRequests extends ServerRequests {
 
     // Log response
     if (response.statusCode == 200) {
-      log('[$subURL] User data sent successfully!');
-      final user = jsonDecode(response.body)['user'];
-      if (user == null) {
-        log('[$subURL] Failed to send user data to server.');
-        return null;
-      }
-
-      return user['id'];
+      log('[INFO] User data sent successfully!');
+      UserCreationResponse userResponse =
+          UserCreationResponse.fromJson(jsonDecode(response.body));
+      return userResponse.user?.id;
     } else {
       log('[$subURL] Failed to send user data to server.');
       return null;

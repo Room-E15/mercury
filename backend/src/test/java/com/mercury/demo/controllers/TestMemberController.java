@@ -16,7 +16,7 @@ import org.mockito.MockitoAnnotations;
 import java.util.Optional;
 
 public class TestMemberController {
-    private static final Member MEMBER = new Member("Giorno", "Giovanna", "123",
+    private static final Member MEMBER = new Member("Giorno", "Giovanna", 123,
             "12345678910");
 
     @Mock
@@ -35,7 +35,7 @@ public class TestMemberController {
 
     @Test
     public void testAddMember() {
-        final Member expectedMember = new Member("Giorno", "Giovanna", "123", "12345678910");
+        final Member expectedMember = new Member("Giorno", "Giovanna", 123, "12345678910");
         expectedMember.setId("123");
         MEMBER.setId(null);
 
@@ -46,7 +46,7 @@ public class TestMemberController {
 
         Mockito.when(mockMemberRepository.save(MEMBER)).thenReturn(expectedMember);
         Mockito.when(mockSMSVerificationRepository
-                        .findByPhoneNumberAndCountryCodeAndVerified(MEMBER.getPhoneNumber(),
+                        .getFirstByPhoneNumberAndCountryCodeAndVerified(MEMBER.getPhoneNumber(),
                                                                     MEMBER.getCountryCode(),
                                                                     true))
                 .thenReturn(Optional.of(expectedSMSVerification));
@@ -61,7 +61,7 @@ public class TestMemberController {
 
         Mockito.verify(mockMemberRepository, Mockito.times(1)).save(MEMBER);
         Mockito.verify(mockSMSVerificationRepository, Mockito.times(1))
-                .findByPhoneNumberAndCountryCodeAndVerified(MEMBER.getPhoneNumber(),
+                .getFirstByPhoneNumberAndCountryCodeAndVerified(MEMBER.getPhoneNumber(),
                                                             MEMBER.getCountryCode(),
                                                             true);
     }

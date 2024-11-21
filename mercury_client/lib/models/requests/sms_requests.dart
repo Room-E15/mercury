@@ -9,20 +9,28 @@ import 'package:mercury_client/models/requests/server_requests.dart';
 class SmsRequests extends ServerRequests {
   static final subURL = "/sms";
 
-  static Future<SMSDispatchResponse> requestSendCode(
-      String countryCode, String phoneNumber, String carrier) async {
-    log('[INFO] Asking server to send verification code');
+  static Future<SMSDispatchResponse?> requestSendCode(
+      int countryCode, String phoneNumber, String carrier) async {
+    log('[$subURL] Asking server to send verification code');
 
     final Response response = await post(
       Uri.parse('${ServerRequests.baseURL}$subURL/dispatch'),
       body: {
-        'countryCode': countryCode.replaceAll('+', ''),
+        'countryCode': countryCode.toString(),
         'phoneNumber': phoneNumber,
         'carrier': carrier.toLowerCase(),
       },
-    );
+    ).onError((error, stackTrace) {
+      return Response('', 500);
+    });
 
-    return SMSDispatchResponse.fromJson(jsonDecode(response.body));
+    if (response.statusCode == 200) {
+      log('[$subURL] Successfully sent verification code');
+      return SMSDispatchResponse.fromJson(jsonDecode(response.body));
+    } else {
+      log('[$subURL] ERROR: Failed to send verification code: ${response.body}');
+      return null;
+    }
   }
 
   // if the user is registered, returns a FullUserInfo object

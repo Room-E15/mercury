@@ -10,7 +10,7 @@ class SMSVerifyResponse {
   });
 
   SMSVerifyResponse.fromJson(Map json)
-      : correctCode = json['correctCode'],
+      : correctCode= json['correctCode'],
         userInfo = (json['userInfo'] != null) ? 
         RegisteredUserInfo(
           id: json['userInfo']['id'],

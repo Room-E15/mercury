@@ -28,12 +28,12 @@ public class Member {
     private String lastName;
 
     @NotNull
-    private String countryCode;
+    private int countryCode;
 
     @NotNull
     private String phoneNumber;
 
-    public Member(final String firstName, final String lastName, final String countryCode, final String phoneNumber) {
+    public Member(final String firstName, final String lastName, final int countryCode, final String phoneNumber) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.countryCode = countryCode;
