@@ -8,8 +8,7 @@ import java.util.List;
 // This will be AUTO IMPLEMENTED by Spring into a Bean called groupRepository
 // CRUD refers Create, Read, Update, Delete
 public interface MembershipRepository extends CrudRepository<Membership, Long> {
-    // Find membership by memberId
     List<Membership> findByMemberId(String memberId);
-    // Find membership by memberId
     List<Membership> findByGroupId(String groupId);
+    Membership findByMemberIdAndGroupId(String memberId, String groupId);
 }

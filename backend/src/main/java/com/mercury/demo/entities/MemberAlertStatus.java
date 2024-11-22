@@ -1,9 +1,11 @@
 package com.mercury.demo.entities;
 
+import com.mercury.demo.entities.idclass.MemberAlert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.IdClass;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -11,6 +13,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import java.time.Instant;
 
 
 @Entity
@@ -20,23 +25,22 @@ import lombok.ToString;
 @Setter
 @EqualsAndHashCode
 @ToString
+@IdClass(MemberAlert.class)
 public class MemberAlertStatus {
    public enum Status {
         UNSEEN,
         SEEN,
-        SAFE,
-        UNSAFE
+        RESPONDED,
     }
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
-
-    @NotNull
     private String alertId;
 
-    @NotNull
+    @Id
     private String memberId;
+
+    @UpdateTimestamp
+    private Instant lastSeen;
 
     @NotNull
     private Status status;

@@ -27,12 +27,15 @@ import java.util.Optional;
 @RequestMapping(path = "/sms") // This means URL's start with /demo (after Application path)
 public class SMSVerificationController {
     @Autowired private SMSVerificationRepository smsVerificationRepository;
+
     @Autowired private CarrierRepository carrierRepository;
+
     @Autowired private SMSEmailService mailService;
+
     @Autowired private MemberRepository memberRepository;
 
     @PostMapping(path = "/dispatch") // Map ONLY POST Requests
-    public @ResponseBody SMSDispatchResponse requestSMSDispatch(@RequestParam final String countryCode,
+    public @ResponseBody SMSDispatchResponse requestSMSDispatch(@RequestParam final int countryCode,
                                                                 @RequestParam final String phoneNumber,
                                                                 @RequestParam final String carrier) {
         // Calculate expiration time (15 minutes from current moment)

@@ -21,19 +21,24 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.DigestUtils;
 
+import java.util.List;
 import java.util.Optional;
 
 public class TestSMSVerificationController {
-    private static final Member MEMBER = new Member("Giorno", "Giovanna", "39", "12345678910");
+    private static final Member MEMBER = new Member("Giorno", "Giovanna", 39, "12345678910");
     private static final String CARRIER_NAME = "Verizon";
     private static final String FAKE_CARRIER = "SimpleMobile";
+    private static final SMSVerification VERIFICATION = new SMSVerification(MEMBER.getCountryCode(), MEMBER.getPhoneNumber(), 12, "12");
 
     @Mock
     private SMSVerificationRepository mockSmsVerificationRepository;
+
     @Mock
     private CarrierRepository mockCarrierRepository;
+
     @Mock
     private SMSEmailService mockMailService;
+
     @Mock
     private MemberRepository mockMemberRepository;
 
@@ -48,7 +53,7 @@ public class TestSMSVerificationController {
     @Test
     public void testRequestSMSDispatch() {
         final Carrier carrier = new Carrier("1", CARRIER_NAME, "vibes", false);
-        final SMSVerification smsVerification = new SMSVerification(MEMBER.getCountryCode(), MEMBER.getPhoneNumber(), 12, "12");
+        final SMSVerification smsVerification = VERIFICATION;
         smsVerification.setId("1");
         final SMSDispatchResponse expectedDispatchResponse = new SMSDispatchResponse(true, smsVerification.getId());
 
@@ -87,7 +92,7 @@ public class TestSMSVerificationController {
         Assertions.assertEquals(expectedVerifyResponse, controller.verifySMSCode(token, code));
 
         Mockito.verify(mockSmsVerificationRepository, Mockito.times(1)).findById(Mockito.any());
-        Mockito.verify(mockMemberRepository, Mockito.times(1)).findByPhoneNumberAndCountryCode(Mockito.any(), Mockito.any());
+        Mockito.verify(mockMemberRepository, Mockito.times(1)).findByPhoneNumberAndCountryCode(Mockito.any(), Mockito.anyInt());
     }
 
     @Test
@@ -115,5 +120,16 @@ public class TestSMSVerificationController {
         Assertions.assertEquals(expectedVerifyResponse, controller.verifySMSCode(token, code));
 
         Mockito.verify(mockSmsVerificationRepository, Mockito.times(1)).findById(Mockito.any());
+    }
+
+    @Test
+    public void testGetAllPendingNotifications() {
+        final List<SMSVerification> expectedVerifications = List.of(VERIFICATION);
+
+        Mockito.when(mockSmsVerificationRepository.findAll()).thenReturn(expectedVerifications);
+
+        Assertions.assertEquals(expectedVerifications, controller.getAllPendingVerifications());
+
+        Mockito.verify(mockSmsVerificationRepository, Mockito.times(1)).findAll();
     }
 }

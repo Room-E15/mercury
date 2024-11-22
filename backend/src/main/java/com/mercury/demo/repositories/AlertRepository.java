@@ -1,8 +1,12 @@
 package com.mercury.demo.repositories;
 
 import com.mercury.demo.entities.Alert;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 
-public interface AlertRepository extends CrudRepository<Alert, String> {
+import java.util.List;
 
+public interface AlertRepository extends CrudRepository<Alert, String> {
+    @Query(value = "SELECT a FROM Alert a WHERE a.id IN ?1 ORDER BY a.creationTime")
+    List<Alert> findByIds(List<String> ids);
 }

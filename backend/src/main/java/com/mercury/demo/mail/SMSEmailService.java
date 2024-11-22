@@ -18,7 +18,7 @@ public class SMSEmailService implements SMSManager {
 
     @Override
     public void dispatchSMS(final String code,
-                            final String countryCode,
+                            final int countryCode,
                             final String phoneNumber,
                             final Carrier carrier) {
         try {
@@ -30,8 +30,6 @@ public class SMSEmailService implements SMSManager {
             message.setText(htmlContent);
 
             mailSender.send(message);
-        } catch (MessagingException e) {
-          e.printStackTrace();
-        }
+        } catch (final MessagingException ignored) {}
     }
 }

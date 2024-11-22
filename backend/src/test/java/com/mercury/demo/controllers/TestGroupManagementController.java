@@ -22,7 +22,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public class TestGroupManagementController {
-    private static final Member MEMBER = new Member("Giorno", "Giovanna", "123",
+    private static final Member MEMBER = new Member("Giorno", "Giovanna", 123,
             "1226765555");
     private static final String PHONE_NUMBER = "1234567890";
     private static final String GROUP_NAME = "AIA";
@@ -78,7 +78,7 @@ public class TestGroupManagementController {
     public void testJoinGroup() {
         final AlertGroup alertGroup = new AlertGroup(GROUP_NAME);
         alertGroup.setId(PHONE_NUMBER);
-        final Member member = new Member("Test", "ing", "1", PHONE_NUMBER);
+        final Member member = new Member("Test", "ing", 1, PHONE_NUMBER);
 
         final Membership membership = new Membership(member.getId(), alertGroup.getId(), false);
 
@@ -109,7 +109,7 @@ public class TestGroupManagementController {
 
     @Test
     public void testJoinGroupGroupNotFound() {
-        final Member member = new Member("Test", "ing", "1", PHONE_NUMBER);
+        final Member member = new Member("Test", "ing", 1, PHONE_NUMBER);
 
         Mockito.when(mockMemberRepository.findById(member.getId())).thenReturn(Optional.of(member));
         Mockito.when(mockAlertGroupRepository.findById(ALERT_GROUP.getId())).thenReturn(Optional.empty());
@@ -146,7 +146,7 @@ public class TestGroupManagementController {
     public void testGetGroupWithTwoMembers() {
         final AlertGroup alertGroup = new AlertGroup(GROUP_NAME);
         alertGroup.setId(PHONE_NUMBER);
-        final Member memberTwo = new Member("Test", "ing", "4", PHONE_NUMBER);
+        final Member memberTwo = new Member("Test", "ing", 4, PHONE_NUMBER);
         memberTwo.setId("1234");
         final Membership membership = new Membership(MEMBER.getId(), alertGroup.getId(), true);
         membership.setId(1L);

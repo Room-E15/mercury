@@ -27,15 +27,18 @@ public class SMSVerification {
     private String phoneNumber;
 
     @NotNull
-    private String countryCode;
+    private int countryCode;
 
     @NotNull
     private String verificationCodeHash;
 
     @NotNull
+    private boolean verified = false;
+
+    @NotNull
     private long expiration;
 
-    public SMSVerification(final String countryCode,
+    public SMSVerification(final int countryCode,
                            final String phoneNumber,
                            final long expiration,
                            final String verificationCodeHash) {
