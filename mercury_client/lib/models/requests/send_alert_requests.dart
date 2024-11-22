@@ -32,21 +32,23 @@ class SendAlertRequests extends ServerRequests {
   // band-aid solution to have alerts fetched in the background while app running
   static Future<void> backgroundFetchAlerts({
     required final String memberId,
+    required final Iterable<Alert> ignored,
     required final Future<void> Function(List<Alert>) onNewAlert,
   }) async {
     while (true) {
-      var future = fetchAlerts(memberId).then(onNewAlert).onError((error, stackTrace) {});
+      var future = fetchAlerts(memberId, ignored).then(onNewAlert).onError((error, stackTrace) {});
       await Future.delayed(Duration(seconds: 5));
       await future;
     }
   }
 
-  static Future<List<Alert>> fetchAlerts(final String memberId) async {
+  static Future<List<Alert>> fetchAlerts(final String memberId, final Iterable<Alert> ignored) async {
     log("[$subURL] Fetching alerts");
     final response = await get(
       Uri.parse('${ServerRequests.baseURL}$subURL/get'),
       headers: {
         'memberId': memberId,
+        'ignoreAlertIds': jsonEncode(ignored.map((alert) => alert.id).toList()),
       },
     ).onError((error, stackTrace) {
       return Response('', 500);
@@ -62,7 +64,7 @@ class SendAlertRequests extends ServerRequests {
       // now that we have the alerts, we can mark them as read
       put(Uri.parse('${ServerRequests.baseURL}$subURL/confirm'), body: {
         'memberId': memberId,
-        'jsonAlertIds': jsonEncode(alerts.map((alert) => alert.id).toList()),
+        'alertIds': jsonEncode(alerts.map((alert) => alert.id).toList()),
       }).onError((error, stackTrace) {
         return Response('', 500);
       });

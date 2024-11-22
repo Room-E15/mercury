@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 // TODO consider splitting into multiple controllers, covers 2 use cases (send alert and respond to alert)
 @RestController
@@ -38,7 +39,7 @@ public class SendAlertController {
 
         Membership userMembership = membershipRepository.findByMemberIdAndGroupId(memberId, groupId);
         if (userMembership != null && !userMembership.isLeader()) {
-            return null;
+            throw new RuntimeException("member tried to send alert in group without leadership permissions");
         }
 
         final Alert alert = alertRepository.save(new Alert(groupId, title, description));
@@ -46,11 +47,10 @@ public class SendAlertController {
         // Populate MemberAlertStatus table for each member in the group
         membershipRepository.findByGroupId(alert.getGroupId()).forEach(membership -> {
             // TODO make it so a leader does not get their own alerts, once full alert pipeline works (useful for testing)
-            final var status = new MemberAlertStatus(
+            statusRepository.save(new MemberAlertStatus(
                     alert.getId(),
                     membership.getMemberId(),
-                    Status.UNSEEN);
-            statusRepository.save(status);
+                    Status.UNSEEN));
         });
 
         // TODO send push notification, email notification, SMS notification based on client preferences after
@@ -60,21 +60,30 @@ public class SendAlertController {
     }
 
     @GetMapping(path="/get")
-    public List<Alert> getLatestAlerts(@RequestHeader final String memberId) {
-        List<MemberAlertStatus> alertStatuses = statusRepository.findByMemberIdAndStatusOrStatusOrderByLastSeen(memberId, Status.SEEN, Status.UNSEEN);
-        return alertRepository.findByIds(alertStatuses.stream().map(MemberAlertStatus::getAlertId).toList());
+    public List<Alert> getLatestAlerts(@RequestHeader final String memberId,
+                                       @RequestHeader final String ignoreAlertIds) {
+        try {
+            Set<String> alertIds = objectMapper.readValue(ignoreAlertIds, new TypeReference<>() {});
+            List<MemberAlertStatus> alertStatuses = statusRepository.findByMemberIdAndStatusOrStatusOrderByLastSeen(memberId, Status.SEEN, Status.UNSEEN);
+            return alertRepository.findByIds(alertStatuses
+                    .stream()
+                    .map(MemberAlertStatus::getAlertId)
+                    .filter(alertId -> !alertIds.contains(alertId))
+                    .toList()
+            );
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("ERROR: Could not convert id list: " + ignoreAlertIds);
+        }
     }
 
     @PutMapping(path= "/confirm")
     public List<MemberAlertStatus> confirmAlertsSeen(@RequestParam final String memberId,
-                                                     @RequestParam final String jsonAlertIds) {
-
-
+                                                     @RequestParam final String alertIds) {
         try {
-            List<String> alertIds = objectMapper.readValue(jsonAlertIds, new TypeReference<>() {});
+            List<String> _alertIds = objectMapper.readValue(alertIds, new TypeReference<>() {});
             List<MemberAlertStatus> alertStatuses = new ArrayList<>();
 
-            statusRepository.findByAlertIds(alertIds).forEach(alertStatus -> {
+            statusRepository.findByAlertIds(_alertIds).forEach(alertStatus -> {
                 if (alertStatus.getMemberId().equals(memberId)) {
                     alertStatuses.add(statusRepository.save(new MemberAlertStatus(
                             alertStatus.getAlertId(),
@@ -85,8 +94,7 @@ public class SendAlertController {
 
             return alertStatuses;  // return resource to confirm success
         } catch (JsonProcessingException e) {
-            System.out.println("ERROR: Could not convert id list: " + jsonAlertIds);
-            return null;
+            throw new RuntimeException("ERROR: Could not convert id list: " + alertIds);
         }
     }
 }

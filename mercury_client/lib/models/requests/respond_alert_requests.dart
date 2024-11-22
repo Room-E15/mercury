@@ -11,7 +11,6 @@ class RespondAlertRequests extends ServerRequests {
     final location = await LocationService.getCurrentLocation();
     final batteryPercent = await BatteryService.getBatteryPercentage();
 
-    // TODO should we await this, and if the server doesn't respond we don't remove the icon?
     final response = await post(
       Uri.parse('${ServerRequests.baseURL}$subURL/save'),
       body: {
