@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'package:mercury_client/widgets/loading.dart';
 import 'package:mercury_client/pages/qr/qr_scan_view.dart';
 import 'package:mercury_client/widgets/logo.dart';
 

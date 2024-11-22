@@ -20,5 +20,12 @@ GitHub Issues - Ticket Tracking
 GitHub Actions - Continuous Integration (CI/CD)
 Sonar Cloud - Code Quality
 Bruno - API Testing
+(TODO) Python + Selenium - Acceptance Testing
 
+# Patterns
+Model View Controller architecture
+
+Async/Await Parallel Computing
+REST API???
+The Security one Caden mentioned
 

@@ -1,30 +1,37 @@
 import 'package:flutter/material.dart';
+import 'package:mercury_client/widgets/loading_widget.dart';
 import 'package:mercury_client/widgets/logo.dart';
-// import 'package:mercury_client/src/home/dev_home_view.dart';  // TODO remove
 import 'package:mercury_client/pages/home/home_view.dart';
 import 'package:mercury_client/models/requests/member_requests.dart';
-import 'package:mercury_client/pages/register/loading_view.dart';
 import 'package:mercury_client/models/data/user_info.dart';
-import 'package:mercury_client/pages/register/log_user_info.dart';
+import 'package:mercury_client/utils/log_user_info.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class RegisterView extends StatelessWidget {
+class RegisterView extends StatefulWidget {
   static const routeName = '/register';
-
-  final _formKey = GlobalKey<FormState>();
-  final firstNameController = TextEditingController();
-  final lastNameController = TextEditingController();
 
   final SharedPreferencesWithCache preferences;
   final int countryCode;
   final String phoneNumber;
 
-  RegisterView({
+  const RegisterView({
     super.key,
     required this.preferences,
     required this.countryCode,
     required this.phoneNumber,
   });
+
+  @override
+  State<StatefulWidget> createState() => _RegisterViewState();
+}
+
+class _RegisterViewState extends State<RegisterView> {
+  final _formKey = GlobalKey<FormState>();
+  final firstNameController = TextEditingController();
+  final lastNameController = TextEditingController();
+
+  Future<String?>? _futureUserId;
+  UserInfo? _user;
 
   @override
   Widget build(BuildContext context) {
@@ -82,37 +89,54 @@ class RegisterView extends StatelessWidget {
                     onPressed: () {
                       // Validate returns true if the form is valid, or false otherwise.
                       if (_formKey.currentState!.validate()) {
-                        final user = UserInfo(
+                        setState(() {
+                          _user = UserInfo(
                             firstName: firstNameController.text,
                             lastName: lastNameController.text,
-                            countryCode: countryCode,
-                            phoneNumber: phoneNumber,
+                            countryCode: widget.countryCode,
+                            phoneNumber: widget.phoneNumber,
                           );
-
-                        final future = MemberRequests.requestRegisterUser(user).then((userId) {
-                          userId ??= 'spingis';  // TODO figure out what to do if the server fails
-                          return logUserInfo(preferences, RegisteredUserInfo.fromUser(user, userId));
+                          _futureUserId = MemberRequests.requestRegisterUser(
+                              _user as UserInfo);
                         });
-
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => LoadingView(
-                              future: future,
-                              onFinish: (_) {
-                                Navigator.pushNamedAndRemoveUntil(
-                                  context,
-                                  HomeView.routeName,
-                                  (route) => false,
-                                );
-                              },
-                            ),
-                          ),
-                        );
                       }
                     },
                     child: const Text('Submit'),
                   ),
+                ),
+                // Loading icon and logic to move to next page
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: _futureUserId == null
+                      ? Container()
+                      : loadingWidgetBuilder(
+                          context: context,
+                          futureIcon:
+                              (_futureUserId as Future<String?>).then((userId) {
+                            if (userId == null) {
+                              return const Text(
+                                  'Failed to register on server!');
+                            } else if (context.mounted && _user != null) {
+                              logUserInfo(
+                                widget.preferences,
+                                RegisteredUserInfo.fromUser(
+                                  _user as UserInfo,
+                                  userId,
+                                ),
+                              ).then((_) {
+                                if (context.mounted) {
+                                  Navigator.pushNamedAndRemoveUntil(
+                                    context,
+                                    HomeView.routeName,
+                                    (route) => false,
+                                  );
+                                }
+                              });
+
+                              return Icon(Icons.check);
+                            }
+                          }),
+                        ),
                 ),
               ],
             ),
