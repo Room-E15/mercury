@@ -3,30 +3,46 @@ import 'package:mercury_client/widgets/logo.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:mercury_client/pages/register/verification_view.dart';
+import 'package:country_list/country_list.dart';
 
-class StartView extends StatelessWidget {
+class StartView extends StatefulWidget {
   static const routeName = '/start';
+  final SharedPreferencesWithCache preferences;
 
+  const StartView({super.key, required this.preferences});
+  
+  @override
+  State<StatefulWidget> createState() => _StartViewState();  
+}
+
+class _StartViewState extends State<StartView> {
   final _formKey = GlobalKey<FormState>(); // Replaced Global Key
-  final countryCodeController = TextEditingController();
-  final phoneNumberController = TextEditingController();
-  final phoneCarrierController = TextEditingController();
+  List<int> countryCodeOptions = [];
+  var _countryCode; // Current selected value
 
-  final selectedCode = "+1"; // Current selected value
-  final countryCodeOptions = [
-    '+1',
-    '+39'
-  ]; // Options list  TODO get from somewhere
+  @override
+  void initState() {
+    super.initState();
+    final countries = Countries.list;
+    for (var c in countries) {
+      var code = c.dialCode;
+      var codeInt = int.parse(code.substring(1));
+      countryCodeOptions.add(codeInt);
+    }
+    countryCodeOptions.sort();
+    countryCodeOptions.remove(1);
+    _countryCode = countryCodeOptions.isNotEmpty ? countryCodeOptions[0] : null;
+  }
+
   final phoneCarrierOptions = [
     'AT&T',
     'Verizon',
     'T-Mobile'
   ]; // Options list, TODO get from server
 
-  final SharedPreferencesWithCache preferences;
-
-  StartView({super.key, required this.preferences});
-
+  String? _phoneNumber; // Current phone number
+  String? _phoneCarrier; // Current phone carrier
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -47,16 +63,16 @@ class StartView extends StatelessWidget {
                     Expanded(
                       child: Padding(
                         padding: const EdgeInsets.all(16.0),
-                        child: DropdownButtonFormField<String>(
-                          value: selectedCode, // Currently selected value
-                          items: countryCodeOptions.map((String option) {
-                            return DropdownMenuItem<String>(
+                        child: DropdownButtonFormField<int>(
+                          value: _countryCode, // Currently selected value
+                          items: countryCodeOptions.map((int option) {
+                            return DropdownMenuItem<int>(
                               value: option,
-                              child: Text(option),
+                              child: Text("+$option"),
                             );
                           }).toList(),
-                          onChanged: (String? newValue) {
-                            countryCodeController.text = newValue!;
+                          onChanged: (int? newValue) {
+                            _countryCode = newValue!;
                           },
                           decoration: const InputDecoration(
                             labelText: 'Country',
@@ -69,7 +85,6 @@ class StartView extends StatelessWidget {
                       child: Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: TextFormField(
-                          controller: phoneNumberController,
                           keyboardType: TextInputType.phone,
                           decoration: const InputDecoration(
                             labelText: 'Phone Number',
@@ -84,7 +99,7 @@ class StartView extends StatelessWidget {
                             return null;
                           },
                           onChanged: (value) =>
-                              phoneNumberController.text = value,
+                              _phoneNumber = value,
                         ),
                       ),
                     ),
@@ -100,7 +115,7 @@ class StartView extends StatelessWidget {
                       );
                     }).toList(),
                     onChanged: (String? newValue) {
-                      phoneCarrierController.text = newValue!;
+                      _phoneCarrier = newValue!;
                     },
                     decoration: const InputDecoration(
                       labelText: 'Network Carrier',
@@ -119,19 +134,16 @@ class StartView extends StatelessWidget {
                     onPressed: () {
                       // Validate returns true if the form is valid, or false otherwise.
                       if (_formKey.currentState!.validate()) {
-                        if (countryCodeController.text == '') {
-                          countryCodeController.text = selectedCode;
-                        }
                         // If the form is valid, display a snackbar. In the real world,
                         // you'd often call a server or save the information in a database.
                         Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (context) => VerificationView(
-                                preferences: preferences,
-                                countryCode: countryCodeController.text,
-                                phoneNumber: phoneNumberController.text,
-                                carrier: phoneCarrierController.text,
+                                preferences: widget.preferences,
+                                countryCode: _countryCode,
+                                phoneNumber: _phoneNumber ?? '',
+                                carrier: _phoneCarrier ?? '',
                               ),
                             ));
                       }

@@ -1,0 +1,15 @@
+meta {
+  name: WipeTable
+  type: http
+  seq: 1
+}
+
+delete {
+  url: http://localhost:8080/dev/wipe/table/:table
+  body: none
+  auth: none
+}
+
+params:path {
+  table: member
+}

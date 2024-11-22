@@ -12,6 +12,13 @@ public class TestMemberAlert {
     private static final MemberAlert MEMBER_ALERT = new MemberAlert(MEMBER_ID, ALERT_ID);
 
     @Test
+    public void testMemberAlertConstructor() {
+        final MemberAlert alert = new MemberAlert();
+
+        Assertions.assertNotEquals(alert, MEMBER_ALERT);
+    }
+
+    @Test
     public void testMemberAlertHashCode() {
         final int expectedHashCode = MEMBER_ALERT.hashCode();
 

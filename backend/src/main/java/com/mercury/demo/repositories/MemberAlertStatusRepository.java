@@ -1,5 +1,6 @@
 package com.mercury.demo.repositories;
 
+import com.mercury.demo.entities.Alert;
 import com.mercury.demo.entities.MemberAlertStatus;
 import com.mercury.demo.entities.MemberAlertStatus.Status;
 import com.mercury.demo.entities.idclass.MemberAlert;

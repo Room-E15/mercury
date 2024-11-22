@@ -8,7 +8,7 @@ Future<void> logUserInfo(
   await prefs.setString('id', user.id);
   await prefs.setString('firstName', user.firstName);
   await prefs.setString('lastName', user.lastName);
-  await prefs.setString('countryCode', user.countryCode);
+  await prefs.setInt('countryCode', user.countryCode);
   await prefs.setString('phoneNumber', user.phoneNumber);
 }
 

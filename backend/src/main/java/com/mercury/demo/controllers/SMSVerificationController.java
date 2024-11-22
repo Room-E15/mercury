@@ -49,7 +49,7 @@ public class SMSVerificationController {
         }
         final String hash = DigestUtils.md5DigestAsHex(code.toString().getBytes());
 
-        // Check if carrier os supported
+        // Check if carrier is supported
         final Optional<Carrier> optionalCarrier = carrierRepository.findById(carrier);
         if (optionalCarrier.isEmpty()) {
             return new SMSDispatchResponse(false, null);
@@ -61,6 +61,8 @@ public class SMSVerificationController {
 
         // Register SMSVerification session
         SMSVerification smsVerification = new SMSVerification(countryCode, phoneNumber, expiration, hash);
+        smsVerificationRepository.deleteAll(
+                smsVerificationRepository.findAllByPhoneNumberAndCountryCode(phoneNumber, countryCode));
         smsVerification = smsVerificationRepository.save(smsVerification);
 
         // Return token to be used for /verify session lookup
@@ -78,10 +80,15 @@ public class SMSVerificationController {
         }
         final SMSVerification smsVerification = optionalSMSVerificationSession.get();
 
-        // Hash the given code and compare to what we have stored in the db
-        String codeHash = DigestUtils.md5DigestAsHex(code.getBytes());
-        if (!smsVerification.getVerificationCodeHash().equals(codeHash)) {
-            return new SMSVerifyResponse(false, null);
+        if (!smsVerification.isVerified()) {
+            // Hash the given code and compare to what we have stored in the db
+            String codeHash = DigestUtils.md5DigestAsHex(code.getBytes());
+            if (!smsVerification.getVerificationCodeHash().equals(codeHash)) {
+                return new SMSVerifyResponse(false, null);
+            }
+
+            smsVerification.setVerified(true);
+            smsVerificationRepository.save(smsVerification);
         }
 
         // At this point, we know the verification code was correct. Prepare the response info
@@ -89,9 +96,6 @@ public class SMSVerificationController {
         final Member userInfo = memberRepository.findByPhoneNumberAndCountryCode(
                 smsVerification.getPhoneNumber(),
                 smsVerification.getCountryCode()).orElse(null);
-
-        // We are done with the verification session, so delete it
-        smsVerificationRepository.deleteById(token);
 
         // Respond with userInfo (if user exists) and note that the code was valid
         return new SMSVerifyResponse(true, userInfo);

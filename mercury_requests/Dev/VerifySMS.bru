@@ -1,0 +1,16 @@
+meta {
+  name: VerifySMS
+  type: http
+  seq: 6
+}
+
+put {
+  url: http://localhost:8080/dev/sms/forceverify
+  body: multipartForm
+  auth: none
+}
+
+body:multipart-form {
+  phoneNumber: 6503958675
+  countryCode: 1
+}

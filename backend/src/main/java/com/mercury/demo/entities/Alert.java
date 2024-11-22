@@ -23,7 +23,7 @@ import java.time.Instant;
 @ToString
 public class Alert {
     @Id
-    @UuidGenerator
+    @UuidGenerator()
     private String id;
 
     @CreationTimestamp

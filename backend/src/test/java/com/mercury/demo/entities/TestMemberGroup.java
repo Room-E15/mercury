@@ -12,6 +12,13 @@ public class TestMemberGroup {
     private static final MemberGroup MEMBER_GROUP = new MemberGroup(MEMBER_ID, GROUP_ID);
 
     @Test
+    public void testMemberGroupConstructor() {
+        final MemberGroup memberGroup = new MemberGroup();
+
+        Assertions.assertNotEquals(memberGroup, MEMBER_GROUP);
+    }
+
+    @Test
     public void testMemberAlertHashCode() {
         final int expectedHashCode = MEMBER_GROUP.hashCode();
 

@@ -71,7 +71,7 @@ public class SendAlertController {
         return alertRepository.findByIds(alertStatuses.stream().map(MemberAlertStatus::getAlertId).toList());
     }
 
-    @PutMapping(path= "/confirm")
+    @PutMapping(path="/confirm")
     public List<MemberAlertStatus> confirmAlertsSeen(@RequestParam final String memberId,
                                                      @RequestParam final String jsonAlertIds) throws MapperJsonProcessingException {
         try {
