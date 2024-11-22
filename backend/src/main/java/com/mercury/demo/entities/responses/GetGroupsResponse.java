@@ -1,31 +1,19 @@
 package com.mercury.demo.entities.responses;
 
 import com.mercury.demo.entities.Member;
+import com.mercury.demo.entities.MemberAlertResponse;
 
 import java.util.HashMap;
 import java.util.List;
 
+// If the user is not a leader, responses will be null
 public class GetGroupsResponse extends HashMap<String, Object> {
-    public GetGroupsResponse(final String id, final String name, final int memberCount, final int responseCount,
-                             final int unsafe, final boolean isLeader, final List<Member> members, final List<Member> leaders) {
+    public GetGroupsResponse(final String id, final String name, final List<Member> members,
+                             final List<Member> leaders, final List<MemberAlertResponse> responses) {
         super.put("id", id);
         super.put("name", name);
-        super.put("memberCount", memberCount);
-        super.put("responseCount", responseCount);
-        super.put("unsafe", unsafe);
-        super.put("isLeader", isLeader);
         super.put("members", members);
         super.put("leaders", leaders);
-    }
-
-    public GetGroupsResponse(final String id, final String name, final int memberCount,
-                             final int unsafe, final boolean isLeader, final List<Member> members, final List<Member> leaders) {
-        super.put("id", id);
-        super.put("name", name);
-        super.put("memberCount", memberCount);
-        super.put("unsafe", unsafe);
-        super.put("isLeader", isLeader);
-        super.put("members", members);
-        super.put("leaders", leaders);
+        super.put("responses", responses);
     }
 }

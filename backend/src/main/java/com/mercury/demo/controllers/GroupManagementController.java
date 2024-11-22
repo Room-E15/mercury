@@ -2,10 +2,13 @@ package com.mercury.demo.controllers;
 
 import com.mercury.demo.entities.AlertGroup;
 import com.mercury.demo.entities.Member;
+import com.mercury.demo.entities.MemberAlertResponse;
 import com.mercury.demo.entities.Membership;
+import com.mercury.demo.entities.idclass.MemberAlert;
 import com.mercury.demo.entities.responses.GetGroupsResponse;
 import com.mercury.demo.entities.responses.JoinGroupResponse;
 import com.mercury.demo.repositories.AlertGroupRepository;
+import com.mercury.demo.repositories.MemberAlertResponseRepository;
 import com.mercury.demo.repositories.MemberRepository;
 import com.mercury.demo.repositories.MembershipRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +32,8 @@ public class GroupManagementController {
     private MembershipRepository membershipRepository;
     @Autowired
     private MemberRepository memberRepository;
+    @Autowired
+    private MemberAlertResponseRepository alertResponseRepository;
 
     @PostMapping(path="/createGroup") // Map ONLY POST Requests
     public @ResponseBody String createGroup (@RequestParam String groupName,
@@ -53,10 +58,10 @@ public class GroupManagementController {
     public @ResponseBody List<GetGroupsResponse> getGroups (@RequestParam String memberId
     ) {
         // TODO: List groups by at first Leader groups then alphabetized
-        final List<Membership> membershipList = membershipRepository.findByMemberId(memberId);
+        final List<Membership> groupMemberships = membershipRepository.findByMemberId(memberId);
         List<GetGroupsResponse> groupResponseList = new ArrayList<>();
 
-        for (final Membership membership : membershipList) {
+        for (final Membership membership : groupMemberships) {
             final AlertGroup correspondingGroup = alertGroupRepository.findById(membership.getGroupId()).orElseThrow(() -> new RuntimeException(
                     String.format("Corresponding group with groupId %s not found.", membership.getGroupId())));
 
@@ -67,10 +72,22 @@ public class GroupManagementController {
             final List<Member> membersList = membersByMembership.entrySet().stream().filter(entry -> !entry.getKey().isLeader()).map(Map.Entry::getValue).toList();
             final List<Member> leadersList = membersByMembership.entrySet().stream().filter(entry -> entry.getKey().isLeader()).map(Map.Entry::getValue).toList();
 
-            // Update with proper responses
-            groupResponseList.add(new GetGroupsResponse(correspondingGroup.getId(), correspondingGroup.getGroupName(), allMembersInGroup.size(),
-                    0, membership.isLeader(), membersList, leadersList));
 
+            // sanitize member and leader lists to remove ids
+
+            // Update with proper responses
+            if (membership.isLeader()) {
+                // Get the statuses of all members
+                List<Member> allMembers = new ArrayList<>(membersList);
+                allMembers.addAll(leadersList);
+                List<MemberAlert> ids = allMembers.stream().map(member -> new MemberAlert(member.getId(), ));
+                // only get the newest response from each group member TODO ask if this is right design choice
+                // should we wipe old responses?
+                final List<MemberAlertResponse> latestResponses = alertResponseRepository.findAllById();
+                groupResponseList.add(new GetGroupsResponse(correspondingGroup.getId(), correspondingGroup.getGroupName(), membersList, leadersList, responses))
+            } else {
+                groupResponseList.add(new GetGroupsResponse(correspondingGroup.getId(), correspondingGroup.getGroupName(), membersList, leadersList, null));
+            }
         }
         return groupResponseList;
     }
