@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:http/http.dart';
+import 'package:mercury_client/config/app_config.dart';
 import 'package:mercury_client/models/data/alert.dart';
 import 'package:mercury_client/models/requests/server_requests.dart';
 
@@ -37,7 +38,7 @@ class SendAlertRequests extends ServerRequests {
   }) async {
     while (true) {
       var future = fetchAlerts(memberId, ignored).then(onNewAlert).onError((error, stackTrace) {});
-      await Future.delayed(Duration(seconds: 5));
+      await Future.delayed(Duration(milliseconds: AppConfig.alertRefreshRate));
       await future;
     }
   }
