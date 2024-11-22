@@ -3,6 +3,7 @@ import 'package:mercury_client/widgets/logo.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:mercury_client/pages/register/verification_view.dart';
+import 'package:country_list/country_list.dart';
 
 class StartView extends StatefulWidget {
   static const routeName = '/start';
@@ -16,17 +17,29 @@ class StartView extends StatefulWidget {
 
 class _StartViewState extends State<StartView> {
   final _formKey = GlobalKey<FormState>(); // Replaced Global Key
-  final countryCodeOptions = [
-    1,
-    39
-  ]; // Options list  TODO get from somewhere
+  List<int> countryCodeOptions = [];
+  var _countryCode; // Current selected value
+
+  @override
+  void initState() {
+    super.initState();
+    final countries = Countries.list;
+    for (var c in countries) {
+      var code = c.dialCode;
+      var codeInt = int.parse(code.substring(1));
+      countryCodeOptions.add(codeInt);
+    }
+    countryCodeOptions.sort();
+    countryCodeOptions.remove(1);
+    _countryCode = countryCodeOptions.isNotEmpty ? countryCodeOptions[0] : null;
+  }
+
   final phoneCarrierOptions = [
     'AT&T',
     'Verizon',
     'T-Mobile'
   ]; // Options list, TODO get from server
 
-  var _countryCode = 1; // Current selected value
   String? _phoneNumber; // Current phone number
   String? _phoneCarrier; // Current phone carrier
   
