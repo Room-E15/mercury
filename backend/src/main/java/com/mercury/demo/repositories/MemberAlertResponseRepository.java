@@ -4,6 +4,8 @@ import com.mercury.demo.entities.MemberAlertResponse;
 import com.mercury.demo.entities.idclass.MemberAlert;
 import org.springframework.data.repository.CrudRepository;
 
+import java.util.List;
+
 public interface MemberAlertResponseRepository extends CrudRepository<MemberAlertResponse, MemberAlert> {
-    // TODO make sure when you get responses, you order by timestamp
+    MemberAlertResponse findFirstByMemberIdOrderByCreationTimeDesc(String memberId);
 }

@@ -24,6 +24,7 @@ class LeaderGroupView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // TODO update
     final List<Member> unsafe = group.members;
     final List<Member> safe = getSafeResponses();
     final List<Member> noResponse = getNoResponses();
@@ -84,33 +85,33 @@ class LeaderGroupView extends StatelessWidget {
     );
   }
 
-  List<Member> getSafeResponses() {
-    log("Querying for safe responses");
+  // List<Member> getSafeResponses() {
+  //   log("Querying for safe responses");
 
-    return [
-      Member("3", "Julius", "Caesar", 1, "1234567890",
-          GroupResponse(true, 97, 10.0, 10.0)),
-      Member("6", "Ramos", "Remus", 1, "1234567890",
-          GroupResponse(true, 23, 10.0, 10.0)),
-      Member("1", "Albert", "Einstein", 1, "1234567890",
-          GroupResponse(true, 73, 10.0, 10.0)),
-      Member("2", "Giorno", "Giovanna", 1, "1098765432",
-          GroupResponse(true, 82, 10.0, 10.0))
-    ];
-  }
+  //   return [
+  //     Member("3", "Julius", "Caesar", 1, "1234567890",
+  //         GroupResponse(true, 97, 10.0, 10.0)),
+  //     Member("6", "Ramos", "Remus", 1, "1234567890",
+  //         GroupResponse(true, 23, 10.0, 10.0)),
+  //     Member("1", "Albert", "Einstein", 1, "1234567890",
+  //         GroupResponse(true, 73, 10.0, 10.0)),
+  //     Member("2", "Giorno", "Giovanna", 1, "1098765432",
+  //         GroupResponse(true, 82, 10.0, 10.0))
+  //   ];
+  // }
 
-  List<Member> getUnsafeResponses() {
-    log("Querying for unsafe responses");
+  // List<Member> getUnsafeResponses() {
+  //   log("Querying for unsafe responses");
 
-    return [
-      Member("4", "Brutus", "", 1, "1234567890",
-          GroupResponse(false, 54, 10.0, 10.0))
-    ];
-  }
+  //   return [
+  //     Member("4", "Brutus", "", 1, "1234567890",
+  //         GroupResponse(false, 54, 10.0, 10.0))
+  //   ];
+  // }
 
-  List<Member> getNoResponses() {
-    log("Querying for unsafe responses");
+  // List<Member> getNoResponses() {
+  //   log("Querying for unsafe responses");
 
-    return [Member("5", "Charlemagne", "III", 1, "1234567890", null)];
-  }
+  //   return [Member("5", "Charlemagne", "III", 1, "1234567890", null)];
+  // }
 }

@@ -3,22 +3,41 @@ import 'member.dart';
 class Group {
   final String id;
   final String name;
-  final int memberCount;
-  final int? responseCount;
-  final int unsafe;
-  final bool isLeader;
   final List<Member> members;
   final List<Member> leaders;
+  final bool isLeader;
 
-  const Group(
-      {required this.name,
-      required this.id,
-      required this.isLeader,
-      required this.memberCount,
-      required this.responseCount,
-      required this.unsafe,
-      required this.members,
-      required this.leaders});
+  late int memberCount;
+  late int responseCount;
+  late bool safe;
+  Group({
+    required this.id,
+    required this.name,
+    required this.isLeader,
+    required this.members,
+    required this.leaders,
+  }) {
+    memberCount = members.length + leaders.length;
+    responseCount = 0;
+    safe = true;
+    for (final member in members) {
+      if (member.response != null) {
+        responseCount++;
+      }
+      if (!member.safe) {
+        safe = false;
+      }
+    }
+
+    for (final member in leaders) {
+      if (member.response != null) {
+        responseCount++;
+      }
+      if (!member.safe) {
+        safe = false;
+      }
+    }
+  }
 
   // Factory constructor to create a Group instance from JSON
   factory Group.fromJson(dynamic json) {
@@ -26,9 +45,6 @@ class Group {
       id: json['id'],
       name: json['name'],
       isLeader: json['isLeader'],
-      memberCount: json['memberCount'],
-      responseCount: json['responseCount'],
-      unsafe: json['unsafe'],
       members: (json['members'] as List<dynamic>)
           .map((json) => Member.fromJson(json))
           .toList(),
@@ -37,19 +53,6 @@ class Group {
           .toList(),
     );
   }
-
-  // factory Group.fromMap(Map groupMap) {
-  //   return Group(
-  //     id: groupMap['id'],
-  //     name: groupMap['name'],
-  //     isLeader: groupMap['isLeader'],
-  //     memberCount: groupMap['memberCount'],
-  //     responseCount: groupMap['responseCount'],
-  //     unsafe: groupMap['unsafe'],
-  //     members: groupMap['members'],
-  //     leaders: groupMap['leaders'],
-  //   );
-  // }
 }
 
 class GroupResponse {

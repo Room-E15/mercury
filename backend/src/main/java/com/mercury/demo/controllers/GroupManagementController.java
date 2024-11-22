@@ -36,8 +36,8 @@ public class GroupManagementController {
     private MemberAlertResponseRepository alertResponseRepository;
 
     @PostMapping(path="/createGroup") // Map ONLY POST Requests
-    public @ResponseBody String createGroup (@RequestParam String groupName,
-                                             @RequestParam String memberId
+    public @ResponseBody String createGroup (@RequestParam final String groupName,
+                                             @RequestParam final String memberId
     ) {
         AlertGroup group = new AlertGroup(groupName);
         final Optional<Member> user = memberRepository.findById(memberId);
@@ -55,9 +55,9 @@ public class GroupManagementController {
 
     // TODO change to GET request
     @PostMapping(path="/getGroups") // Map ONLY POST Requests
-    public @ResponseBody List<GetGroupsResponse> getGroups (@RequestParam String memberId
+    public @ResponseBody List<GetGroupsResponse> getGroups (@RequestParam final String memberId
     ) {
-        // TODO: List groups by at first Leader groups then alphabetized
+        // TODO: optimize, this code has tooooo many streams
         final List<Membership> groupMemberships = membershipRepository.findByMemberId(memberId);
         List<GetGroupsResponse> groupResponseList = new ArrayList<>();
 
@@ -71,22 +71,19 @@ public class GroupManagementController {
 
             final List<Member> membersList = membersByMembership.entrySet().stream().filter(entry -> !entry.getKey().isLeader()).map(Map.Entry::getValue).toList();
             final List<Member> leadersList = membersByMembership.entrySet().stream().filter(entry -> entry.getKey().isLeader()).map(Map.Entry::getValue).toList();
+            List<Member> allMembers = new ArrayList<>(membersList);
+            allMembers.addAll(leadersList);
 
-
-            // sanitize member and leader lists to remove ids
-
-            // Update with proper responses
             if (membership.isLeader()) {
-                // Get the statuses of all members
-                List<Member> allMembers = new ArrayList<>(membersList);
-                allMembers.addAll(leadersList);
-                List<MemberAlert> ids = allMembers.stream().map(member -> new MemberAlert(member.getId(), ));
-                // only get the newest response from each group member TODO ask if this is right design choice
-                // should we wipe old responses?
-                final List<MemberAlertResponse> latestResponses = alertResponseRepository.findAllById();
-                groupResponseList.add(new GetGroupsResponse(correspondingGroup.getId(), correspondingGroup.getGroupName(), membersList, leadersList, responses))
+                // get map of latest responses to link members to their responses
+                Map<String, MemberAlertResponse> memberToLatestResponses = allMembers
+                        .stream()
+                        .map(member -> alertResponseRepository.findFirstByMemberIdOrderByCreationTimeDesc(member.getId()))
+                        .collect(Collectors.toMap(MemberAlertResponse::getMemberId, response -> response));
+
+                groupResponseList.add(new GetGroupsResponse(correspondingGroup.getId(), correspondingGroup.getGroupName(), true, membersList, leadersList, memberToLatestResponses));
             } else {
-                groupResponseList.add(new GetGroupsResponse(correspondingGroup.getId(), correspondingGroup.getGroupName(), membersList, leadersList, null));
+                groupResponseList.add(new GetGroupsResponse(correspondingGroup.getId(), correspondingGroup.getGroupName(), false, membersList, leadersList));
             }
         }
         return groupResponseList;
@@ -100,7 +97,7 @@ public class GroupManagementController {
         final AlertGroup group = alertGroupRepository.findById(groupId).orElseThrow(() -> new RuntimeException(String.format("Group with the id %s not found", groupId)));
 
         Membership membership = new Membership(user.getId(), group.getId(), false);
-        membership = membershipRepository.save(membership);
+        membershipRepository.save(membership);
 
         return new JoinGroupResponse(memberId, groupId);
     }

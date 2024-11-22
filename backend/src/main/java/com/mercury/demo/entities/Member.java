@@ -3,15 +3,12 @@ package com.mercury.demo.entities;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotNull;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
 
 @Entity
 @NoArgsConstructor
+@AllArgsConstructor
 @Getter
 @Setter
 @EqualsAndHashCode
@@ -38,5 +35,9 @@ public class Member {
         this.lastName = lastName;
         this.countryCode = countryCode;
         this.phoneNumber = phoneNumber;
+    }
+
+    public Member(Member member) {
+        this(member.id, member.firstName, member.lastName, member.countryCode, member.phoneNumber);
     }
 }
