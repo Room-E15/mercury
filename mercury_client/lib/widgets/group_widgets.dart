@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:mercury_client/models/data/group.dart';
-import 'package:mercury_client/models/data/member.dart';
+import 'package:mercury_client/models/data/user.dart';
 import 'package:mercury_client/pages/qr/qr_present_view.dart';
 import 'package:mercury_client/pages/send_alert/send_alert_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-Widget memberWidgetBuilder(context, Member member) {
+Widget memberWidgetBuilder(context, RegisteredUser member) {
   return Row(
     children: [
       Text(
-        "${member.firstName} ${member.lastName}",
+        '${member.firstName} ${member.lastName}',
         style: TextStyle(
           fontSize: 14.0,
           fontWeight: FontWeight.w400,
@@ -20,18 +20,18 @@ Widget memberWidgetBuilder(context, Member member) {
   );
 }
 
-Widget leaderWidgetBuilder(context, Member leader) {
+Widget leaderWidgetBuilder(context, RegisteredUser leader) {
   return Row(
     children: [
       Text(
-        "${leader.firstName} ${leader.lastName}",
+        '${leader.firstName} ${leader.lastName}',
         style: TextStyle(
           fontSize: 14.0,
           fontWeight: FontWeight.w400,
         ),
       ),
       Spacer(),
-      Text("+${leader.countryCode} ${leader.phoneNumber}",
+      Text('+${leader.countryCode} ${leader.phoneNumber}',
           textAlign: TextAlign.right,
           style: TextStyle(
             fontSize: 14.0,
@@ -42,13 +42,11 @@ Widget leaderWidgetBuilder(context, Member leader) {
 }
 
 Widget groupWithAlertWidgetBuilder(
-    context,
-    Group group,
-    Key? key,
-    SharedPreferencesWithCache preferences,
-    List<Member> unsafe,
-    List<Member> noResponse,
-    List<Member> safe) {
+  BuildContext context,
+  Group group,
+  Key? key,
+  SharedPreferencesWithCache preferences,
+) {
   return Column(
     children: [
       Card(
@@ -111,7 +109,7 @@ Widget groupWithAlertWidgetBuilder(
                           },
                           child: const Padding(
                             padding: EdgeInsets.all(16),
-                            child: Text("SEND ALERT"),
+                            child: Text('SEND ALERT'),
                           ),
                         ),
                       ),
@@ -149,7 +147,7 @@ Widget groupWithAlertWidgetBuilder(
                       const Padding(
                           padding: EdgeInsetsDirectional.only(end: 8)),
                       Text(
-                        "${unsafe.length} ${unsafe.length == 1 ? "Member" : "Members"} NOT OK",
+                        "${group.unsafeMembers.length} ${group.unsafeMembers.length == 1 ? "Member" : "Members"} NOT OK",
                         style: TextStyle(
                           fontSize: 14.0,
                           fontWeight: FontWeight.w900,
@@ -166,10 +164,10 @@ Widget groupWithAlertWidgetBuilder(
               child: ListView.builder(
                 shrinkWrap: true,
                 restorationId: 'unsafeList',
-                itemCount: unsafe.length, // Number of blank cards
+                itemCount: group.unsafeMembers.length, // Number of blank cards
                 // build all the group tiles dynamically using builder method
                 itemBuilder: (context, index) {
-                  final Member member = unsafe[index];
+                  final member = group.unsafeMembers[index];
 
                   return memberWidgetBuilder(context, member);
                 },
@@ -205,7 +203,7 @@ Widget groupWithAlertWidgetBuilder(
                       const Padding(
                           padding: EdgeInsetsDirectional.only(end: 8)),
                       Text(
-                        "Waiting for ${noResponse.length} ${noResponse.length == 1 ? "Response" : "Responses"}",
+                        "Waiting for ${group.noResponseMembers.length} ${group.noResponseMembers.length == 1 ? "Response" : "Responses"}",
                         style: TextStyle(
                           fontSize: 14.0,
                           fontWeight: FontWeight.w900,
@@ -222,10 +220,11 @@ Widget groupWithAlertWidgetBuilder(
               child: ListView.builder(
                 shrinkWrap: true,
                 restorationId: 'noResponseList',
-                itemCount: noResponse.length, // Number of blank cards
+                itemCount:
+                    group.noResponseMembers.length, // Number of blank cards
                 // build all the group tiles dynamically using builder method
                 itemBuilder: (context, index) {
-                  final Member member = noResponse[index];
+                  final member = group.noResponseMembers[index];
 
                   return memberWidgetBuilder(context, member);
                 },
@@ -261,7 +260,7 @@ Widget groupWithAlertWidgetBuilder(
                       const Padding(
                           padding: EdgeInsetsDirectional.only(end: 8)),
                       Text(
-                        "${safe.length} ${safe.length == 1 ? "Member" : "Members"} OK",
+                        "${group.safeMembers.length} ${group.safeMembers.length == 1 ? "Member" : "Members"} OK",
                         style: TextStyle(
                           fontSize: 14.0,
                           fontWeight: FontWeight.w900,
@@ -278,10 +277,10 @@ Widget groupWithAlertWidgetBuilder(
               child: ListView.builder(
                 shrinkWrap: true,
                 restorationId: 'safeList',
-                itemCount: safe.length, // Number of blank cards
+                itemCount: group.safeMembers.length, // Number of blank cards
                 // build all the group tiles dynamically using builder method
                 itemBuilder: (context, index) {
-                  final Member member = safe[index];
+                  final member = group.safeMembers[index];
 
                   return memberWidgetBuilder(context, member);
                 },
@@ -375,7 +374,7 @@ Widget groupWithoutAlertWidgetBuilder(context, Group group) {
                 itemCount: group.leaders.length, // Number of blank cards
                 // build all the group tiles dynamically using builder method
                 itemBuilder: (context, index) {
-                  final Member leader = group.leaders[index];
+                  final leader = group.leaders[index];
 
                   return leaderWidgetBuilder(context, leader);
                 },

@@ -28,7 +28,7 @@ class QRPresentView extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             const Text(
-              "QR Code",
+              'QR Code',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             Padding(
@@ -55,7 +55,7 @@ class QRPresentView extends StatelessWidget {
                         Icon(Icons.copy_outlined,
                             size: 20, color: Color(0xFFFFFFFF)),
                         SizedBox(width: 8),
-                        Text("Copy Link", style: TextStyle(fontSize: 14))
+                        Text('Copy Link', style: TextStyle(fontSize: 14))
                       ])),
                 ),
               ),

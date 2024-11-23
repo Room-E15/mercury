@@ -2,18 +2,15 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:http/http.dart';
-import 'package:mercury_client/models/data/user_info.dart';
+import 'package:mercury_client/models/data/user.dart';
 import 'package:mercury_client/models/requests/server_requests.dart';
-import 'package:mercury_client/models/data/member.dart';
-import 'package:mercury_client/models/responses/user_creation_response.dart';
 
 class MemberRequests extends ServerRequests {
-  static const subURL = "/member";
-  static const headers = {"Content-Type": "application/json"};
+  static const subURL = '/member';
+  static const headers = {'Content-Type': 'application/json'};
 
   // returns the user's ID if they were successfully registered
-  // TODO consider refactoring, this design is kind of disgusting
-  static Future<String?> requestRegisterUser(UserInfo user) async {
+  static Future<String?> requestRegisterUser(User user) async {
     log('[$subURL] Sending user data to server...');
 
     // Prepare the data for the HTTP request
@@ -32,24 +29,29 @@ class MemberRequests extends ServerRequests {
 
     // Log response
     if (response.statusCode == 200) {
-      log('[INFO] User data sent successfully!');
-      UserCreationResponse userResponse =
-          UserCreationResponse.fromJson(jsonDecode(response.body));
-      return userResponse.user?.id;
-    } else {
-      log('[$subURL] Failed to send user data to server.');
-      return null;
+      final json = jsonDecode(response.body);
+
+      // try and decode response to get member id
+      if (json
+          case {
+            'user': Map<String, dynamic> member,
+          }) {
+        log('[$subURL] User registered successfully!');
+        return RegisteredUser.fromJson(member).id;
+
+        // if there was an error, log it
+      } else if (json
+          case {
+            'status': String _,
+            'error': String error,
+          }) {
+        log('[$subURL] ERROR: $error');
+        return null;
+      }
     }
-  }
 
-  static Future<List<Member>> fetchMembers() async {
-    Response response = await get(
-      Uri.parse('${ServerRequests.baseURL}$subURL/all'),
-      headers: headers,
-    );
-
-    return jsonDecode(response.body)
-        .map((memberMap) => Member.fromMap(memberMap))
-        .toList();
+    // if we made it here, the response returned with a bad status code
+    log('[$subURL] Failed to send user data to server.');
+    return null;
   }
 }

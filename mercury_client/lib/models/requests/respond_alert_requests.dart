@@ -5,14 +5,14 @@ import 'package:mercury_client/models/requests/server_requests.dart';
 import 'package:mercury_client/utils/functions.dart';
 
 class RespondAlertRequests extends ServerRequests {
-  static final subURL = "/respondAlert";
+  static final subURL = '/respondAlert';
   static final locationService = LocationService();
   static final batteryService = BatteryService();
 
 
   static Future<bool> saveAlertResponse({required String memberId, required String alertId, required bool isSafe}) async {
     final location = await locationService.getCurrentLocation();
-    final batteryPercent = await batteryService.getBatteryPercentage();
+    final battery = await batteryService.getBatteryPercentage();
 
     // TODO should we await this, and if the server doesn't respond we don't remove the icon?
     final response = await post(
@@ -23,7 +23,7 @@ class RespondAlertRequests extends ServerRequests {
         'isSafe': isSafe.toString(),
         'latitude': location?.latitude.toString() ?? '',
         'longitude': location?.longitude.toString() ?? '',
-        'batteryPercent': batteryPercent.toString(),
+        'battery': battery.toString(),
       },
     ).onError((error, stackTrace) {
       return Response('', 500);

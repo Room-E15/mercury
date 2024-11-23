@@ -74,7 +74,7 @@ class SendAlertView extends StatelessWidget {
                             padding: EdgeInsetsDirectional.only(end: 8),
                           ),
                           Text(
-                            "New Alert",
+                            'New Alert',
                             style: TextStyle(
                                 fontSize: 14.0,
                                 fontWeight: FontWeight.w900,

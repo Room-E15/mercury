@@ -34,7 +34,7 @@ class HomeViewState extends State<HomeView> {
   late String memberId;
   late Future<List<Group>> _futureGroups;
 
-  String filterSearch = "";
+  String filterSearch = '';
 
   Future<List<Group>>? futureGroups;
 
@@ -68,7 +68,7 @@ class HomeViewState extends State<HomeView> {
                 child: const Row(children: [
                   Icon(Icons.settings),
                   Padding(padding: EdgeInsetsDirectional.only(end: 10)),
-                  Text("Settings")
+                  Text('Settings')
                 ]),
                 onPressed: () {
                   Scaffold.of(context2).closeDrawer();
@@ -79,7 +79,7 @@ class HomeViewState extends State<HomeView> {
                 child: const Row(children: [
                   Icon(Icons.door_back_door),
                   Padding(padding: EdgeInsetsDirectional.only(end: 10)),
-                  Text("Leave Server")
+                  Text('Leave Server')
                 ]),
                 onPressed: () {
                   Scaffold.of(context2).closeDrawer();
@@ -117,7 +117,7 @@ class HomeViewState extends State<HomeView> {
                 alertId: _alerts.first.id,
                 isSafe: true,
               ).then((serverGotResponse) {
-                if (serverGotResponse) {
+                if (serverGotResponse || _alerts.isNotEmpty) {
                   setState(() {
                     _alerts.removeFirst(); // Toggle between items
                   });

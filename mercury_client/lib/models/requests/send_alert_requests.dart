@@ -6,7 +6,7 @@ import 'package:mercury_client/models/data/alert.dart';
 import 'package:mercury_client/models/requests/server_requests.dart';
 
 class SendAlertRequests extends ServerRequests {
-  static final subURL = "/sendAlert";
+  static final subURL = '/sendAlert';
 
   static Future<void> saveAlert(final String memberId, final String groupId,
       final String title, final String description) async {
@@ -30,7 +30,7 @@ class SendAlertRequests extends ServerRequests {
   }
 
   static Future<List<Alert>> fetchAlerts(final String memberId) async {
-    log("[$subURL] Fetching alerts");
+    log('[$subURL] Fetching alerts');
     final response = await get(
       Uri.parse('${ServerRequests.baseURL}$subURL/get'),
       headers: {
@@ -42,23 +42,27 @@ class SendAlertRequests extends ServerRequests {
 
     if (response.statusCode == 200) {
       log('[$subURL] Alerts fetched: ${response.body}');
+      List<Alert> alerts = [];
 
-      List<Alert> alerts = (jsonDecode(response.body) as List<dynamic>)
-          .map((json) => Alert.fromJson(json))
-          .toList();
+      try {
+        alerts = (jsonDecode(response.body) as List<dynamic>).map((json) {
+          return Alert.fromJson(json as Map<String, dynamic>);
+        }).toList();
+      } catch (e) {
+        log('[$subURL] Failed to parse alerts: $e');
+      }
 
-      // now that we have the alerts, we can mark them as read
-      put(Uri.parse('${ServerRequests.baseURL}$subURL/confirm'), body: {
-        'memberId': memberId,
-        'jsonAlertIds': jsonEncode(alerts.map((alert) => alert.id).toList()),
-      }).onError((error, stackTrace) {
-        return Response('', 500);
-      });
+      if (alerts.isNotEmpty) {
+        // now that we have the alerts, we can mark them as read
+        put(Uri.parse('${ServerRequests.baseURL}$subURL/confirm'), body: {
+          'memberId': memberId,
+          'jsonAlertIds': jsonEncode(alerts.map((alert) => alert.id).toList()),
+        }).onError((error, stackTrace) => Response('', 500));
+      }
 
       return alerts;
     } else {
       log('[$subURL] Failed to fetch alerts: ${response.body}');
-
       return [];
     }
   }

@@ -21,6 +21,7 @@ public class MemberController {
     @Autowired
     private SMSVerificationRepository smsVerificationRepository;
 
+    // TODO consider changing so we're only returning the ID of the new member instead of a custom object
     @PostMapping(path = "/addMember") // Map ONLY POST Requests
     public @ResponseBody MemberAddResponse addNewMember(@RequestParam String firstName,
                                                         @RequestParam String lastName,

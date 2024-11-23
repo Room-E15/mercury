@@ -8,7 +8,6 @@ class BatteryService {
 
   // TODO change before merging
   Future<int> getBatteryPercentage() async {
-    return -1;
     try {
       return await _battery.batteryLevel;
     } on PlatformException catch (error) {

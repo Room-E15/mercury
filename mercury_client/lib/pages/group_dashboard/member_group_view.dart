@@ -15,37 +15,21 @@ class MemberGroupView extends StatelessWidget {
 
   final Group group;
 
-  Widget _memberWidgetBuilder(context, index) {
-    final member = group.members[index];
-
-    return Row(
-      children: [
-        Text(
-          "${member.firstName} ${member.lastName}",
-          style: TextStyle(
-            fontSize: 14.0,
-            fontWeight: FontWeight.w400,
-          ),
-        ),
-        Spacer(),
-      ],
-    );
-  }
-
-  Widget _leaderWidgetBuilder(context, index) {
+  // TODO should we get this from another file?
+  Widget _leaderWidgetBuilder(BuildContext context, int index) {
     final leader = group.leaders[index];
 
     return Row(
       children: [
         Text(
-          "${leader.firstName} ${leader.lastName}",
+          '${leader.firstName} ${leader.lastName}',
           style: TextStyle(
             fontSize: 14.0,
             fontWeight: FontWeight.w400,
           ),
         ),
         Spacer(),
-        Text("+${leader.countryCode} ${leader.phoneNumber}",
+        Text('+${leader.countryCode} ${leader.phoneNumber}',
             textAlign: TextAlign.right,
             style: TextStyle(
               fontSize: 14.0,
@@ -69,7 +53,7 @@ class MemberGroupView extends StatelessWidget {
                 child: const Row(children: [
                   Icon(Icons.settings),
                   Padding(padding: EdgeInsetsDirectional.only(end: 10)),
-                  Text("Settings")
+                  Text('Settings')
                 ]),
                 onPressed: () {
                   Scaffold.of(context2).closeDrawer();
@@ -80,7 +64,7 @@ class MemberGroupView extends StatelessWidget {
                 child: const Row(children: [
                   Icon(Icons.door_back_door),
                   Padding(padding: EdgeInsetsDirectional.only(end: 10)),
-                  Text("Leave Server")
+                  Text('Leave Server')
                 ]),
                 onPressed: () {
                   Scaffold.of(context2).closeDrawer();

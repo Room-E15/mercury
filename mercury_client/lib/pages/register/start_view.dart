@@ -18,7 +18,7 @@ class StartView extends StatefulWidget {
 class _StartViewState extends State<StartView> {
   final _formKey = GlobalKey<FormState>(); // Replaced Global Key
   List<int> countryCodeOptions = [];
-  var _countryCode; // Current selected value
+  int? _countryCode; // Current selected value
 
   @override
   void initState() {
@@ -53,7 +53,7 @@ class _StartViewState extends State<StartView> {
         children: [
           const Padding(
               padding: EdgeInsets.all(40),
-              child: Text("Welcome! Please enter your phone information.")),
+              child: Text('Welcome! Please enter your phone information.')),
           Form(
             key: _formKey,
             child: Column(
@@ -68,7 +68,7 @@ class _StartViewState extends State<StartView> {
                           items: countryCodeOptions.map((int option) {
                             return DropdownMenuItem<int>(
                               value: option,
-                              child: Text("+$option"),
+                              child: Text('+$option'),
                             );
                           }).toList(),
                           onChanged: (int? newValue) {
@@ -141,7 +141,7 @@ class _StartViewState extends State<StartView> {
                             MaterialPageRoute(
                               builder: (context) => VerificationView(
                                 preferences: widget.preferences,
-                                countryCode: _countryCode,
+                                countryCode: _countryCode ?? 1,
                                 phoneNumber: _phoneNumber ?? '',
                                 carrier: _phoneCarrier ?? '',
                               ),

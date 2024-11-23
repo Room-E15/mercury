@@ -1,9 +1,9 @@
 
-import 'package:mercury_client/models/data/user_info.dart';
+import 'package:mercury_client/models/data/user.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 Future<void> logUserInfo(
-    SharedPreferencesWithCache prefs, RegisteredUserInfo user) async {
+    SharedPreferencesWithCache prefs, RegisteredUser user) async {
   await prefs.setBool('registered', true);
   await prefs.setString('id', user.id);
   await prefs.setString('firstName', user.firstName);

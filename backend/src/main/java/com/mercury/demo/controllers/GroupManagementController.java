@@ -79,6 +79,8 @@ public class GroupManagementController {
                 Map<String, MemberAlertResponse> memberToLatestResponses = allMembers
                         .stream()
                         .map(member -> alertResponseRepository.findFirstByMemberIdOrderByCreationTimeDesc(member.getId()))
+                        .filter(Optional::isPresent)
+                        .map(Optional::get)
                         .collect(Collectors.toMap(MemberAlertResponse::getMemberId, response -> response));
 
                 groupResponseList.add(new GetGroupsResponse(correspondingGroup.getId(), correspondingGroup.getGroupName(), true, membersList, leadersList, memberToLatestResponses));
