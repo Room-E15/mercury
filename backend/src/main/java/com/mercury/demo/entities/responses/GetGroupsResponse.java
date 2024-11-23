@@ -38,6 +38,13 @@ public class GetGroupsResponse extends HashMap<String, Object> {
                     return member;
                 }
             }).toList());
+            super.put("leaders", leaders.stream().map(leader -> {
+                if (memberToResponses.containsKey(leader.getId())) {
+                    return new MemberWithResponse(leader, memberToResponses.get(leader.getId()));
+                } else {
+                    return leader;
+                }
+            }).toList());
         } else {
             super.put("members", members);
             super.put("leaders", leaders);
