@@ -232,6 +232,7 @@ Future<Widget> getGroupWidgets(
                           children: [
                             FilledButton(
                               onPressed: () {
+                                Navigator.pop(context);
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
@@ -251,6 +252,7 @@ Future<Widget> getGroupWidgets(
                             ),
                             FilledButton(
                               onPressed: () {
+                                Navigator.pop(context);
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
