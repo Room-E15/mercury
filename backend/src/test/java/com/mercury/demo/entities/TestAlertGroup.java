@@ -3,12 +3,12 @@ package com.mercury.demo.entities;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class TestAlertGroup {
+class TestAlertGroup {
     private static final String GROUP_NAME = "AIA";
     private static final AlertGroup GROUP = new AlertGroup(GROUP_NAME);
 
     @Test
-    public void testAlertGroupToString() {
+    void testAlertGroupToString() {
         final String expectedString = String.format("AlertGroup(id=null, groupName=%s)",
                 GROUP_NAME);
 
@@ -16,14 +16,14 @@ public class TestAlertGroup {
     }
 
     @Test
-    public void testAlertGroupHashCode() {
+    void testAlertGroupHashCode() {
         final int expectedHashCode = GROUP.hashCode();
 
         Assertions.assertEquals(expectedHashCode, GROUP.hashCode());
     }
 
     @Test
-    public void testAlertGroupSetter() {
+    void testAlertGroupSetter() {
         final AlertGroup group = new AlertGroup(GROUP_NAME);
         final String expectedId = "newId";
         final String expectedGroup = "newGroup";
@@ -36,12 +36,12 @@ public class TestAlertGroup {
     }
 
     @Test
-    public void testAlertGroupEqualsTrue() {
-        Assertions.assertTrue(GROUP.equals(GROUP));
+    void testAlertGroupEqualsTrue() {
+        Assertions.assertEquals(GROUP, GROUP);
     }
 
     @Test
-    public void testAlertGroupEqualsFalse() {
-        Assertions.assertFalse(GROUP.equals(new AlertGroup("AI")));
+    void testAlertGroupEqualsFalse() {
+        Assertions.assertNotEquals(GROUP, new AlertGroup("AI"));
     }
 }

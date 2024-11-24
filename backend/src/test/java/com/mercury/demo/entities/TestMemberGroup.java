@@ -6,32 +6,32 @@ import org.junit.jupiter.api.Test;
 
 import java.util.UUID;
 
-public class TestMemberGroup {
+class TestMemberGroup {
     private static final String MEMBER_ID = UUID.randomUUID().toString();
     private static final String GROUP_ID = UUID.randomUUID().toString();
     private static final MemberGroup MEMBER_GROUP = new MemberGroup(MEMBER_ID, GROUP_ID);
 
     @Test
-    public void testMemberGroupConstructor() {
+    void testMemberGroupConstructor() {
         final MemberGroup memberGroup = new MemberGroup();
 
-        Assertions.assertNotEquals(memberGroup, MEMBER_GROUP);
+        Assertions.assertNotEquals(MEMBER_GROUP, memberGroup);
     }
 
     @Test
-    public void testMemberAlertHashCode() {
+    void testMemberAlertHashCode() {
         final int expectedHashCode = MEMBER_GROUP.hashCode();
 
         Assertions.assertEquals(expectedHashCode, MEMBER_GROUP.hashCode());
     }
 
     @Test
-    public void testMemberAlertEqualsTrue() {
-        Assertions.assertTrue(MEMBER_GROUP.equals(MEMBER_GROUP));
+    void testMemberAlertEqualsTrue() {
+        Assertions.assertEquals(MEMBER_GROUP, MEMBER_GROUP);
     }
 
     @Test
-    public void testMemberAlertEqualsFalse() {
-        Assertions.assertFalse(MEMBER_GROUP.equals(new MemberGroup(GROUP_ID, MEMBER_ID)));
+    void testMemberAlertEqualsFalse() {
+        Assertions.assertNotEquals(MEMBER_GROUP, new MemberGroup(GROUP_ID, MEMBER_ID));
     }
 }

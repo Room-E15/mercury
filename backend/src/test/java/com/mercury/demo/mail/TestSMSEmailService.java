@@ -1,10 +1,11 @@
 package com.mercury.demo.mail;
 
 import com.mercury.demo.entities.Carrier;
+import com.mercury.demo.entities.exceptions.DatabaseStateException;
 import jakarta.mail.MessagingException;
-import jakarta.mail.Session;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -13,16 +14,14 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.mail.javamail.JavaMailSender;
 
-import java.util.Properties;
-
-public class TestSMSEmailService {
-    private final String CARRIER_GATEWAY = "txt.testmobile.dev";
-    private final String CARRIER_NAME = "Test Mobile";
-    private final String CARRIER_ID = "testmobile";
-    private final String PHONE_NUMBER = "1234567890";
-    private final int COUNTRY_CODE = 1;
-    private final String CODE = "CODE";
-    private final Carrier CARRIER = new Carrier(CARRIER_ID, CARRIER_NAME, CARRIER_GATEWAY, false);
+class TestSMSEmailService {
+    private static final String CARRIER_GATEWAY = "txt.testmobile.dev";
+    private static final String CARRIER_NAME = "Test Mobile";
+    private static final String CARRIER_ID = "testmobile";
+    private static final String PHONE_NUMBER = "1234567890";
+    private static final int COUNTRY_CODE = 1;
+    private static final String CODE = "CODE";
+    private static final Carrier CARRIER = new Carrier(CARRIER_ID, CARRIER_NAME, CARRIER_GATEWAY, false);
 
     @Mock
     private JavaMailSender mockMailSender;
@@ -36,7 +35,7 @@ public class TestSMSEmailService {
     }
 
     @Test
-    public void testDispatchSMS() throws MessagingException {
+    void testDispatchSMS() {
         final MimeMessage mimeMessage = Mockito.mock(MimeMessage.class);
         Mockito.when(mockMailSender.createMimeMessage()).thenReturn(
                 mimeMessage);
@@ -47,13 +46,13 @@ public class TestSMSEmailService {
     }
 
     @Test
-    public void testDispatchSMSWithMessagingExceptions() throws MessagingException {
+    void testDispatchSMSWithMessagingExceptions() throws MessagingException {
         final MimeMessage mimeMessage = Mockito.mock(MimeMessage.class);
         Mockito.when(mockMailSender.createMimeMessage()).thenReturn(
                 mimeMessage);
         Mockito.doThrow(new MessagingException()).when(mimeMessage).setFrom(new InternetAddress("mercury@asacco.dev"));
 
-        mailService.dispatchSMS(CODE, COUNTRY_CODE, PHONE_NUMBER, CARRIER);
+        Assertions.assertThrows(DatabaseStateException.class, () -> mailService.dispatchSMS(CODE, COUNTRY_CODE, PHONE_NUMBER, CARRIER));
 
         Mockito.verify(mockMailSender, Mockito.times(1)).createMimeMessage();
     }

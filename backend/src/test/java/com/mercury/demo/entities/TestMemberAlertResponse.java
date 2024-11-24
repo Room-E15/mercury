@@ -6,17 +6,17 @@ import org.junit.jupiter.api.Test;
 import java.time.Instant;
 import java.util.UUID;
 
-public class TestMemberAlertResponse {
+class TestMemberAlertResponse {
     private static final String MEMBER_ID = UUID.randomUUID().toString();
     private static final String ALERT_ID = UUID.randomUUID().toString();
     private static final boolean IS_SAFE = true;
     private static final double LATITUDE = 10.0;
     private static final double LONGITUDE = 20.0;
-    private static final double BATTERY = 0.75;
+    private static final int BATTERY = 70;
     private static final MemberAlertResponse ALERT_RESPONSE = new MemberAlertResponse(MEMBER_ID, ALERT_ID, IS_SAFE, LATITUDE, LONGITUDE, BATTERY);
 
     @Test
-    public void testMemberAlertResponseConstructor() {
+    void testMemberAlertResponseConstructor() {
         final MemberAlertResponse response = new MemberAlertResponse();
         final MemberAlertResponse allConstructor = new MemberAlertResponse(MEMBER_ID, ALERT_ID, Instant.now(), IS_SAFE, LATITUDE, LONGITUDE, BATTERY);
 
@@ -24,7 +24,7 @@ public class TestMemberAlertResponse {
     }
 
     @Test
-    public void testMemberAlertResponseSetter() {
+    void testMemberAlertResponseSetter() {
         final MemberAlertResponse response = new MemberAlertResponse();
         response.setAlertId(ALERT_ID);
         response.setMemberId(MEMBER_ID);
@@ -33,11 +33,11 @@ public class TestMemberAlertResponse {
         response.setLongitude(LONGITUDE);
         response.setBatteryPercent(BATTERY);
 
-        Assertions.assertEquals(response, ALERT_RESPONSE);
+        Assertions.assertEquals(ALERT_RESPONSE, response);
     }
 
     @Test
-    public void testMemberAlertResponseToString() {
+    void testMemberAlertResponseToString() {
         final String expectedString = String.format("MemberAlertResponse(memberId=%s, alertId=%s, creationTime=null, isSafe=%s, latitude=%s, longitude=%s, batteryPercent=%s)",
                 MEMBER_ID, ALERT_ID, IS_SAFE, LATITUDE, LONGITUDE, BATTERY);
 

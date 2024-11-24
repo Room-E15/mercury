@@ -10,9 +10,12 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class StartupListener implements ApplicationListener<ContextRefreshedEvent> {
+    CarrierRepository carrierRepository;
 
     @Autowired
-    CarrierRepository carrierRepository;
+    public StartupListener(final CarrierRepository carrierRepository) {
+        this.carrierRepository = carrierRepository;
+    }
 
     @Override
     public void onApplicationEvent(@Nullable ContextRefreshedEvent event) {

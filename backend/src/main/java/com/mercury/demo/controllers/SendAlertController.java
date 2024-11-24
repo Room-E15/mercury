@@ -3,7 +3,7 @@ package com.mercury.demo.controllers;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mercury.demo.entities.exceptions.MapperJsonProcessingException;
+import com.mercury.demo.entities.exceptions.DatabaseStateException;
 import com.mercury.demo.entities.Alert;
 import com.mercury.demo.entities.MemberAlertStatus;
 import com.mercury.demo.entities.MemberAlertStatus.Status;
@@ -28,14 +28,22 @@ import java.util.Set;
 @RestController
 @RequestMapping(path="/sendAlert")
 public class SendAlertController {
-    @Autowired
-    private AlertRepository alertRepository;
-    @Autowired
-    private MemberAlertStatusRepository statusRepository;
-    @Autowired
-    private MembershipRepository membershipRepository;
+    private final AlertRepository alertRepository;
+
+    private final MemberAlertStatusRepository statusRepository;
+
+    private final MembershipRepository membershipRepository;
 
     ObjectMapper objectMapper = new ObjectMapper();
+
+    @Autowired
+    public SendAlertController(final AlertRepository alertRepository,
+                               final MemberAlertStatusRepository memberAlertStatusRepository,
+                               final MembershipRepository membershipRepository) {
+        this.alertRepository = alertRepository;
+        this.statusRepository = memberAlertStatusRepository;
+        this.membershipRepository = membershipRepository;
+    }
 
     @PostMapping(path="/send")
     public Alert sendAlert(@RequestParam final String memberId,
@@ -45,19 +53,18 @@ public class SendAlertController {
         // If the member is not a leader of this group, they should not be able to send an alert
         Membership userMembership = membershipRepository.findByMemberIdAndGroupId(memberId, groupId);
         if (userMembership != null && !userMembership.isLeader()) {
-            throw new RuntimeException("member tried to send alert in group without leadership permissions");
+            throw new DatabaseStateException("Member tried to send alert in group without leadership permissions");
         }
 
         final Alert alert = alertRepository.save(new Alert(groupId, title, description));
 
         // Populate MemberAlertStatus table for each member in the group
-        membershipRepository.findByGroupId(alert.getGroupId()).forEach(membership -> {
+        membershipRepository.findByGroupId(alert.getGroupId()).forEach(membership ->
             // TODO make it so a leader does not get their own alerts, once full alert pipeline works (useful for testing)
             statusRepository.save(new MemberAlertStatus(
                     alert.getId(),
                     membership.getMemberId(),
-                    Status.UNSEEN));
-        });
+                    Status.UNSEEN)));
 
         // TODO send push notification, email notification, SMS notification based on client preferences after
         //  alert is logged
@@ -78,13 +85,13 @@ public class SendAlertController {
                     .toList()
             );
         } catch (JsonProcessingException e) {
-            throw new RuntimeException("ERROR: Could not convert id list: " + ignoreAlertIds);
+            throw new DatabaseStateException("ERROR: Could not convert id list: " + ignoreAlertIds);
         }
     }
 
     @PutMapping(path="/confirm")
     public List<MemberAlertStatus> confirmAlertsSeen(@RequestParam final String memberId,
-                                                     @RequestParam final String jsonAlertIds) throws MapperJsonProcessingException {
+                                                     @RequestParam final String jsonAlertIds) throws DatabaseStateException {
         try {
             List<String> alertIds = objectMapper.readValue(jsonAlertIds, new TypeReference<>() {});
             List<MemberAlertStatus> alertStatuses = new ArrayList<>();
@@ -100,7 +107,7 @@ public class SendAlertController {
 
             return alertStatuses;  // return resource to confirm success
         } catch (final JsonProcessingException e) {
-            throw new MapperJsonProcessingException("ERROR: Could not convert id list: " + jsonAlertIds);
+            throw new DatabaseStateException("ERROR: Could not convert id list: " + jsonAlertIds);
         }
     }
 }
