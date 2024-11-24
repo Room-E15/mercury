@@ -16,7 +16,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import java.util.List;
 import java.util.UUID;
 
 class TestRespondAlertController {
@@ -47,7 +46,6 @@ class TestRespondAlertController {
 
     @Test
     void testSaveAlertResponse() {
-        final Membership membership = new Membership(MEMBER_ID, GROUP_ID, false);
         final MemberAlertStatus alertStatus = new MemberAlertStatus(ALERT_ID, MEMBER_ID, Status.UNSEEN);
         final MemberAlertResponse expectedResponse = new MemberAlertResponse(MEMBER_ID, ALERT_ID, IS_SAFE, LATITUDE, LONGITUDE, BATTERY);
 

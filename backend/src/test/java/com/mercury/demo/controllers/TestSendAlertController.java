@@ -120,10 +120,11 @@ class TestSendAlertController {
     @Test
     void testGetLatestAlertsJsonException() throws JsonProcessingException {
         controller.objectMapper = mockMapper;
+        final String memberId = MEMBER.getId();
 
         Mockito.when(mockMapper.readValue(Mockito.anyString(), Mockito.any(TypeReference.class))).thenThrow(new JsonParseException(""));
 
-        Assertions.assertThrows(DatabaseStateException.class, () -> controller.getLatestAlerts(MEMBER.getId(), "[]"));
+        Assertions.assertThrows(DatabaseStateException.class, () -> controller.getLatestAlerts(memberId, "[]"));
 
         Mockito.verify(mockMapper, Mockito.times(1)).readValue(Mockito.anyString(), Mockito.any(TypeReference.class));
     }
