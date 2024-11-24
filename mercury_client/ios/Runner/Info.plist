@@ -49,5 +49,9 @@
 	<string>We need your location to provide location-based features.</string>
 	<key>NSLocationAlwaysUsageDescription</key>
 	<string>We need your location to provide location-based features even in the background.</string>
+	<key>UISupportedInterfaceOrientations</key>
+	<array>
+    	<string>UIInterfaceOrientationPortrait</string>
+	</array>
 </dict>
 </plist>
