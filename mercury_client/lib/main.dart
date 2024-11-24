@@ -4,27 +4,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'pages/app.dart';
 import 'pages/settings/settings_controller.dart';
 import 'pages/settings/settings_service.dart';
-import 'utils/functions.dart';
-import 'dart:developer';
 import 'config/app_config.dart';
 
 void main() async {
-  WidgetsFlutterBinding
-      .ensureInitialized(); // needs to be called before any other asynchronous operations in main
+  // needs to be called before any other asynchronous operations in main
+  WidgetsFlutterBinding.ensureInitialized(); 
 
   // Set up the SettingsController, which will glue user settings to multiple
   // Flutter Widgets.
-
-  // Test Location Service
-  final locationService = LocationService();
-  final location = await locationService.getCurrentLocation();
-  log('Current location: ${location?.latitude}, ${location?.longitude}');
-
-  // Test Battery Service
-  final batteryService = BatteryService();
-  final batteryPercentage = await batteryService.getBatteryPercentage();
-  log('Battery percentage: $batteryPercentage%');
-
   final settingsController = SettingsController(SettingsService());
 
   final sharedPreferences = await SharedPreferencesWithCache.create(

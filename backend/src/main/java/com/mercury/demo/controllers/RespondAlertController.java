@@ -35,15 +35,18 @@ public class RespondAlertController {
                                                  @RequestParam final Boolean isSafe,
                                                  @RequestParam final Double latitude,
                                                  @RequestParam final Double longitude,
-                                                 @RequestParam final Double batteryPercent) {
-        if (membershipRepository.findByMemberId(memberId) != null) {
+                                                 @RequestParam final Integer batteryPercent) {
+
+        MemberAlertStatus status = statusRepository.findByMemberIdAndAlertId(memberId, alertId);
+
+        if (status != null) {
             // update the status
-            MemberAlertStatus status = statusRepository.findByMemberIdAndAlertId(memberId, alertId);
             status.setStatus(MemberAlertStatus.Status.RESPONDED);
             statusRepository.save(status);
             // then save the response
             return responseRepository.save(new MemberAlertResponse(memberId, alertId, isSafe, latitude, longitude, batteryPercent));
+        } else {
+            throw new RuntimeException("Could not find an active status for this member");
         }
-        return null;
     }
 }
