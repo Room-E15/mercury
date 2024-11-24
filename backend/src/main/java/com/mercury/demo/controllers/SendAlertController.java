@@ -3,6 +3,7 @@ package com.mercury.demo.controllers;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mercury.demo.entities.exceptions.MapperJsonProcessingException;
 import com.mercury.demo.entities.Alert;
 import com.mercury.demo.entities.MemberAlertStatus;
 import com.mercury.demo.entities.MemberAlertStatus.Status;
@@ -11,7 +12,13 @@ import com.mercury.demo.repositories.AlertRepository;
 import com.mercury.demo.repositories.MemberAlertStatusRepository;
 import com.mercury.demo.repositories.MembershipRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +43,6 @@ public class SendAlertController {
                            @RequestParam final String title,
                            @RequestParam final String description) {
         // If the member is not a leader of this group, they should not be able to send an alert
-
         Membership userMembership = membershipRepository.findByMemberIdAndGroupId(memberId, groupId);
         if (userMembership != null && !userMembership.isLeader()) {
             throw new RuntimeException("member tried to send alert in group without leadership permissions");
@@ -76,14 +82,14 @@ public class SendAlertController {
         }
     }
 
-    @PutMapping(path= "/confirm")
+    @PutMapping(path="/confirm")
     public List<MemberAlertStatus> confirmAlertsSeen(@RequestParam final String memberId,
-                                                     @RequestParam final String alertIds) {
+                                                     @RequestParam final String jsonAlertIds) throws MapperJsonProcessingException {
         try {
-            List<String> _alertIds = objectMapper.readValue(alertIds, new TypeReference<>() {});
+            List<String> alertIds = objectMapper.readValue(jsonAlertIds, new TypeReference<>() {});
             List<MemberAlertStatus> alertStatuses = new ArrayList<>();
 
-            statusRepository.findByAlertIds(_alertIds).forEach(alertStatus -> {
+            statusRepository.findByAlertIds(alertIds).forEach(alertStatus -> {
                 if (alertStatus.getMemberId().equals(memberId)) {
                     alertStatuses.add(statusRepository.save(new MemberAlertStatus(
                             alertStatus.getAlertId(),
@@ -93,8 +99,8 @@ public class SendAlertController {
             });
 
             return alertStatuses;  // return resource to confirm success
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException("ERROR: Could not convert id list: " + alertIds);
+        } catch (final JsonProcessingException e) {
+            throw new MapperJsonProcessingException("ERROR: Could not convert id list: " + jsonAlertIds);
         }
     }
 }

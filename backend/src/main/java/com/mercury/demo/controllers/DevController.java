@@ -16,18 +16,26 @@ import java.util.HashMap;
 public class DevController {
     @Autowired
     private AlertGroupRepository alertGroupRepository;
+
     @Autowired
     private AlertRepository alertRepository;
+
     @Autowired
     private CarrierRepository carrierRepository;
+
     @Autowired
     private MemberAlertStatusRepository memberAlertStatusRepository;
+
     @Autowired
     private MemberRepository memberRepository;
+
     @Autowired
     private MembershipRepository membershipRepository;
+
     @Autowired
     private SMSVerificationRepository smsVerificationRepository;
+
+    long previousTime;
 
     @DeleteMapping("/wipe/table/{tableName}")
     public @ResponseBody HashMap<String, Object> wipeTable(@PathVariable String tableName) {
@@ -50,8 +58,6 @@ public class DevController {
         response.put("table", tableName);
         return response;
     }
-
-    private long previousTime;
 
     @DeleteMapping("/wipe/db")
     public @ResponseBody HashMap<String, Object> wipeDatabase() {
@@ -113,19 +119,6 @@ public class DevController {
 
         response.put("status", "success");
         return response;
-    }
-
-    private Member getMemberOrSaveIfNotExist(Member member) {
-        return memberRepository.findByPhoneNumberAndCountryCode(
-                        member.getPhoneNumber(),
-                        member.getCountryCode())
-                .orElse(memberRepository.save(member));
-    }
-
-    private AlertGroup getGroupOrSaveIfNotExist(AlertGroup group) {
-        return alertGroupRepository.findByGroupName(
-                        group.getGroupName())
-                .orElse(alertGroupRepository.save(group));
     }
 
     @PostMapping("/member/create")
@@ -195,5 +188,20 @@ public class DevController {
         );
 
         return response;
+    }
+
+
+
+    private Member getMemberOrSaveIfNotExist(final Member member) {
+        return memberRepository.findByPhoneNumberAndCountryCode(
+                        member.getPhoneNumber(),
+                        member.getCountryCode())
+                .orElse(memberRepository.save(member));
+    }
+
+    private AlertGroup getGroupOrSaveIfNotExist(final AlertGroup group) {
+        return alertGroupRepository.findByGroupName(
+                        group.getGroupName())
+                .orElse(alertGroupRepository.save(group));
     }
 }
