@@ -31,10 +31,13 @@ public class MemberAlertStatus {
 
     @Id
     private String alertId;
+
     @Id
     private String memberId;
+
     @UpdateTimestamp
     private Instant lastSeen;
+
     @NotNull
     private Status status;
 

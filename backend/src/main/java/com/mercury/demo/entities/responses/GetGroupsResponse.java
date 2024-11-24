@@ -1,11 +1,10 @@
 package com.mercury.demo.entities.responses;
 
+import com.mercury.demo.entities.Alert;
 import com.mercury.demo.entities.Member;
 import com.mercury.demo.entities.MemberAlertResponse;
-import com.mercury.demo.entities.idclass.MemberAlert;
 import lombok.Getter;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,11 +31,14 @@ public class GetGroupsResponse extends HashMap<String, Object> {
     }
 
     // Constructor for leader group response, leaders provide a map of responses
-    public GetGroupsResponse(final String groupId, final String name, final boolean isLeader, final List<Member> members,
+    public GetGroupsResponse(final String groupId, final String name, final boolean isLeader, final Alert latestAlert, final List<Member> members,
                              final List<Member> leaders, final Map<String, MemberAlertResponse> memberToResponses) {
         super.put("id", groupId);
         super.put("name", name);
         super.put("isLeader", isLeader);
+        if (latestAlert != null) {
+            super.put("latestAlert", latestAlert);
+        }
 
         // If the member is a leader, members and leaders will be lists of members with their responses (if that member has responded).
         // If the member is not a leader, no members will have responses
@@ -52,8 +54,8 @@ public class GetGroupsResponse extends HashMap<String, Object> {
     }
 
     // Constructor for member group response, a leader would call the constructor with responses
-    public GetGroupsResponse(final String groupId, final String name, final boolean isLeader, final List<Member> members,
+    public GetGroupsResponse(final String groupId, final String name, final boolean isLeader, final Alert latestAlert, final List<Member> members,
                              final List<Member> leaders) {
-        this(groupId, name, isLeader, members, leaders, new HashMap<>());
+        this(groupId, name, isLeader, latestAlert, members, leaders, new HashMap<>());
     }
 }

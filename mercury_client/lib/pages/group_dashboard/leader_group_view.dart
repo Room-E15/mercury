@@ -70,8 +70,7 @@ class LeaderGroupView extends StatelessWidget {
         ],
       ),
       body: group.responseCount == 0
-          ? groupWithAlertWidgetBuilder(
-              context, group, key, preferences)
+          ? groupWithAlertWidgetBuilder(context, group, key, preferences)
           : groupWithoutAlertWidgetBuilder(context, group),
     );
   }

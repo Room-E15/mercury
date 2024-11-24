@@ -36,7 +36,7 @@ Widget groupWidgetBuilder(Key? widgetKey, BuildContext context,
         : '${group.responseCount} of ${group.memberCount} members are safe';
   }
 
-  if (!group.isLeader) {
+  if (!group.isLeader || group.latestAlert == null) {
     progressValue = 1;
     progressColor = const Color(0xFF4F378B);
     statusIcon = Icons.group;
@@ -58,7 +58,7 @@ Widget groupWidgetBuilder(Key? widgetKey, BuildContext context,
         const EdgeInsetsDirectional.symmetric(vertical: 10.0, horizontal: 20.0),
     child: InkWell(
       onTap: () {
-        if (!group.isLeader) {
+        if (!group.isLeader || group.latestAlert == null) {
           Navigator.push(
             context,
             MaterialPageRoute(

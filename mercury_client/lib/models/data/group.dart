@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:mercury_client/models/data/alert.dart';
 import 'package:mercury_client/models/data/user.dart';
 
 class Group {
@@ -8,6 +9,7 @@ class Group {
   final List<RegisteredUser> members;
   final List<RegisteredUser> leaders;
   final bool isLeader;
+  final Alert? latestAlert;
 
   late int memberCount;
   late int responseCount;
@@ -19,6 +21,7 @@ class Group {
     required this.id,
     required this.name,
     required this.isLeader,
+    required this.latestAlert,
     required this.members,
     required this.leaders,
   }) {
@@ -53,29 +56,40 @@ class Group {
           'members': List<dynamic> jsonMembers,
           'leaders': List<dynamic> jsonLeaders,
         }) {
-          
-        List<RegisteredUser> members = jsonMembers.map((json) {
-          if (json is Map<String, dynamic>) {
-            return RegisteredUser.fromJson(json);
-          } else {
-            throw Exception('Group.fromJson: Failed to parse Group from JSON: $json');
-          }
-        }).toList();
+      Alert? latestAlert;
+      if (data.containsKey('latestAlert') &&
+          data['latestAlert'] is Map<String, dynamic>) {
+        latestAlert =
+            Alert.fromJson(data['latestAlert'] as Map<String, dynamic>);
+      } else {
+        latestAlert = null;
+      }
 
-        List<RegisteredUser> leaders = jsonLeaders.map((json) {
-          if (json is Map<String, dynamic>) {
-            return RegisteredUser.fromJson(json);
-          } else {
-            throw Exception('Group.fromJson: Failed to parse Group from JSON: $json');
-          }
-        }).toList();
+      List<RegisteredUser> members = jsonMembers.map((json) {
+        if (json is Map<String, dynamic>) {
+          return RegisteredUser.fromJson(json);
+        } else {
+          throw Exception(
+              'Group.fromJson: Failed to parse Group from JSON: $json');
+        }
+      }).toList();
 
-        return Group(
-            id: id,
-            name: name,
-            isLeader: isLeader,
-            members: members,
-            leaders: leaders);
+      List<RegisteredUser> leaders = jsonLeaders.map((json) {
+        if (json is Map<String, dynamic>) {
+          return RegisteredUser.fromJson(json);
+        } else {
+          throw Exception(
+              'Group.fromJson: Failed to parse Group from JSON: $json');
+        }
+      }).toList();
+
+      return Group(
+          id: id,
+          name: name,
+          isLeader: isLeader,
+          latestAlert: latestAlert,
+          members: members,
+          leaders: leaders);
     } else {
       throw Exception('Group.fromJson: Failed to parse Group from JSON: $data');
     }

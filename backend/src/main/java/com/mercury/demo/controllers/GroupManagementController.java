@@ -1,16 +1,10 @@
 package com.mercury.demo.controllers;
 
-import com.mercury.demo.entities.AlertGroup;
-import com.mercury.demo.entities.Member;
-import com.mercury.demo.entities.MemberAlertResponse;
-import com.mercury.demo.entities.Membership;
+import com.mercury.demo.entities.*;
 import com.mercury.demo.entities.idclass.MemberAlert;
 import com.mercury.demo.entities.responses.GetGroupsResponse;
 import com.mercury.demo.entities.responses.JoinGroupResponse;
-import com.mercury.demo.repositories.AlertGroupRepository;
-import com.mercury.demo.repositories.MemberAlertResponseRepository;
-import com.mercury.demo.repositories.MemberRepository;
-import com.mercury.demo.repositories.MembershipRepository;
+import com.mercury.demo.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -34,6 +28,8 @@ public class GroupManagementController {
     private MemberRepository memberRepository;
     @Autowired
     private MemberAlertResponseRepository alertResponseRepository;
+    @Autowired
+    private AlertRepository alertRepository;
 
     @PostMapping(path="/createGroup") // Map ONLY POST Requests
     public @ResponseBody String createGroup (@RequestParam final String groupName,
@@ -74,8 +70,12 @@ public class GroupManagementController {
             List<Member> allMembers = new ArrayList<>(membersList);
             allMembers.addAll(leadersList);
 
+            Optional<Alert> optionalLatestAlert = alertRepository.findFirstByGroupIdOrderByCreationTime(correspondingGroup.getId());
+            Alert latestAlert = optionalLatestAlert.orElse(null);
+
             if (membership.isLeader()) {
                 // get map of latest responses to link members to their responses
+
                 Map<String, MemberAlertResponse> memberToLatestResponses = allMembers
                         .stream()
                         .map(member -> alertResponseRepository.findFirstByMemberIdOrderByCreationTimeDesc(member.getId()))
@@ -83,9 +83,9 @@ public class GroupManagementController {
                         .map(Optional::get)
                         .collect(Collectors.toMap(MemberAlertResponse::getMemberId, response -> response));
 
-                groupResponseList.add(new GetGroupsResponse(correspondingGroup.getId(), correspondingGroup.getGroupName(), true, membersList, leadersList, memberToLatestResponses));
+                groupResponseList.add(new GetGroupsResponse(correspondingGroup.getId(), correspondingGroup.getGroupName(), true, latestAlert, membersList, leadersList, memberToLatestResponses));
             } else {
-                groupResponseList.add(new GetGroupsResponse(correspondingGroup.getId(), correspondingGroup.getGroupName(), false, membersList, leadersList));
+                groupResponseList.add(new GetGroupsResponse(correspondingGroup.getId(), correspondingGroup.getGroupName(), false, latestAlert, membersList, leadersList));
             }
         }
         return groupResponseList;

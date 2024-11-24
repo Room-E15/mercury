@@ -20,16 +20,22 @@ import java.time.Instant;
 public class MemberAlertResponse {
     @Id
     private String memberId;
+
     @Id
     private String alertId;
+
     @CreationTimestamp
     private Instant creationTime;
+
     @NotNull
     private Boolean isSafe;
+
     @NotNull
     private Double latitude;
+
     @NotNull
     private Double longitude;
+
     @NotNull
     private Integer battery;
 

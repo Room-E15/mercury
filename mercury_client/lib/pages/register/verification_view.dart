@@ -133,7 +133,7 @@ class VerificationViewState extends State<VerificationView> {
                           });
 
                           if (codeIsCorrect) {
-                            // TODO convert to real animation, 2 second delay is for "check" animation, 
+                            // TODO convert to real animation, 2 second delay is for "check" animation,
                             final animationDelay = 2;
 
                             // if the user is registered, log their info and send them to the homepage
