@@ -12,6 +12,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.annotations.UuidGenerator;
+
 
 import java.time.Instant;
 
@@ -31,7 +34,7 @@ public class MemberAlertResponse {
     @Id
     private String alertId;
 
-    @CreationTimestamp
+    @UpdateTimestamp
     private Instant creationTime;
 
     @NotNull
@@ -44,9 +47,9 @@ public class MemberAlertResponse {
     private Double longitude;
 
     @NotNull
-    private Double batteryPercent;
+    private Integer batteryPercent;
 
-    public MemberAlertResponse(String memberId, String alertId, Boolean isSafe, Double latitude, Double longitude, Double batteryPercent) {
+    public MemberAlertResponse(String memberId, String alertId, Boolean isSafe, Double latitude, Double longitude, Integer batteryPercent) {
         this.memberId = memberId;
         this.alertId = alertId;
         this.isSafe = isSafe;

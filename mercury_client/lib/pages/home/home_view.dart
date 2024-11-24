@@ -29,8 +29,8 @@ class HomeView extends StatefulWidget {
 }
 
 class HomeViewState extends State<HomeView> {
-  // Will call fetchServerAlert
-  Queue<Alert> _alerts = Queue();
+  final _alerts = Queue<Alert>();
+
   late String memberId;
   late Future<List<Group>> _futureGroups;
 
@@ -45,12 +45,13 @@ class HomeViewState extends State<HomeView> {
     // Call the async function as the page is initialized
     memberId = widget.preferences.getString('id')!;
     _futureGroups = GroupRequests.fetchGroups(memberId);
-    // TODO also add getting an alert while the app is open, how do we do this?
-    SendAlertRequests.fetchAlerts(memberId).then((alerts) {
-      setState(() {
-        _alerts = Queue.from(alerts); // Toggle between items
-      });
-    });
+
+    SendAlertRequests.backgroundFetchAlerts(
+        memberId: memberId,
+        ignored: _alerts,
+        onNewAlert: (alerts) async {
+          setState(() => _alerts.addAll(alerts));
+        });
   }
 
   // TODO factor out widgets into separate files so it's not so damn long
@@ -116,10 +117,12 @@ class HomeViewState extends State<HomeView> {
                 memberId: memberId,
                 alertId: _alerts.first.id,
                 isSafe: true,
-              ).then((serverGotResponse) {
-                if (serverGotResponse) {
+              ).then((alertId) {
+                if (alertId != null) {
                   setState(() {
-                    _alerts.removeFirst(); // Toggle between items
+                    if (_alerts.first.id == alertId) {
+                      _alerts.removeFirst();
+                    }
                   });
                 }
               });
@@ -129,10 +132,13 @@ class HomeViewState extends State<HomeView> {
                 memberId: memberId,
                 alertId: _alerts.first.id,
                 isSafe: false,
-              ).then((serverGotResponse) {
-                if (serverGotResponse) {
+              ).then((alertId) {
+                if (alertId != null && _alerts.first.id == alertId) {
                   setState(() {
-                    _alerts.removeFirst(); // Toggle between items
+                    _alerts.removeFirst();
+                  });
+                  SendAlertRequests.fetchAlerts(memberId, _alerts).then((alerts) {
+                    setState(() => _alerts.addAll(alerts));
                   });
                 }
               });
