@@ -3,7 +3,6 @@ package com.mercury.demo.controllers;
 import com.mercury.demo.entities.MemberAlertResponse;
 import com.mercury.demo.entities.MemberAlertStatus;
 import com.mercury.demo.entities.MemberAlertStatus.Status;
-import com.mercury.demo.entities.Membership;
 import com.mercury.demo.entities.exceptions.DatabaseStateException;
 import com.mercury.demo.repositories.MemberAlertResponseRepository;
 import com.mercury.demo.repositories.MemberAlertStatusRepository;
@@ -21,7 +20,6 @@ import java.util.UUID;
 class TestRespondAlertController {
     private static final String MEMBER_ID = UUID.randomUUID().toString();
     private static final String ALERT_ID = UUID.randomUUID().toString();
-    private static final String GROUP_ID = UUID.randomUUID().toString();
     private static final boolean IS_SAFE = true;
     private static final double LATITUDE = 10.0;
     private static final double LONGITUDE = 50.0;
