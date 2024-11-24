@@ -16,8 +16,10 @@ import org.springframework.web.bind.annotation.RestController;
 public class RespondAlertController {
     @Autowired
     private MembershipRepository membershipRepository;
+
     @Autowired
     private MemberAlertResponseRepository responseRepository;
+
     @Autowired
     private MemberAlertStatusRepository statusRepository;
 

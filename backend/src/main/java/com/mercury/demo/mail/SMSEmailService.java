@@ -30,6 +30,6 @@ public class SMSEmailService implements SMSManager {
             message.setText(htmlContent);
 
             mailSender.send(message);
-        } catch (MessagingException ignored) {}
+        } catch (final MessagingException ignored) {}
     }
 }
