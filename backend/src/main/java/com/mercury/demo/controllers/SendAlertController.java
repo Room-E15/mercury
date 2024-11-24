@@ -53,19 +53,18 @@ public class SendAlertController {
         // If the member is not a leader of this group, they should not be able to send an alert
         Membership userMembership = membershipRepository.findByMemberIdAndGroupId(memberId, groupId);
         if (userMembership != null && !userMembership.isLeader()) {
-            throw new RuntimeException("member tried to send alert in group without leadership permissions");
+            throw new DatabaseStateException("Member tried to send alert in group without leadership permissions");
         }
 
         final Alert alert = alertRepository.save(new Alert(groupId, title, description));
 
         // Populate MemberAlertStatus table for each member in the group
-        membershipRepository.findByGroupId(alert.getGroupId()).forEach(membership -> {
+        membershipRepository.findByGroupId(alert.getGroupId()).forEach(membership ->
             // TODO make it so a leader does not get their own alerts, once full alert pipeline works (useful for testing)
             statusRepository.save(new MemberAlertStatus(
                     alert.getId(),
                     membership.getMemberId(),
-                    Status.UNSEEN));
-        });
+                    Status.UNSEEN)));
 
         // TODO send push notification, email notification, SMS notification based on client preferences after
         //  alert is logged
@@ -86,7 +85,7 @@ public class SendAlertController {
                     .toList()
             );
         } catch (JsonProcessingException e) {
-            throw new RuntimeException("ERROR: Could not convert id list: " + ignoreAlertIds);
+            throw new DatabaseStateException("ERROR: Could not convert id list: " + ignoreAlertIds);
         }
     }
 

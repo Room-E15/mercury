@@ -12,7 +12,7 @@ class TestMemberAlertResponse {
     private static final boolean IS_SAFE = true;
     private static final double LATITUDE = 10.0;
     private static final double LONGITUDE = 20.0;
-    private static final double BATTERY = 0.75;
+    private static final int BATTERY = 70;
     private static final MemberAlertResponse ALERT_RESPONSE = new MemberAlertResponse(MEMBER_ID, ALERT_ID, IS_SAFE, LATITUDE, LONGITUDE, BATTERY);
 
     @Test

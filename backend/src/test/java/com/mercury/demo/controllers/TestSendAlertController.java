@@ -1,5 +1,6 @@
 package com.mercury.demo.controllers;
 
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -78,7 +79,7 @@ class TestSendAlertController {
 
         Mockito.when(mockMembershipRepository.findByMemberIdAndGroupId(USER_ID, GROUP_ID)).thenReturn(membership);
 
-        Assertions.assertEquals(null, controller.sendAlert(USER_ID, GROUP_ID, TITLE, DESCRIPTION));
+        Assertions.assertThrows(DatabaseStateException.class, () -> controller.sendAlert(USER_ID, GROUP_ID, TITLE, DESCRIPTION));
 
         Mockito.verify(mockMembershipRepository, Mockito.times(1)).findByMemberIdAndGroupId(Mockito.anyString(), Mockito.anyString());
     }
@@ -93,10 +94,38 @@ class TestSendAlertController {
         Mockito.when(mockStatusRepository.findByMemberIdAndStatusOrStatusOrderByLastSeen(MEMBER.getId(), MemberAlertStatus.Status.SEEN, MemberAlertStatus.Status.UNSEEN)).thenReturn(List.of(alertStatusOne, alertStatusTwo));
         Mockito.when(mockAlertRepository.findByIds(List.of(alertStatusOne.getAlertId(), alertStatusTwo.getAlertId()))).thenReturn(expectedAlerts);
 
-        Assertions.assertEquals(expectedAlerts, controller.getLatestAlerts(MEMBER.getId()));
+        Assertions.assertEquals(expectedAlerts, controller.getLatestAlerts(MEMBER.getId(), "[]"));
 
         Mockito.verify(mockStatusRepository, Mockito.times(1)).findByMemberIdAndStatusOrStatusOrderByLastSeen(MEMBER.getId(), MemberAlertStatus.Status.SEEN, MemberAlertStatus.Status.UNSEEN);
         Mockito.verify(mockAlertRepository, Mockito.times(1)).findByIds(Mockito.anyList());
+    }
+
+    @Test
+    void testGetLatestAlertsIgnoreAlertOne() {
+        final MemberAlertStatus alertStatusOne = new MemberAlertStatus(GROUP_ID, MEMBER.getId(), Status.UNSEEN);
+        final MemberAlertStatus alertStatusTwo = new MemberAlertStatus(NO_USER_ID, MEMBER.getId(), Status.SEEN);
+        final Alert alertTwo = new Alert(NO_USER_ID, TITLE, DESCRIPTION);
+        final String alertOneId = ALERT.getId();
+        final List<Alert> expectedAlerts = List.of(alertTwo);
+
+        Mockito.when(mockStatusRepository.findByMemberIdAndStatusOrStatusOrderByLastSeen(MEMBER.getId(), MemberAlertStatus.Status.SEEN, MemberAlertStatus.Status.UNSEEN)).thenReturn(List.of(alertStatusOne, alertStatusTwo));
+        Mockito.when(mockAlertRepository.findByIds(List.of(alertStatusOne.getAlertId(), alertStatusTwo.getAlertId()))).thenReturn(expectedAlerts);
+
+        Assertions.assertEquals(expectedAlerts, controller.getLatestAlerts(MEMBER.getId(), String.format("[%s]", alertOneId)));
+
+        Mockito.verify(mockStatusRepository, Mockito.times(1)).findByMemberIdAndStatusOrStatusOrderByLastSeen(MEMBER.getId(), MemberAlertStatus.Status.SEEN, MemberAlertStatus.Status.UNSEEN);
+        Mockito.verify(mockAlertRepository, Mockito.times(1)).findByIds(Mockito.anyList());
+    }
+
+    @Test
+    void testGetLatestAlertsJsonException() throws JsonProcessingException {
+        controller.objectMapper = mockMapper;
+
+        Mockito.when(mockMapper.readValue(Mockito.anyString(), Mockito.any(TypeReference.class))).thenThrow(new JsonParseException(""));
+
+        Assertions.assertThrows(DatabaseStateException.class, () -> controller.getLatestAlerts(MEMBER.getId(), "[]"));
+
+        Mockito.verify(mockMapper, Mockito.times(1)).readValue(Mockito.anyString(), Mockito.any(TypeReference.class));
     }
 
     @Test

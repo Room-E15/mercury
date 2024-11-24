@@ -4,6 +4,7 @@ import com.mercury.demo.entities.MemberAlertResponse;
 import com.mercury.demo.entities.MemberAlertStatus;
 import com.mercury.demo.entities.MemberAlertStatus.Status;
 import com.mercury.demo.entities.Membership;
+import com.mercury.demo.entities.exceptions.DatabaseStateException;
 import com.mercury.demo.repositories.MemberAlertResponseRepository;
 import com.mercury.demo.repositories.MemberAlertStatusRepository;
 import com.mercury.demo.repositories.MembershipRepository;
@@ -25,7 +26,7 @@ class TestRespondAlertController {
     private static final boolean IS_SAFE = true;
     private static final double LATITUDE = 10.0;
     private static final double LONGITUDE = 50.0;
-    private static final double BATTERY = 0.7;
+    private static final int BATTERY = 70;
 
     @Mock
     private MembershipRepository mockMembershipRepository;
@@ -50,23 +51,21 @@ class TestRespondAlertController {
         final MemberAlertStatus alertStatus = new MemberAlertStatus(ALERT_ID, MEMBER_ID, Status.UNSEEN);
         final MemberAlertResponse expectedResponse = new MemberAlertResponse(MEMBER_ID, ALERT_ID, IS_SAFE, LATITUDE, LONGITUDE, BATTERY);
 
-        Mockito.when(mockMembershipRepository.findByMemberId(MEMBER_ID)).thenReturn(List.of(membership));
         Mockito.when(mockMemberAlertStatusRepository.findByMemberIdAndAlertId(MEMBER_ID, ALERT_ID)).thenReturn(alertStatus);
         Mockito.when(mockMemberAlertResponseRepository.save(expectedResponse)).thenReturn(expectedResponse);
 
         Assertions.assertEquals(expectedResponse, controller.saveAlertResponse(MEMBER_ID, ALERT_ID, IS_SAFE, LATITUDE, LONGITUDE, BATTERY));
 
-        Mockito.verify(mockMembershipRepository, Mockito.times(1)).findByMemberId(Mockito.anyString());
         Mockito.verify(mockMemberAlertStatusRepository, Mockito.times(1)).findByMemberIdAndAlertId(Mockito.anyString(), Mockito.anyString());
         Mockito.verify(mockMemberAlertResponseRepository, Mockito.times(1)).save(Mockito.any());
     }
 
     @Test
     void testSaveAlertResponseWithNoMember() {
-        Mockito.when(mockMembershipRepository.findByMemberId(MEMBER_ID)).thenReturn(null);
+        Mockito.when(mockMemberAlertStatusRepository.findByMemberIdAndAlertId(MEMBER_ID, ALERT_ID)).thenReturn(null);
 
-        Assertions.assertEquals(null, controller.saveAlertResponse(MEMBER_ID, ALERT_ID, IS_SAFE, LATITUDE, LONGITUDE, BATTERY));
+        Assertions.assertThrows(DatabaseStateException.class, () -> controller.saveAlertResponse(MEMBER_ID, ALERT_ID, IS_SAFE, LATITUDE, LONGITUDE, BATTERY));
 
-        Mockito.verify(mockMembershipRepository, Mockito.times(1)).findByMemberId(Mockito.anyString());
+        Mockito.verify(mockMemberAlertStatusRepository, Mockito.times(1)).findByMemberIdAndAlertId(Mockito.anyString(), Mockito.anyString());
     }
 }
