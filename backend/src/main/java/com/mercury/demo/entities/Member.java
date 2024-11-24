@@ -1,5 +1,6 @@
 package com.mercury.demo.entities;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotNull;
@@ -16,9 +17,14 @@ import org.hibernate.annotations.UuidGenerator;
 @Setter
 @EqualsAndHashCode
 @ToString
+@JsonView(Member.WithoutIdView.class)
 public class Member {
+    public interface WithoutIdView {}
+    public interface WithIdView extends WithoutIdView {}
+
     @Id
     @UuidGenerator
+    @JsonView(WithIdView.class)
     private String id;
 
     @NotNull
