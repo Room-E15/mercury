@@ -21,11 +21,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public class TestGroupManagementController {
+class TestGroupManagementController {
     private static final Member MEMBER = new Member("Giorno", "Giovanna", 123,
             "1226765555");
     private static final String PHONE_NUMBER = "1234567890";
     private static final String GROUP_NAME = "AIA";
+    private static final String ALERT_GROUP_ID = UUID.randomUUID().toString();
     private static final AlertGroup ALERT_GROUP = new AlertGroup(GROUP_NAME);
     private static final String MEMBER_ID = UUID.randomUUID().toString();
 
@@ -45,10 +46,11 @@ public class TestGroupManagementController {
     public void setup() {
         MockitoAnnotations.openMocks(this); // Initializes mocks and injects them into the controller
         MEMBER.setId(MEMBER_ID);
+        ALERT_GROUP.setId(ALERT_GROUP_ID);
     }
 
     @Test
-    public void testCreateGroup() {
+    void testCreateGroup() {
         final AlertGroup expectedAlertGroup = new AlertGroup(GROUP_NAME);
         final Membership expectedMembership = new Membership(MEMBER.getId(), expectedAlertGroup.getId(), true);
 
@@ -65,7 +67,7 @@ public class TestGroupManagementController {
     }
 
     @Test
-    public void testCreateGroupUserNotFound() {
+    void testCreateGroupUserNotFound() {
         // Stubbings for functions that cannot be unit-tested as they are handled by external packages
         Mockito.when(mockMemberRepository.findById(MEMBER.getId())).thenReturn(Optional.empty());
 
@@ -75,7 +77,7 @@ public class TestGroupManagementController {
     }
 
     @Test
-    public void testJoinGroup() {
+    void testJoinGroup() {
         final AlertGroup alertGroup = new AlertGroup(GROUP_NAME);
         alertGroup.setId(PHONE_NUMBER);
         final Member member = new Member("Test", "ing", 1, PHONE_NUMBER);
@@ -97,30 +99,28 @@ public class TestGroupManagementController {
     }
 
     @Test
-    public void testJoinGroupUserNotFound() {
+    void testJoinGroupUserNotFound() {
         // Stubbings for functions that cannot be unit-tested as they are handled by external packages
         Mockito.when(mockMemberRepository.findById(MEMBER.getId())).thenReturn(Optional.empty());
 
-        Assertions.assertThrows(DatabaseStateException.class, () -> controller.joinGroup(MEMBER.getId(), PHONE_NUMBER));
+        Assertions.assertThrows(DatabaseStateException.class, () -> controller.joinGroup(MEMBER_ID, PHONE_NUMBER));
 
         Mockito.verify(mockMemberRepository, Mockito.times(1)).findById(MEMBER.getId());
     }
 
     @Test
-    public void testJoinGroupGroupNotFound() {
-        final Member member = new Member("Test", "ing", 1, PHONE_NUMBER);
-
-        Mockito.when(mockMemberRepository.findById(member.getId())).thenReturn(Optional.of(member));
+    void testJoinGroupGroupNotFound() {
+        Mockito.when(mockMemberRepository.findById(MEMBER_ID)).thenReturn(Optional.of(MEMBER));
         Mockito.when(mockAlertGroupRepository.findById(ALERT_GROUP.getId())).thenReturn(Optional.empty());
 
-        Assertions.assertThrows(DatabaseStateException.class, () -> controller.joinGroup(member.getId(), ALERT_GROUP.getId()));
+        Assertions.assertThrows(DatabaseStateException.class, () -> controller.joinGroup(MEMBER_ID, ALERT_GROUP_ID));
 
-        Mockito.verify(mockMemberRepository, Mockito.times(1)).findById(member.getId());
+        Mockito.verify(mockMemberRepository, Mockito.times(1)).findById(MEMBER_ID);
         Mockito.verify(mockAlertGroupRepository, Mockito.times(1)).findById(ALERT_GROUP.getId());
     }
 
     @Test
-    public void testGetGroupWithOneMember() {
+    void testGetGroupWithOneMember() {
         final AlertGroup alertGroup = new AlertGroup(GROUP_NAME);
         alertGroup.setId(PHONE_NUMBER);
         final Membership membership = new Membership(MEMBER.getId(), alertGroup.getId(), true);
@@ -141,7 +141,7 @@ public class TestGroupManagementController {
     }
 
     @Test
-    public void testGetGroupWithTwoMembers() {
+    void testGetGroupWithTwoMembers() {
         final AlertGroup alertGroup = new AlertGroup(GROUP_NAME);
         alertGroup.setId(PHONE_NUMBER);
         final Member memberTwo = new Member("Test", "ing", 4, PHONE_NUMBER);
@@ -167,7 +167,7 @@ public class TestGroupManagementController {
     }
 
     @Test
-    public void testGetGroupWithTwoGroups() {
+    void testGetGroupWithTwoGroups() {
         final AlertGroup alertGroup = new AlertGroup(GROUP_NAME);
         alertGroup.setId(PHONE_NUMBER);
         final AlertGroup alertGroupTwo = new AlertGroup("Test");
@@ -197,13 +197,13 @@ public class TestGroupManagementController {
     }
 
     @Test
-    public void testGetGroupGroupNotFound() {
+    void testGetGroupGroupNotFound() {
         final Membership membership = new Membership(MEMBER.getId(), "1234567890", true);
 
         Mockito.when(mockMembershipRepository.findByMemberId(MEMBER.getId())).thenReturn(List.of(membership));
         Mockito.when(mockAlertGroupRepository.findById(membership.getGroupId())).thenReturn(Optional.empty());
 
-        Assertions.assertThrows(DatabaseStateException.class, () -> controller.getGroups(MEMBER.getId()));
+        Assertions.assertThrows(DatabaseStateException.class, () -> controller.getGroups(MEMBER_ID));
 
         // These verifications confirm that each method with these parameters were used this number of times
         Mockito.verify(mockMembershipRepository, Mockito.times(1)).findByMemberId(MEMBER.getId());
@@ -211,7 +211,7 @@ public class TestGroupManagementController {
     }
 
     @Test
-    public void testGetGroupMemberNotFound() {
+    void testGetGroupMemberNotFound() {
         final AlertGroup alertGroup = new AlertGroup(GROUP_NAME);
         alertGroup.setId(PHONE_NUMBER);
         final Membership membership = new Membership(MEMBER_ID, alertGroup.getId(), true);

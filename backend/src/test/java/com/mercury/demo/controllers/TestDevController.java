@@ -12,7 +12,6 @@ import com.mercury.demo.repositories.MemberRepository;
 import com.mercury.demo.repositories.MembershipRepository;
 import com.mercury.demo.repositories.SMSVerificationRepository;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -22,13 +21,12 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-public class TestDevController {
+class TestDevController {
     private static final List<Member> MEMBERS = List.of(
             new Member("Aidan", "Sacco", 1, "6503958675"),
                 new Member("Cameron", "Wolff", 1, "9499220667"),
@@ -73,7 +71,7 @@ public class TestDevController {
 
     @ParameterizedTest
     @ValueSource(strings = {"alert_group", "alert", "carrier", "member_alert_status", "member", "membership", "sms_verification", "non-existant"})
-    public void testWipeTable(final String tableName) {
+    void testWipeTable(final String tableName) {
         final Map<String, String> expectedResponse = !tableName.equals("non-existant") ? Map.of("status", "success", "table", tableName)
                 : Map.of("status", "success");
 
@@ -81,14 +79,14 @@ public class TestDevController {
     }
 
     @Test
-    public void testWipeDatabaseWithoutPreviousTime() {
+    void testWipeDatabaseWithoutPreviousTime() {
         final Map<String, String> expectedResponse = Map.of("status", "pending wipe", "description", "Are you sure you want to wipe the entire database? If so, resend this request within 10 seconds.");
 
         Assertions.assertEquals(expectedResponse, controller.wipeDatabase());
     }
 
     @Test
-    public void testWipeDatabaseWithPreviousTime() {
+    void testWipeDatabaseWithPreviousTime() {
         controller.previousTime = (System.currentTimeMillis() / 1000) + 15;
         final Map<String, String> expectedResponse = Map.of("status", "success", "description", "Database wiped.");
 
@@ -96,7 +94,7 @@ public class TestDevController {
     }
 
     @Test
-    public void testPopulateWithFullTable() {
+    void testPopulateWithFullTable() {
         final Map<String, String> expectedResponse = Map.of("status", "success");
         for (final Member member : MEMBERS) {
             Mockito.when(mockMemberRepository.findByPhoneNumberAndCountryCode(
@@ -119,7 +117,7 @@ public class TestDevController {
     }
 
     @Test
-    public void testCreateMember() {
+    void testCreateMember() {
         final String userId = UUID.randomUUID().toString();
         final Member member = MEMBERS.get(0);
         final Member memberWithId = new Member(member.getFirstName(), member.getLastName(), member.getCountryCode(), member.getPhoneNumber());
@@ -136,7 +134,7 @@ public class TestDevController {
     }
 
     @Test
-    public void testCreateMemberWithMemberExists() {
+    void testCreateMemberWithMemberExists() {
         final Member member = MEMBERS.get(0);
         final Map<String, String> expectedResponse = Map.of("status", "error", "description", "Member with phone number " + member.getPhoneNumber() + " already exists.");
 
@@ -148,7 +146,7 @@ public class TestDevController {
     }
 
     @Test
-    public void testCreateGroup() {
+    void testCreateGroup() {
         final String groupId = UUID.randomUUID().toString();
         final AlertGroup group = GROUPS.get(0);
         final AlertGroup groupWithId = new AlertGroup(group.getGroupName());
@@ -165,7 +163,7 @@ public class TestDevController {
     }
 
     @Test
-    public void testCreateGroupWithGroupExists() {
+    void testCreateGroupWithGroupExists() {
         final AlertGroup group = GROUPS.get(0);
         final Map<String, String> expectedResponse = Map.of("status", "error", "description", "Group with name '" + group.getGroupName() + "' already exists.");
 
@@ -177,7 +175,7 @@ public class TestDevController {
     }
 
     @Test
-    public void testForceVerify() {
+    void testForceVerify() {
         final Map<String, String> expectedResponse = Map.of("status", "success", "description", "Number created and verified.");
 
         Mockito.when(mockSMSVerificationRepository.findByPhoneNumberAndCountryCode(PHONE_NUMBER, COUNTRY_CODE)).thenReturn(Optional.empty());
@@ -190,7 +188,7 @@ public class TestDevController {
     }
 
     @Test
-    public void testForceVerifyIsVerified() {
+    void testForceVerifyIsVerified() {
         VERIFICATION.setVerified(true);
         final Map<String, String> expectedResponse = Map.of("status", "no-change", "description", "Number already verified.");
 
@@ -202,7 +200,7 @@ public class TestDevController {
     }
 
     @Test
-    public void testForceVerifyIsNotVerified() {
+    void testForceVerifyIsNotVerified() {
         VERIFICATION.setVerified(false);
         final Map<String, String> expectedResponse = Map.of("status", "success", "description", "Number verified.");
 

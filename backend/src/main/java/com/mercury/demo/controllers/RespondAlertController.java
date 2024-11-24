@@ -14,14 +14,20 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping(path="/respondAlert")
 public class RespondAlertController {
-    @Autowired
-    private MembershipRepository membershipRepository;
+    private final MembershipRepository membershipRepository;
+
+    private final MemberAlertResponseRepository responseRepository;
+
+    private final MemberAlertStatusRepository statusRepository;
 
     @Autowired
-    private MemberAlertResponseRepository responseRepository;
-
-    @Autowired
-    private MemberAlertStatusRepository statusRepository;
+    public RespondAlertController(final MembershipRepository membershipRepository,
+                                  final MemberAlertResponseRepository responseRepository,
+                                  final MemberAlertStatusRepository statusRepository) {
+        this.membershipRepository = membershipRepository;
+        this.responseRepository = responseRepository;
+        this.statusRepository = statusRepository;
+    }
 
     @PostMapping(path="/save")
     public MemberAlertResponse saveAlertResponse(@RequestParam final String memberId,

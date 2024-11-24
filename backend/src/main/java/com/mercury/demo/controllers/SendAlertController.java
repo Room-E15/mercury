@@ -3,7 +3,7 @@ package com.mercury.demo.controllers;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mercury.demo.entities.exceptions.MapperJsonProcessingException;
+import com.mercury.demo.entities.exceptions.DatabaseStateException;
 import com.mercury.demo.entities.Alert;
 import com.mercury.demo.entities.MemberAlertStatus;
 import com.mercury.demo.entities.MemberAlertStatus.Status;
@@ -27,14 +27,22 @@ import java.util.List;
 @RestController
 @RequestMapping(path="/sendAlert")
 public class SendAlertController {
-    @Autowired
-    private AlertRepository alertRepository;
-    @Autowired
-    private MemberAlertStatusRepository statusRepository;
-    @Autowired
-    private MembershipRepository membershipRepository;
+    private final AlertRepository alertRepository;
+
+    private final MemberAlertStatusRepository statusRepository;
+
+    private final MembershipRepository membershipRepository;
 
     ObjectMapper objectMapper = new ObjectMapper();
+
+    @Autowired
+    public SendAlertController(final AlertRepository alertRepository,
+                               final MemberAlertStatusRepository memberAlertStatusRepository,
+                               final MembershipRepository membershipRepository) {
+        this.alertRepository = alertRepository;
+        this.statusRepository = memberAlertStatusRepository;
+        this.membershipRepository = membershipRepository;
+    }
 
     @PostMapping(path="/send")
     public Alert sendAlert(@RequestParam final String memberId,
@@ -73,7 +81,7 @@ public class SendAlertController {
 
     @PutMapping(path="/confirm")
     public List<MemberAlertStatus> confirmAlertsSeen(@RequestParam final String memberId,
-                                                     @RequestParam final String jsonAlertIds) throws MapperJsonProcessingException {
+                                                     @RequestParam final String jsonAlertIds) throws DatabaseStateException {
         try {
             List<String> alertIds = objectMapper.readValue(jsonAlertIds, new TypeReference<>() {});
             List<MemberAlertStatus> alertStatuses = new ArrayList<>();
@@ -89,7 +97,7 @@ public class SendAlertController {
 
             return alertStatuses;  // return resource to confirm success
         } catch (final JsonProcessingException e) {
-            throw new MapperJsonProcessingException("ERROR: Could not convert id list: " + jsonAlertIds);
+            throw new DatabaseStateException("ERROR: Could not convert id list: " + jsonAlertIds);
         }
     }
 }

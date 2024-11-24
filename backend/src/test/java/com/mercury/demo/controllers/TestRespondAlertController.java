@@ -16,10 +16,9 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
-public class TestRespondAlertController {
+class TestRespondAlertController {
     private static final String MEMBER_ID = UUID.randomUUID().toString();
     private static final String ALERT_ID = UUID.randomUUID().toString();
     private static final String GROUP_ID = UUID.randomUUID().toString();
@@ -46,7 +45,7 @@ public class TestRespondAlertController {
     }
 
     @Test
-    public void testSaveAlertResponse() {
+    void testSaveAlertResponse() {
         final Membership membership = new Membership(MEMBER_ID, GROUP_ID, false);
         final MemberAlertStatus alertStatus = new MemberAlertStatus(ALERT_ID, MEMBER_ID, Status.UNSEEN);
         final MemberAlertResponse expectedResponse = new MemberAlertResponse(MEMBER_ID, ALERT_ID, IS_SAFE, LATITUDE, LONGITUDE, BATTERY);
@@ -63,7 +62,7 @@ public class TestRespondAlertController {
     }
 
     @Test
-    public void testSaveAlertResponseWithNoMember() {
+    void testSaveAlertResponseWithNoMember() {
         Mockito.when(mockMembershipRepository.findByMemberId(MEMBER_ID)).thenReturn(null);
 
         Assertions.assertEquals(null, controller.saveAlertResponse(MEMBER_ID, ALERT_ID, IS_SAFE, LATITUDE, LONGITUDE, BATTERY));

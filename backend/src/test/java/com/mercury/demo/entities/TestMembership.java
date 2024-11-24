@@ -3,33 +3,32 @@ package com.mercury.demo.entities;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.time.Instant;
 import java.util.UUID;
 
-public class TestMembership {
+class TestMembership {
     private static final String MEMBER_ID = UUID.randomUUID().toString();
     private static final String GROUP_ID = UUID.randomUUID().toString();
     private static final Membership MEMBERSHIP = new Membership(MEMBER_ID, GROUP_ID, true);
 
     @Test
-    public void testMembershipConstructor() {
+    void testMembershipConstructor() {
         final Membership noConstructor = new Membership();
 
-        Assertions.assertNotEquals(noConstructor, MEMBERSHIP);
+        Assertions.assertNotEquals(MEMBERSHIP, noConstructor);
     }
 
     @Test
-    public void testMembershipSetter() {
+    void testMembershipSetter() {
         final Membership response = new Membership();
         response.setMemberId(MEMBER_ID);
         response.setGroupId(GROUP_ID);
         response.setLeader(true);
 
-        Assertions.assertEquals(response, MEMBERSHIP);
+        Assertions.assertEquals(MEMBERSHIP, response);
     }
 
     @Test
-    public void testMembershipToString() {
+    void testMembershipToString() {
         final String expectedString = String.format("Membership(memberId=%s, groupId=%s, isLeader=true)",
                 MEMBER_ID, GROUP_ID);
 

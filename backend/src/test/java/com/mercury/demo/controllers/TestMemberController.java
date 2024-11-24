@@ -15,7 +15,7 @@ import org.mockito.MockitoAnnotations;
 
 import java.util.Optional;
 
-public class TestMemberController {
+class TestMemberController {
     private static final String FIRST_NAME = "Giorno";
     private static final String LAST_NAME = "Giovanna";
     private static final int COUNTRY_CODE = 1;
@@ -37,7 +37,7 @@ public class TestMemberController {
     }
 
     @Test
-    public void testAddMember() {
+    void testAddMember() {
         final Member expectedMember = new Member("Giorno", "Giovanna", 123, "12345678910");
         expectedMember.setId("123");
         MEMBER.setId(null);
@@ -51,7 +51,7 @@ public class TestMemberController {
         Mockito.verify(mockMemberRepository, Mockito.times(1)).save(MEMBER);
     }
     @Test
-    public void testAddMemberWithoutVerifiedNumber() {
+    void testAddMemberWithoutVerifiedNumber() {
         final MemberAddResponse expectedResponse = new MemberAddResponse("The phone number has not yet been verified.");
         Mockito.when(mockSMSVerificationRepository
                         .getFirstByPhoneNumberAndCountryCodeAndVerified(MEMBER.getPhoneNumber(),

@@ -22,7 +22,7 @@ import org.springframework.util.DigestUtils;
 import java.util.List;
 import java.util.Optional;
 
-public class TestSMSVerificationController {
+class TestSMSVerificationController {
     private static final Member MEMBER = new Member("Giorno", "Giovanna", 39, "12345678910");
     private static final String CARRIER_NAME = "Verizon";
     private static final String FAKE_CARRIER = "SimpleMobile";
@@ -49,7 +49,7 @@ public class TestSMSVerificationController {
     }
 
     @Test
-    public void testRequestSMSDispatch() {
+    void testRequestSMSDispatch() {
         final Carrier carrier = new Carrier("1", CARRIER_NAME, "vibes", false);
         final SMSVerification smsVerification = VERIFICATION;
         smsVerification.setId("1");
@@ -66,7 +66,7 @@ public class TestSMSVerificationController {
     }
 
     @Test
-    public void testRequestSMSDispatchWithoutCarrier() {
+    void testRequestSMSDispatchWithoutCarrier() {
         final SMSDispatchResponse expectedDispatchResponse = new SMSDispatchResponse(false, null);
 
         Mockito.when(mockCarrierRepository.findById(FAKE_CARRIER)).thenReturn(Optional.empty());
@@ -77,7 +77,7 @@ public class TestSMSVerificationController {
     }
 
     @Test
-    public void testVerifySMSCode() {
+    void testVerifySMSCode() {
         final String code = "123";
         final String token = "abcd";
         final SMSVerification verification = new SMSVerification(MEMBER.getCountryCode(), MEMBER.getPhoneNumber(), 12, DigestUtils.md5DigestAsHex(code.getBytes()));
@@ -95,7 +95,7 @@ public class TestSMSVerificationController {
     }
 
     @Test
-    public void testVerifySMSCodeNoResponse() {
+    void testVerifySMSCodeNoResponse() {
         final String code = "123";
         final String token = "abcd";
         final SMSVerifyResponse expectedVerifyResponse = new SMSVerifyResponse(false, null);
@@ -108,7 +108,7 @@ public class TestSMSVerificationController {
     }
 
     @Test
-    public void testVerifySMSCodeIncorrectCode() {
+    void testVerifySMSCodeIncorrectCode() {
         final String code = "123";
         final String token = "abcd";
         final SMSVerification verification = new SMSVerification(MEMBER.getCountryCode(), MEMBER.getPhoneNumber(), 12, "def not correct");
@@ -122,7 +122,7 @@ public class TestSMSVerificationController {
     }
 
     @Test
-    public void testGetAllPendingNotifications() {
+    void testGetAllPendingNotifications() {
         final List<SMSVerification> expectedVerifications = List.of(VERIFICATION);
 
         Mockito.when(mockSmsVerificationRepository.findAll()).thenReturn(expectedVerifications);
