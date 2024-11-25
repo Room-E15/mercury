@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:mercury_client/models/data/group.dart';
-import 'package:mercury_client/models/data/user.dart';
 import 'package:mercury_client/pages/qr/qr_present_view.dart';
 import 'package:mercury_client/pages/send_alert/send_alert_view.dart';
+import 'package:mercury_client/widgets/member_widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 final clipBehavior = Clip.antiAliasWithSaveLayer;
@@ -11,49 +11,6 @@ final shape = const RoundedRectangleBorder(
 final margin =
     const EdgeInsetsDirectional.symmetric(vertical: 10.0, horizontal: 20.0);
 
-Widget memberWidgetBuilder(context, RegisteredUser member, bool isLeader) {
-  return Row(
-    children: [
-      Text(
-        '${member.firstName} ${member.lastName}',
-        style: TextStyle(
-          fontSize: 14.0,
-          fontWeight: FontWeight.w400,
-        ),
-      ),
-      Spacer(),
-      !isLeader
-          ? Container()
-          : Text('+${member.countryCode} ${member.phoneNumber}',
-              textAlign: TextAlign.right,
-              style: TextStyle(
-                fontSize: 14.0,
-                fontWeight: FontWeight.w400,
-              )),
-    ],
-  );
-}
-
-Widget leaderWidgetBuilder(context, RegisteredUser leader) {
-  return Row(
-    children: [
-      Text(
-        '${leader.firstName} ${leader.lastName}',
-        style: TextStyle(
-          fontSize: 14.0,
-          fontWeight: FontWeight.w400,
-        ),
-      ),
-      Spacer(),
-      Text('+${leader.countryCode} ${leader.phoneNumber}',
-          textAlign: TextAlign.right,
-          style: TextStyle(
-            fontSize: 14.0,
-            fontWeight: FontWeight.w400,
-          ))
-    ],
-  );
-}
 
 // TODO refactor, this has code that can be factored out as a funciton
 Widget groupWithAlertWidgetBuilder(
@@ -235,8 +192,8 @@ Widget groupWithAlertWidgetBuilder(
                       itemBuilder: (context, index) {
                         final member = group.unsafeMembers[index];
 
-                        return memberWidgetBuilder(
-                            context, member, group.isLeader);
+                        return memberWithInfoWidgetBuilder(
+                            context, member);
                       },
                     ),
                   ),
@@ -296,8 +253,8 @@ Widget groupWithAlertWidgetBuilder(
                       itemBuilder: (context, index) {
                         final member = group.noResponseMembers[index];
 
-                        return memberWidgetBuilder(
-                            context, member, group.isLeader);
+                        return memberWithInfoWidgetBuilder(
+                            context, member);
                       },
                     ),
                   ),
@@ -357,8 +314,8 @@ Widget groupWithAlertWidgetBuilder(
                       itemBuilder: (context, index) {
                         final member = group.safeMembers[index];
 
-                        return memberWidgetBuilder(
-                            context, member, group.isLeader);
+                        return memberWithInfoWidgetBuilder(
+                            context, member);
                       },
                     ),
                   ),

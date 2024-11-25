@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:flutter/material.dart';
 import 'package:mercury_client/models/data/group.dart';
 
 class User {
@@ -14,6 +15,23 @@ class User {
     required this.countryCode,
     required this.phoneNumber,
   });
+
+  Widget nameWidgetBuilder() => Text(
+        '$firstName $lastName',
+        style: TextStyle(
+          fontSize: 14.0,
+          fontWeight: FontWeight.w400,
+        ),
+      );
+
+  Widget phoneWidgetBuilder() => Text(
+        '+$countryCode $phoneNumber',
+        textAlign: TextAlign.right,
+        style: TextStyle(
+          fontSize: 14.0,
+          fontWeight: FontWeight.w400,
+        ),
+      );
 }
 
 class RegisteredUser extends User {
