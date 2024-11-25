@@ -3,10 +3,8 @@ import 'dart:developer';
 
 import 'package:http/http.dart';
 import 'package:mercury_client/models/data/carrier_tab_list.dart';
-import 'package:mercury_client/models/responses/sms_dispatch_response.dart';
-import 'package:mercury_client/models/responses/sms_verify_response.dart';
+import 'package:mercury_client/models/data/user.dart';
 import 'package:mercury_client/models/requests/server_requests.dart';
-import 'package:mercury_client/models/responses/user_creation_response.dart';
 
 class VerificationRequests extends ServerRequests {
   static final subURL = "/v";
@@ -48,8 +46,9 @@ class VerificationRequests extends ServerRequests {
     }
   }
 
-  static Future<SMSDispatchResponse?> requestDispatch(
+  static Future<String?> requestDispatch(
       int countryCode, String phoneNumber, String carrier) async {
+    String? token;
     log('[$subURL] Asking server to send verification code');
 
     final Response response = await post(
@@ -64,20 +63,34 @@ class VerificationRequests extends ServerRequests {
     });
 
     if (response.statusCode == 200) {
-      log('[$subURL] Successfully sent verification code');
-      return SMSDispatchResponse.fromJson(jsonDecode(response.body));
+      if (jsonDecode(response.body)
+          case {
+            'carrierFound': bool carrierFound,
+            // TODO change pattern once API is updated
+            'token': String? recievedToken,
+          }) {
+        if (carrierFound) {
+          token = recievedToken;
+          log('[$subURL] Successfully sent verification code');
+        } else {
+          log('[$subURL] ERROR: Carrier not found');
+        }
+      } else {
+        log('[$subURL] ERROR: Failed to decode json: ${response.body}');
+      }
     } else {
       log('[$subURL] ERROR: Failed to send verification code: ${response.body}');
       return null;
     }
+    return token;
   }
 
   // if the user is registered, returns a FullUserInfo object
   // Returns true if code is working and false if it is not
   // Returns the User's Info if they are registered, and null otherwise
-  static Future<SMSVerifyResponse> requestVerifyCode(
+  static Future<(bool, RegisteredUser?)> requestVerifyCode(
       String code, String token) async {
-    log('[INFO] Asking server to check verification code: $code and return registration status');
+    log('[$subURL] Asking server to check verification code: $code and return registration status');
 
     final Response response = await post(
       Uri.parse('${ServerRequests.baseURL}$subURL/verify'),
@@ -87,14 +100,34 @@ class VerificationRequests extends ServerRequests {
       },
     );
 
-    log(response.body);
+    
+    log('[$subURL] verification status: ${response.body}');
 
-    return SMSVerifyResponse.fromJson(jsonDecode(response.body));
+    try {
+      final json = jsonDecode(response.body) as Map<String, dynamic>;
+      if (json['correctCode'] is! bool) {
+        throw Exception('Failed to parse correctCode from JSON: $json');
+      }
+
+      final correctCode = json['correctCode'] as bool;
+      log('[$subURL] Successfully checked verification code');
+
+      if (correctCode && json['userInfo'] is Map<String, dynamic>) {
+        final userInfo = json['userInfo'] as Map<String, dynamic>;
+        final user = RegisteredUser.fromJson(userInfo);
+        return (true, user);
+      } else {
+        return (correctCode, null);
+      }
+    } catch (e) {
+      log('[$subURL] ERROR: Failed to decode json: ${response.body}');
+    }
+    return (false, null);
   }
 
   // returns the user's ID if they were successfully registered
   // TODO consider refactoring, this design is kind of disgusting
-  static Future<UserCreationResponse?> requestRegisterUser(
+  static Future<RegisteredUser?> requestRegisterUser(
       String token, String firstName, String lastName) async {
     log('[$subURL] Sending user data to server...');
 
@@ -111,15 +144,26 @@ class VerificationRequests extends ServerRequests {
       return Response('', 500);
     });
 
-    // Log response
-    if (response.statusCode == 200) {
-      log('[INFO] User data sent successfully!');
-      UserCreationResponse userResponse =
-          UserCreationResponse.fromJson(jsonDecode(response.body));
-      return userResponse;
-    } else {
-      log('[$subURL] Failed to send user data to server.');
-      return null;
+
+    log('[$subURL] verification status: ${response.body}');
+
+    try {
+      final json = jsonDecode(response.body) as Map<String, dynamic>;
+      return RegisteredUser.fromJson(json);
+    } catch (e) {
+      log('[$subURL] ERROR: Failed to decode json: ${response.body}');
     }
+    return null;
+
+    // Log response
+    // if (response.statusCode == 200) {
+    //   log('[INFO] User data sent successfully!');
+    //   UserCreationResponse userResponse =
+    //       UserCreationResponse.fromJson(jsonDecode(response.body));
+    //   return userResponse;
+    // } else {
+    //   log('[$subURL] Failed to send user data to server.');
+    //   return null;
+    // }
   }
 }

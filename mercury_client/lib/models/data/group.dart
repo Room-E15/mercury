@@ -1,54 +1,98 @@
-import 'member.dart';
+import 'dart:developer';
+
+import 'package:mercury_client/models/data/alert.dart';
+import 'package:mercury_client/models/data/user.dart';
 
 class Group {
   final String id;
   final String name;
-  final int memberCount;
-  final int? responseCount;
-  final int unsafe;
+  final List<User> members;
+  final List<User> leaders;
   final bool isLeader;
-  final List<Member> members;
-  final List<Member> leaders;
+  final Alert? latestAlert;
 
-  const Group(
-      {required this.name,
-      required this.id,
-      required this.isLeader,
-      required this.memberCount,
-      this.responseCount,
-      required this.unsafe,
-      required this.members,
-      required this.leaders});
+  late int memberCount;
+  late int responseCount;
+  late List<User> unsafeMembers = [];
+  late List<User> safeMembers = [];
+  late List<User> noResponseMembers = [];
 
-  // Factory constructor to create a Group instance from JSON
-  factory Group.fromJson(dynamic json) {
-    return Group(
-      id: json['id'],
-      name: json['name'],
-      isLeader: json['isLeader'],
-      memberCount: json['memberCount'],
-      responseCount: json['responseCount'],
-      unsafe: json['unsafe'],
-      members: (json['members'] as List<dynamic>)
-          .map((json) => Member.fromJson(json))
-          .toList(),
-      leaders: (json['leaders'] as List<dynamic>)
-          .map((json) => Member.fromJson(json))
-          .toList(),
-    );
+  Group({
+    required this.id,
+    required this.name,
+    required this.isLeader,
+    required this.latestAlert,
+    required this.members,
+    required this.leaders,
+  }) {
+    memberCount = members.length + leaders.length;
+
+    // figure out if anyone is unsafe
+    for (final member in members + leaders) {
+      switch (member.response?.safe) {
+        case true:
+          safeMembers.add(member);
+          break;
+        case false:
+          unsafeMembers.add(member);
+          break;
+        default:
+          noResponseMembers.add(member);
+          break;
+      }
+    }
+
+    responseCount = safeMembers.length + unsafeMembers.length;
   }
 
-  factory Group.fromMap(Map groupMap) {
-    return Group(
-      id: groupMap['id'],
-      name: groupMap['name'],
-      isLeader: groupMap['isLeader'],
-      memberCount: groupMap['memberCount'],
-      responseCount: groupMap['responseCount'],
-      unsafe: groupMap['unsafe'],
-      members: groupMap['members'],
-      leaders: groupMap['leaders'],
-    );
+  // Factory constructor to create a Group instance from JSON
+  factory Group.fromJson(Map<String, dynamic> data) {
+    log('[Group.fromJson] $data');
+    if (data
+        case {
+          'id': String id,
+          'name': String name,
+          'isLeader': bool isLeader,
+          'members': List<dynamic> jsonMembers,
+          'leaders': List<dynamic> jsonLeaders,
+        }) {
+      Alert? latestAlert;
+      if (data.containsKey('latestAlert') &&
+          data['latestAlert'] is Map<String, dynamic>) {
+        latestAlert =
+            Alert.fromJson(data['latestAlert'] as Map<String, dynamic>);
+      } else {
+        latestAlert = null;
+      }
+
+      List<User> members = jsonMembers.map((json) {
+        if (json is Map<String, dynamic>) {
+          return User.fromJson(json);
+        } else {
+          throw Exception(
+              'Group.fromJson: Failed to parse Group from JSON: $json');
+        }
+      }).toList();
+
+      List<User> leaders = jsonLeaders.map((json) {
+        if (json is Map<String, dynamic>) {
+          return User.fromJson(json);
+        } else {
+          throw Exception(
+              'Group.fromJson: Failed to parse Group from JSON: $json');
+        }
+      }).toList();
+
+      return Group(
+          id: id,
+          name: name,
+          isLeader: isLeader,
+          latestAlert: latestAlert,
+          members: members,
+          leaders: leaders);
+    } else {
+      throw Exception('Group.fromJson: Failed to parse Group from JSON: $data');
+    }
   }
 }
 
@@ -59,45 +103,21 @@ class GroupResponse {
   final int battery;
   final double latitude;
   final double longitude;
-}
 
-class GroupTestData {
-  static const List<Group> groups = [
-    Group(
-        id: "b74ccc08-9608-4db0-bbb2-17faa1fa0d0c",
-        name: "Cal Poly Software",
-        memberCount: 36,
-        responseCount: 12,
-        unsafe: 0,
-        isLeader: true,
-        members: MemberTestData.members,
-        leaders: MemberTestData.leaders),
-    Group(
-        id: "39d4e389-805d-4384-9191-304a5031ad66",
-        name: "Cal Poly Architecture",
-        memberCount: 36,
-        responseCount: 24,
-        unsafe: 0,
-        isLeader: false,
-        members: MemberTestData.members,
-        leaders: MemberTestData.leaders),
-    Group(
-        id: "73ed0ccc-11a7-451a-9f37-0f306c162050",
-        name: "U Chicago",
-        memberCount: 36,
-        responseCount: 36,
-        unsafe: 0,
-        isLeader: true,
-        members: MemberTestData.members,
-        leaders: MemberTestData.leaders),
-    Group(
-        id: "ecaa9eef-05bd-44ab-a7a7-73dc8cac6a9c",
-        name: "That Group",
-        memberCount: 36,
-        responseCount: 12,
-        unsafe: 1,
-        isLeader: true,
-        members: MemberTestData.members,
-        leaders: MemberTestData.leaders)
-  ];
+  // Factory constructor to create a GroupResponse instance from JSON
+  factory GroupResponse.fromJson(Map<String, dynamic> data) {
+    log('[GroupResponse.fromJson] $data');
+    if (data
+        case {
+          'isSafe': bool safe,
+          'battery': int battery,
+          'latitude': double latitude,
+          'longitude': double longitude,
+        }) {
+      return GroupResponse(safe, battery, latitude, longitude);
+    } else {
+      throw Exception(
+          'GroupResponse.fromJson: Failed to parse GroupResponse from JSON: $data');
+    }
+  }
 }

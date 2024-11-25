@@ -3,7 +3,6 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:mercury_client/models/data/carrier_tab_list.dart';
 import 'package:mercury_client/models/requests/verification_requests.dart';
-import 'package:mercury_client/models/responses/sms_dispatch_response.dart';
 import 'package:mercury_client/pages/register/email_register_widget.dart';
 import 'package:mercury_client/pages/register/sms_register_widget.dart';
 import 'package:mercury_client/widgets/logo.dart';
@@ -52,17 +51,16 @@ class _StartViewState extends State<StartView> {
                       carriers: carriers,
                       countryCodes: [1, 39],
                       onSubmit: (BuildContext context,
-                          Future<SMSDispatchResponse?> future) {
-                        future.then((response) {
+                          Future<String?> future) {
+                        future.then((String? response) {
                           if (response != null &&
-                              context.mounted &&
-                              response.carrierFound) {
+                              context.mounted) {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
                                 builder: (context) => VerificationView(
                                   preferences: widget.preferences,
-                                  verificationToken: response.token,
+                                  verificationToken: response,
                                 ),
                               ),
                             );
@@ -71,17 +69,16 @@ class _StartViewState extends State<StartView> {
                       }),
                   'email' => EmailRegisterWidget(onSubmit:
                         (BuildContext context,
-                            Future<SMSDispatchResponse?> future) {
+                            Future<String?> future) {
                       future.then((response) {
                         if (response != null &&
-                            context.mounted &&
-                            response.carrierFound) {
+                            context.mounted) {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (context) => VerificationView(
                                 preferences: widget.preferences,
-                                verificationToken: response.token,
+                                verificationToken: response,
                               ),
                             ),
                           );

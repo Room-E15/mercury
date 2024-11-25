@@ -6,11 +6,11 @@ import 'package:mercury_client/models/data/group.dart';
 import 'package:mercury_client/models/requests/server_requests.dart';
 
 class GroupRequests extends ServerRequests {
-  static final subURL = "/group";
+  static final subURL = '/group';
 
   // loads in the group objects to use for the dashboard
   static Future<List<Group>> fetchGroups(String memberId) async {
-    log('Querying server for groups...');
+    log('[$subURL] Querying server for groups...');
 
     // Prepare the data for the HTTP request
     final response = await post(
@@ -19,28 +19,38 @@ class GroupRequests extends ServerRequests {
         'memberId': memberId.toString(),
       },
     ).onError((obj, stackTrace) {
-      log('[ERROR] Failed to send group data to server.');
       return Response('', 500);
     });
 
     // Log response
     if (response.statusCode == 200) {
-      log('[INFO] Group identification data sent successfully!');
+      log('[$subURL] Group identification data sent successfully!');
     } else {
-      log('[ERROR] Failed to send group identification to server.');
+      log('[$subURL] ERROR: Failed to send group identification to server.');
       // TODO figure out something better to do if registration fails
     }
 
-    log("Body: ${response.body}");
-    List<dynamic> jsonList = jsonDecode(response.body);
-    List<Group> groupList =
-        jsonList.map((json) => Group.fromJson(json)).toList();
-    return groupList;
+    log('[$subURL] Body: ${response.body}');
+
+    try {
+      // recursively parse json response body
+      final parsedJsonList = jsonDecode(response.body) as List<dynamic>;
+      return parsedJsonList.map((json) {
+        if (json is Map<String, dynamic>) {
+          return Group.fromJson(json);
+        } else {
+          throw Exception('Failed to cast $json to Map<String, dynamic>');
+        }
+      }).toList();
+    } catch (e) {
+      log('[$subURL] ERROR: Failed to parse group data from server: $e');
+      return [];
+    }
   }
 
   static Future<void> requestCreateGroup(
       String memberId, String groupName) async {
-    log('Requesting Group creation...');
+    log('[$subURL] Requesting Group creation...');
 
     // Prepare the data for the HTTP request
     final response = await post(
@@ -50,21 +60,20 @@ class GroupRequests extends ServerRequests {
         'groupName': groupName,
       },
     ).onError((obj, stackTrace) {
-      log('[ERROR] Failed to send group data to server.');
       return Response('', 500);
     });
 
     // Log response
     if (response.statusCode == 200) {
-      log('[INFO] Group data sent successfully!');
+      log('[$subURL] Group data sent successfully!');
     } else {
-      log('[ERROR] Failed to send group data to server.');
+      log('[$subURL] ERROR: Failed to send group data to server.');
     }
   }
 
 // allows the member to join another group
   static Future<void> requestJoinGroup(String memberId, String groupId) async {
-    log('Requesting Group join...');
+    log('[$subURL] Requesting Group join...');
 
     // Prepare the data for the HTTP request
     final uri = Uri.parse('${ServerRequests.baseURL}$subURL/joinGroup');
@@ -75,15 +84,14 @@ class GroupRequests extends ServerRequests {
         'groupId': groupId,
       },
     ).onError((obj, stackTrace) {
-      log('[ERROR] Failed to send group join packet data to server.');
       return Response('', 500);
     });
 
     // Log response
     if (response.statusCode == 200) {
-      log('[INFO] Join group data sent successfully!');
+      log('[$subURL] Join group data sent successfully!');
     } else {
-      log('[ERROR] Failed to send group join information to server.');
+      log('[$subURL] ERROR: Failed to send group join information to server.');
       // TODO figure out something better to do if registration fails
     }
   }

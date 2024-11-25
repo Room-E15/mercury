@@ -6,7 +6,7 @@ import 'package:mercury_client/models/requests/verification_requests.dart';
 import 'package:mercury_client/pages/home/home_view.dart';
 import 'package:mercury_client/widgets/logo.dart';
 import 'package:mercury_client/utils/log_user_info.dart';
-import 'package:mercury_client/models/data/user_info.dart';
+import 'package:mercury_client/models/data/user.dart';
 import 'package:mercury_client/pages/register/register_view.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
@@ -42,13 +42,14 @@ class VerificationViewState extends State<VerificationView> {
               },
               icon: const Icon(Icons.arrow_back)),
           title: appLogo,
+          centerTitle: true,
         ),
         body: Column(
           children: [
             Padding(
                 padding: const EdgeInsets.all(16),
                 child: Text(
-                    "Enter the verification code sent to your phone number.")),
+                    'Enter the verification code sent to your phone number.')),
             Padding(
               padding: const EdgeInsets.all(16),
               child: TextField(
@@ -62,7 +63,7 @@ class VerificationViewState extends State<VerificationView> {
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: ElevatedButton(
-                onPressed:(widget.verificationToken == "")
+                onPressed:(widget.verificationToken == '')
                     ? null
                     : () {
                         // when you press the button, it should cause a loading symbol
@@ -75,8 +76,7 @@ class VerificationViewState extends State<VerificationView> {
                         VerificationRequests.requestVerifyCode(
                                 codeController.text, widget.verificationToken)
                             .then((response) async {
-                          final codeIsCorrect = response.correctCode,
-                              user = response.userInfo;
+                          final (codeIsCorrect, user) = response;
 
                           setState(() {
                             _loadingIconState = codeIsCorrect
@@ -85,11 +85,11 @@ class VerificationViewState extends State<VerificationView> {
                           });
 
                           if (codeIsCorrect) {
-                            // TODO currently have 2 second delay for "check" animation, make less jank
+                            // TODO convert to real animation, 2 second delay is for "check" animation,
                             final animationDelay = 2;
 
                             // if the user is registered, log their info and send them to the homepage
-                            if (user is RegisteredUserInfo) {
+                            if (user is RegisteredUser) {
                               logUserInfo(widget.preferences, user)
                                   .then((future) {
                                 Future.delayed(

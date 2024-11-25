@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:mercury_client/models/data/user.dart';
 import 'package:mercury_client/models/requests/verification_requests.dart';
 import 'package:mercury_client/widgets/loading_icon.dart';
 import 'package:mercury_client/widgets/logo.dart';
 import 'package:mercury_client/pages/home/home_view.dart';
-import 'package:mercury_client/models/data/user_info.dart';
 import 'package:mercury_client/utils/log_user_info.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -29,8 +29,6 @@ class _RegisterViewState extends State<RegisterView> {
   final _lastNameController = TextEditingController();
   LoadingState _loadingIconState = LoadingState.nothing;
 
-  RegisteredUserInfo? _user;
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -42,7 +40,7 @@ class _RegisterViewState extends State<RegisterView> {
           const Padding(
               padding: EdgeInsets.all(40),
               child: Text(
-                  "Thanks for verifying! Please enter your name to get started.")),
+                  'Thanks for verifying! Please enter your name to get started.')),
           Form(
             key: _formKey,
             child: Column(
@@ -94,14 +92,13 @@ class _RegisterViewState extends State<RegisterView> {
                                 widget.verificationToken,
                                 _firstNameController.text,
                                 _lastNameController.text)
-                            .then((ucr) {
-                          if (ucr == null || ucr.user == null) {
+                            .then((RegisteredUser? user) {
+                          if (user == null) {
                             setState(() {
                               _loadingIconState = LoadingState.failure;
                             });
                             return const Text('Failed to register on server!');
                           } else {
-                            _user = ucr.user;
                             setState(() {
                               _loadingIconState = LoadingState.success;
                             });
@@ -109,7 +106,7 @@ class _RegisterViewState extends State<RegisterView> {
                             if (context.mounted) {
                               logUserInfo(
                                 widget.preferences,
-                                ucr.user!,
+                                user,
                               ).then((_) {
                                 if (context.mounted) {
                                   Navigator.pushNamedAndRemoveUntil(

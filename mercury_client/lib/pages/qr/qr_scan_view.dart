@@ -16,7 +16,7 @@ class QRScanView extends StatefulWidget {
 
 Future<String> requestRegistrationFromServer(String? groupCode) async {
   return Future.delayed(const Duration(seconds: 2), () {
-    return "success";
+    return 'success';
   });
 }
 

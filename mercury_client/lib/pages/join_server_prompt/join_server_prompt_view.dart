@@ -35,7 +35,7 @@ class JoinServerPromptView extends StatelessWidget {
                   padding: EdgeInsetsDirectional.only(top: 150),
                 ),
                 const Text(
-                  "Join a server to start",
+                  'Join a server to start',
                 ),
                 const Padding(
                   padding: EdgeInsetsDirectional.only(top: 30),

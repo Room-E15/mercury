@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:mercury_client/models/data/group.dart';
@@ -13,10 +12,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 Widget groupWidgetBuilder(Key? widgetKey, BuildContext context,
     SharedPreferencesWithCache preferences, int index, List<Group> groups) {
   final group = groups[index];
-  final progress = group.responseCount != null
-      ? group.responseCount! / group.memberCount
-      : 1.0;
-  final anyUnsafe = group.unsafe > 0;
+  final progress = group.responseCount / group.memberCount;
+  final unsafe = group.unsafeMembers.isNotEmpty;
 
   double progressValue;
   Color progressColor;
@@ -25,22 +22,22 @@ Widget groupWidgetBuilder(Key? widgetKey, BuildContext context,
   Color statusColor;
   double topPadding;
 
-  if (anyUnsafe) {
+  if (unsafe) {
     progressValue = 1;
     progressColor = Colors.red;
     statusIcon = Icons.error;
     statusText =
-        "${group.unsafe} member${group.unsafe > 1 ? "s are" : " is"} not safe!";
+        "${group.unsafeMembers.length} member${group.unsafeMembers.length > 1 ? "s are" : " is"} not safe!";
   } else {
     progressValue = progress;
     progressColor = Colors.green;
     statusIcon = Icons.check;
     statusText = (group.responseCount == group.memberCount)
-        ? "All members are safe"
-        : "${group.responseCount} of ${group.memberCount} members are safe";
+        ? 'All members are safe'
+        : '${group.responseCount} of ${group.memberCount} members are safe';
   }
 
-  if (!group.isLeader || group.responseCount == null) {
+  if (!group.isLeader || group.latestAlert == null) {
     progressValue = 1;
     progressColor = const Color(0xFF4F378B);
     statusIcon = Icons.group;
@@ -153,7 +150,7 @@ Widget groupWidgetBuilder(Key? widgetKey, BuildContext context,
                       },
                       child: const Padding(
                         padding: EdgeInsets.all(16),
-                        child: Text("SEND ALERT"),
+                        child: Text('SEND ALERT'),
                       ),
                     ),
                   ),
@@ -177,12 +174,12 @@ Future<Widget> getGroupWidgets(
   return EasyRefresh(
       onRefresh: onRefresh,
       header: ClassicHeader(
-        dragText: "Pull down to refresh",
-        armedText: "Release to refresh",
-        readyText: "Refreshing...",
-        processingText: "Loading groups...",
-        failedText: "Refresh failed",
-        noMoreText: "No more data",
+        dragText: 'Pull down to refresh',
+        armedText: 'Release to refresh',
+        readyText: 'Refreshing...',
+        processingText: 'Loading groups...',
+        failedText: 'Refresh failed',
+        noMoreText: 'No more data',
       ),
       child: ListView.builder(
         restorationId: 'groupList',
@@ -190,7 +187,7 @@ Future<Widget> getGroupWidgets(
         itemBuilder: (context, index) {
           if (index < groups.length) {
             // normal group tile
-            if (filterSearch == "" ||
+            if (filterSearch == '' ||
                 groups[index]
                     .name
                     .toLowerCase()
@@ -246,7 +243,7 @@ Future<Widget> getGroupWidgets(
                               },
                               child: const Padding(
                                 padding: EdgeInsets.all(2),
-                                child: Text("CREATE GROUP"),
+                                child: Text('CREATE GROUP'),
                               ),
                             ),
                             Padding(
@@ -266,7 +263,7 @@ Future<Widget> getGroupWidgets(
                               },
                               child: const Padding(
                                 padding: EdgeInsets.all(2),
-                                child: Text("JOIN GROUP"),
+                                child: Text('JOIN GROUP'),
                               ),
                             )
                           ],

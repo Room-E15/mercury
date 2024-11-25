@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,6 +14,7 @@ import org.hibernate.annotations.UuidGenerator;
 
 @Entity
 @NoArgsConstructor
+@AllArgsConstructor
 @Getter
 @Setter
 @EqualsAndHashCode
@@ -44,5 +46,9 @@ public class Member {
         this.lastName = lastName;
         this.countryCode = countryCode;
         this.phoneNumber = phoneNumber;
+    }
+
+    public Member(final Member member) {
+        this(member.id, member.firstName, member.lastName, member.countryCode, member.phoneNumber);
     }
 }

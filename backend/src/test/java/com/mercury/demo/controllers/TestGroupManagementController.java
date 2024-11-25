@@ -7,6 +7,7 @@ import com.mercury.demo.entities.exceptions.DatabaseStateException;
 import com.mercury.demo.entities.responses.GetGroupsResponse;
 import com.mercury.demo.entities.responses.JoinGroupResponse;
 import com.mercury.demo.repositories.AlertGroupRepository;
+import com.mercury.demo.repositories.AlertRepository;
 import com.mercury.demo.repositories.MemberRepository;
 import com.mercury.demo.repositories.MembershipRepository;
 import org.junit.jupiter.api.Assertions;
@@ -39,6 +40,9 @@ class TestGroupManagementController {
 
     @Mock
     private AlertGroupRepository mockAlertGroupRepository;
+
+    @Mock
+    private AlertRepository mockAlertRepository;
 
     @InjectMocks
     private GroupManagementController controller;
@@ -125,7 +129,7 @@ class TestGroupManagementController {
         final AlertGroup alertGroup = new AlertGroup(GROUP_NAME);
         alertGroup.setId(PHONE_NUMBER);
         final Membership membership = new Membership(MEMBER.getId(), alertGroup.getId(), true);
-        final GetGroupsResponse expectedGetGroupsResponse = new GetGroupsResponse(alertGroup.getId(), alertGroup.getGroupName(), 1, 0, true, List.of(), List.of(MEMBER));
+        final GetGroupsResponse expectedGetGroupsResponse = new GetGroupsResponse(alertGroup.getId(), alertGroup.getGroupName(), true, List.of(), List.of(MEMBER));
 
         Mockito.when(mockMembershipRepository.findByMemberId(MEMBER.getId())).thenReturn(List.of(membership));
         Mockito.when(mockMemberRepository.findById(MEMBER.getId())).thenReturn(Optional.of(MEMBER));
@@ -149,7 +153,7 @@ class TestGroupManagementController {
         memberTwo.setId("1234");
         final Membership membership = new Membership(MEMBER.getId(), alertGroup.getId(), true);
         final Membership membershipTwo = new Membership(memberTwo.getId(), alertGroup.getId(), false);
-        final GetGroupsResponse expectedGetGroupsResponse = new GetGroupsResponse(alertGroup.getId(), alertGroup.getGroupName(), 2, 0, true, List.of(memberTwo), List.of(MEMBER));
+        final GetGroupsResponse expectedGetGroupsResponse = new GetGroupsResponse(alertGroup.getId(), alertGroup.getGroupName(), true, List.of(memberTwo), List.of(MEMBER));
 
         Mockito.when(mockMembershipRepository.findByMemberId(MEMBER.getId())).thenReturn(List.of(membership));
         Mockito.when(mockMemberRepository.findById(MEMBER.getId())).thenReturn(Optional.of(MEMBER));
@@ -182,7 +186,7 @@ class TestGroupManagementController {
     @Test
     void testGetGroupWithOneGroup() {
         final Membership membership = new Membership(MEMBER_ID, ALERT_GROUP_ID, true);
-        final GetGroupsResponse expectedResponse = new GetGroupsResponse(ALERT_GROUP_ID, ALERT_GROUP.getGroupName(), 1, 0,
+        final GetGroupsResponse expectedResponse = new GetGroupsResponse(ALERT_GROUP_ID, ALERT_GROUP.getGroupName(),
                 true, List.of(), List.of(MEMBER));
 
         Mockito.when(mockMembershipRepository.findByMemberId(MEMBER_ID)).thenReturn(List.of(membership));
@@ -208,8 +212,8 @@ class TestGroupManagementController {
         final Membership membership = new Membership(MEMBER.getId(), alertGroup.getId(), true);
         final Membership membershipTwo = new Membership(MEMBER.getId(), alertGroupTwo.getId(), false);
         final List<GetGroupsResponse> expectedGetGroupsResponse = List.of(
-                new GetGroupsResponse(alertGroup.getId(), alertGroup.getGroupName(), 1, 0, true, List.of(), List.of(MEMBER)),
-                new GetGroupsResponse(alertGroupTwo.getId(), alertGroupTwo.getGroupName(), 1, 0, false, List.of(MEMBER), List.of()));
+                new GetGroupsResponse(alertGroup.getId(), alertGroup.getGroupName(), true, List.of(), List.of(MEMBER)),
+                new GetGroupsResponse(alertGroupTwo.getId(), alertGroupTwo.getGroupName(), false, List.of(MEMBER), List.of()));
 
         Mockito.when(mockMembershipRepository.findByMemberId(MEMBER.getId())).thenReturn(List.of(membership, membershipTwo));
         Mockito.when(mockMemberRepository.findById(MEMBER.getId())).thenReturn(Optional.of(MEMBER));
@@ -240,8 +244,8 @@ class TestGroupManagementController {
             memberships.add(newMembership);
             final AlertGroup newAlertGroup = new AlertGroup("Group" + i);
             newAlertGroup.setId(String.valueOf(i));
-            expectedResponses.add(new GetGroupsResponse(newAlertGroup.getId(), newAlertGroup.getGroupName(), 1, 0,
-                    newMembership.isLeader(), i != 0 ? List.of(MEMBER) : List.of(), i == 0 ? List.of(MEMBER) : List.of()));
+            expectedResponses.add(new GetGroupsResponse(newAlertGroup.getId(), newAlertGroup.getGroupName(), newMembership.isLeader(),
+                    i != 0 ? List.of(MEMBER) : List.of(), i == 0 ? List.of(MEMBER) : List.of()));
 
             Mockito.when(mockAlertGroupRepository.findById(newAlertGroup.getId())).thenReturn(Optional.of(newAlertGroup));
             Mockito.when(mockMembershipRepository.findByGroupId(newAlertGroup.getId())).thenReturn(List.of(newMembership));
