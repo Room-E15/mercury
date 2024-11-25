@@ -43,7 +43,7 @@ jobs:
           MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
           MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
         run: |
-          cd backend && chmod +x ./mvnw && ./mvnw clean && ./mvnw test -f pom.xml && cd ..
+          cd backend && chmod +x ./mvnw && ./mvnw clean && ./mvnw test -f pom.xml && ./mvnw verify -f pom.xml && cd ..
           cd mercury_client && flutter build web && cd ..
       - name: Download sonar-scanner
         run: |
