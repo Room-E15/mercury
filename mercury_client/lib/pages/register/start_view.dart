@@ -48,6 +48,7 @@ class _StartViewState extends State<StartView> {
     return Scaffold(
       appBar: AppBar(
         title: appLogo,
+        centerTitle: true,
       ),
       body: Column(
         children: [

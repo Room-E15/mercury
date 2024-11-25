@@ -90,6 +90,7 @@ class VerificationViewState extends State<VerificationView> {
               },
               icon: const Icon(Icons.arrow_back)),
           title: appLogo,
+          centerTitle: true,
         ),
         body: Column(
           children: [
