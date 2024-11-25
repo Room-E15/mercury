@@ -31,14 +31,14 @@ class TestMemberAlertResponse {
         response.setIsSafe(IS_SAFE);
         response.setLatitude(LATITUDE);
         response.setLongitude(LONGITUDE);
-        response.setBatteryPercent(BATTERY);
+        response.setBattery(BATTERY);
 
         Assertions.assertEquals(ALERT_RESPONSE, response);
     }
 
     @Test
     void testMemberAlertResponseToString() {
-        final String expectedString = String.format("MemberAlertResponse(memberId=%s, alertId=%s, creationTime=null, isSafe=%s, latitude=%s, longitude=%s, batteryPercent=%s)",
+        final String expectedString = String.format("MemberAlertResponse(memberId=%s, alertId=%s, creationTime=null, isSafe=%s, latitude=%s, longitude=%s, battery=%s)",
                 MEMBER_ID, ALERT_ID, IS_SAFE, LATITUDE, LONGITUDE, BATTERY);
 
         Assertions.assertEquals(expectedString, ALERT_RESPONSE.toString());

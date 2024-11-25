@@ -3,6 +3,7 @@ package com.mercury.demo.entities.responses;
 import com.mercury.demo.entities.Alert;
 import com.mercury.demo.entities.Member;
 import com.mercury.demo.entities.MemberAlertResponse;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 import java.util.HashMap;
@@ -11,36 +12,12 @@ import java.util.Map;
 import java.util.Objects;
 
 @Getter
+@EqualsAndHashCode(callSuper = true)
 class MemberWithResponse extends Member {
     private final MemberAlertResponse response;
     public MemberWithResponse(Member member, MemberAlertResponse response) {
         super(member);
         this.response = response;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || o.getClass() != MemberWithResponse.class) return false;
-        final MemberWithResponse m = (MemberWithResponse) o;
-        return this.response.equals(m.response)
-                && this.getId().equals(m.getId())
-                && this.getFirstName().equals(m.getFirstName())
-                && this.getLastName().equals(m.getLastName())
-                && this.getPhoneNumber().equals(m.getPhoneNumber())
-                && this.getCountryCode() == m.getCountryCode();
-
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(
-                response,
-                getId(),
-                getFirstName(),
-                getLastName(),
-                getCountryCode(),
-                getPhoneNumber()
-        );
     }
 }
 
@@ -48,7 +25,7 @@ class MemberWithResponse extends Member {
 public class GetGroupsResponse extends HashMap<String, Object> {
     final Map<String, MemberAlertResponse> memberToResponses;
 
-    private Member getMemberWithResponse(Member member) {
+    private Member getMemberWithResponse(final Member member) {
         if (memberToResponses.containsKey(member.getId())) {
             return new MemberWithResponse(member, memberToResponses.get(member.getId()));
         } else {
