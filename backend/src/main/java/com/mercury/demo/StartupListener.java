@@ -17,8 +17,12 @@ public class StartupListener implements ApplicationListener<ContextRefreshedEven
     @Override
     public void onApplicationEvent(@Nullable ContextRefreshedEvent event) {
         carrierRepository.save(
-                new Carrier("at&t", "AT&T", "txt.att.net", false));
+                new Carrier(Carrier.CommType.SMS, "att", "AT&T", "%s@txt.att.net", false));
         carrierRepository.save(
-                new Carrier("verizon", "Verizon", "vtext.com", false));
+                new Carrier(Carrier.CommType.SMS, "verizon", "Verizon", "%s@vtext.com", false));
+        carrierRepository.save(
+                new Carrier(Carrier.CommType.SMS, "tmobile", "T-Mobile", "%s@tmomail.net", false));
+        carrierRepository.save(
+                new Carrier(Carrier.CommType.EMAIL, "email", "E-Mail", "%s", false));
     }
 }

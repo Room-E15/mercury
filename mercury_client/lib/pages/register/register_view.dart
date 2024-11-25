@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:mercury_client/models/requests/verification_requests.dart';
+import 'package:mercury_client/models/responses/user_creation_response.dart';
+import 'package:mercury_client/widgets/loading_icon.dart';
 import 'package:mercury_client/widgets/loading_widget.dart';
 import 'package:mercury_client/widgets/logo.dart';
 import 'package:mercury_client/pages/home/home_view.dart';
-import 'package:mercury_client/models/requests/member_requests.dart';
 import 'package:mercury_client/models/data/user_info.dart';
 import 'package:mercury_client/utils/log_user_info.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -11,14 +13,12 @@ class RegisterView extends StatefulWidget {
   static const routeName = '/register';
 
   final SharedPreferencesWithCache preferences;
-  final int countryCode;
-  final String phoneNumber;
+  final String verificationToken;
 
   const RegisterView({
     super.key,
     required this.preferences,
-    required this.countryCode,
-    required this.phoneNumber,
+    required this.verificationToken,
   });
 
   @override
@@ -27,11 +27,11 @@ class RegisterView extends StatefulWidget {
 
 class _RegisterViewState extends State<RegisterView> {
   final _formKey = GlobalKey<FormState>();
-  final firstNameController = TextEditingController();
-  final lastNameController = TextEditingController();
+  final _firstNameController = TextEditingController();
+  final _lastNameController = TextEditingController();
+  LoadingState _loadingIconState = LoadingState.nothing;
 
-  Future<String?>? _futureUserId;
-  UserInfo? _user;
+  RegisteredUserInfo? _user;
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +52,7 @@ class _RegisterViewState extends State<RegisterView> {
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: TextFormField(
-                    controller: firstNameController,
+                    controller: _firstNameController,
                     decoration: const InputDecoration(
                       labelText: 'First Name',
                     ),
@@ -69,7 +69,7 @@ class _RegisterViewState extends State<RegisterView> {
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: TextFormField(
-                    controller: lastNameController,
+                    controller: _lastNameController,
                     decoration: const InputDecoration(
                       labelText: 'Last Name',
                     ),
@@ -90,39 +90,28 @@ class _RegisterViewState extends State<RegisterView> {
                       // Validate returns true if the form is valid, or false otherwise.
                       if (_formKey.currentState!.validate()) {
                         setState(() {
-                          _user = UserInfo(
-                            firstName: firstNameController.text,
-                            lastName: lastNameController.text,
-                            countryCode: widget.countryCode,
-                            phoneNumber: widget.phoneNumber,
-                          );
-                          _futureUserId = MemberRequests.requestRegisterUser(
-                              _user as UserInfo);
+                          _loadingIconState = LoadingState.loading;
                         });
-                      }
-                    },
-                    child: const Text('Submit'),
-                  ),
-                ),
-                // Loading icon and logic to move to next page
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: _futureUserId == null
-                      ? Container()
-                      : loadingWidgetBuilder(
-                          context: context,
-                          futureIcon:
-                              (_futureUserId as Future<String?>).then((userId) {
-                            if (userId == null) {
-                              return const Text(
-                                  'Failed to register on server!');
-                            } else if (context.mounted && _user != null) {
+                        VerificationRequests.requestRegisterUser(
+                                widget.verificationToken,
+                                _firstNameController.text,
+                                _lastNameController.text)
+                            .then((ucr) {
+                          if (ucr == null || ucr.user == null) {
+                            setState(() {
+                              _loadingIconState = LoadingState.failure;
+                            });
+                            return const Text('Failed to register on server!');
+                          } else {
+                            _user = ucr.user;
+                            setState(() {
+                              _loadingIconState = LoadingState.success;
+                            });
+
+                            if (context.mounted) {
                               logUserInfo(
                                 widget.preferences,
-                                RegisteredUserInfo.fromUser(
-                                  _user as UserInfo,
-                                  userId,
-                                ),
+                                ucr.user!,
                               ).then((_) {
                                 if (context.mounted) {
                                   Navigator.pushNamedAndRemoveUntil(
@@ -135,12 +124,19 @@ class _RegisterViewState extends State<RegisterView> {
 
                               return Icon(Icons.check);
                             }
-                          }),
-                        ),
+                          }
+                        });
+                      }
+                    },
+                    child: const Text('Submit'),
+                  ),
                 ),
               ],
             ),
           ),
+          Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: LoadingIcon(state: _loadingIconState, errorMessage: 'Could not register user')),
         ],
       ),
     );

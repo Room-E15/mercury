@@ -2,18 +2,17 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:http/http.dart';
-import 'package:mercury_client/models/responses/carrier_list_response.dart';
+import 'package:mercury_client/models/data/carrier_tab_list.dart';
 import 'package:mercury_client/models/responses/sms_dispatch_response.dart';
 import 'package:mercury_client/models/responses/sms_verify_response.dart';
 import 'package:mercury_client/models/requests/server_requests.dart';
 import 'package:mercury_client/models/responses/user_creation_response.dart';
 
-
 class VerificationRequests extends ServerRequests {
   static final subURL = "/v";
   static const headers = {"Content-Type": "application/json"};
 
-  static Future<CarrierListResponse?> requestCarrierLists() async {
+  static Future<CarrierTabList?> requestCarrierLists() async {
     log('[$subURL] Asking server for carrier list');
 
     final Response response = await get(
@@ -23,8 +22,26 @@ class VerificationRequests extends ServerRequests {
     });
 
     if (response.statusCode == 200) {
-      log('[$subURL] Successfully received carrier list');
-      return CarrierListResponse.fromJson(response.body);
+      final json = jsonDecode(response.body);
+      log('json: $json');
+
+      // try and decode response to get member id
+      if (json is List) {
+        log('[$subURL] Successfully received carrier list');
+
+        return CarrierTabList.fromJson(json.cast<Map<String, dynamic>>());
+
+        // if there was an error, log it
+      } else if (json
+          case {
+            'status': String _,
+            'error': String error,
+          }) {
+        log('[$subURL] ERROR: $error');
+        return null;
+      }
+      log('[$subURL] Did not meet any conditions');
+      return null;
     } else {
       log('[$subURL] ERROR: Failed to receive carrier list: ${response.body}');
       return null;
@@ -77,7 +94,8 @@ class VerificationRequests extends ServerRequests {
 
   // returns the user's ID if they were successfully registered
   // TODO consider refactoring, this design is kind of disgusting
-  static Future<UserCreationResponse?> requestRegisterUser(String token, String firstName, String lastName) async {
+  static Future<UserCreationResponse?> requestRegisterUser(
+      String token, String firstName, String lastName) async {
     log('[$subURL] Sending user data to server...');
 
     // Prepare the data for the HTTP request

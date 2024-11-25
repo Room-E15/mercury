@@ -1,5 +1,6 @@
 package com.mercury.demo.entities;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotNull;
@@ -16,23 +17,50 @@ import lombok.ToString;
 @EqualsAndHashCode
 @ToString
 public class Carrier {
+    public interface PublicView {}
+    public interface InternalView extends PublicView {}
+
+    public enum CommType {
+        SMS("sms", "Text Message", 1),
+        EMAIL("email", "E-Mail", 2);
+
+        public final String commName;
+        public final String displayName;
+        public final int priority; // Lower is better
+
+        CommType(String name, String displayName, int priority) {
+            this.commName = name;
+            this.displayName = displayName;
+            this.priority = priority;
+        }
+    }
+
     @Id
     @NotNull
+    @JsonView(PublicView.class)
     private String id;
 
     @NotNull
-    private String carrierName;
+    @JsonView(PublicView.class)
+    private String name;
 
     @NotNull
-    private String textGateway;
+    @JsonView(InternalView.class)
+    private String gateway;
 
     @NotNull
+    @JsonView(InternalView.class)
     private boolean includeCountryCodeInEmail;
 
-    public Carrier(String id, String carrierName, String textGateway, boolean includeCountryCodeInEmail) {
+    @NotNull
+    @JsonView(InternalView.class)
+    private CommType type;
+
+    public Carrier(CommType type, String id, String carrierName, String textGateway, boolean includeCountryCodeInEmail) {
         this.id = id;
-        this.carrierName = carrierName;
-        this.textGateway = textGateway;
+        this.type = type;
+        this.name = carrierName;
+        this.gateway = textGateway;
         this.includeCountryCodeInEmail = includeCountryCodeInEmail;
     }
 
@@ -43,6 +71,6 @@ public class Carrier {
         } else {
             prefix = phoneNumber;
         }
-        return String.format("%s@%s", prefix, textGateway);
+        return String.format(gateway, prefix);
     }
 }

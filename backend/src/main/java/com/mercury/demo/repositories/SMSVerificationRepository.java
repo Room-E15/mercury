@@ -13,8 +13,7 @@ public interface SMSVerificationRepository extends CrudRepository<SMSVerificatio
     Optional<SMSVerification> findByPhoneNumberAndCountryCode(String phoneNumber,
                                                               int countryCode);
 
-    Optional<SMSVerification> getFirstByPhoneNumberAndCountryCodeAndVerified(String phoneNumber,
-                                                                             int countryCode,
+    Optional<SMSVerification> findFirstByIdAndVerified(String id,
                                                                              boolean verified);
 
     List<SMSVerification> findAllByPhoneNumberAndCountryCode(String phoneNumber, int countryCode);

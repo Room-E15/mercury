@@ -11,18 +11,21 @@ class UserCreationResponse {
     this.user,
   });
 
-  UserCreationResponse.fromJson(Map json)
-      : status = json['status'],
-        description = json['description'],
-        user = json['user'] == null
-            ? null
-            : RegisteredUserInfo.fromUser(
-                UserInfo(
-                  firstName: json['user']['firstName'],
-                  lastName: json['user']['lastName'],
-                  countryCode: json['user']['countryCode'],
-                  phoneNumber: json['user']['phoneNumber'],
-                ),
-                json['user']['id'],
-              );
+  factory UserCreationResponse.fromJson(Map json) {
+    return UserCreationResponse(
+      status: json['status'],
+      description: json['description'],
+      user: json['user'] == null
+          ? null
+          : RegisteredUserInfo.fromUser(
+              UserInfo(
+                firstName: json['user']['firstName'],
+                lastName: json['user']['lastName'],
+                countryCode: json['user']['countryCode'],
+                phoneNumber: json['user']['phoneNumber'],
+              ),
+              json['user']['id'],
+            ),
+    );
+  }
 }

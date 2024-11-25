@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mercury_client/models/requests/verification_requests.dart';
-import 'package:mercury_client/pages/register/verification_view.dart';
+import 'package:mercury_client/widgets/loading_icon.dart';
 
 class EmailRegisterWidget extends StatefulWidget {
   final Function onSubmit;
@@ -15,26 +15,6 @@ class _EmailRegisterWidgetState extends State<EmailRegisterWidget> {
   final _formKey = GlobalKey<FormState>(); // Replaced Global Key
   LoadingState _loadingIconState = LoadingState.nothing;
   String _emailAddress = "";
-
-  Widget displayLoadingIcon(LoadingState state) {
-    // TODO add nice animations for check (slowly fills in) and X (shakes widget)
-    switch (state) {
-      case LoadingState.nothing:
-        return Container();
-      case LoadingState.loading:
-        return const CircularProgressIndicator();
-      case LoadingState.success:
-        return const Icon(Icons.check);
-      case LoadingState.failure:
-        return Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
-            Icon(Icons.close),
-            Text('Invalid Verification Code'),
-          ],
-        );
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -70,7 +50,8 @@ class _EmailRegisterWidgetState extends State<EmailRegisterWidget> {
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: ElevatedButton(
-              onPressed: _loadingIconState == LoadingState.loading
+              onPressed: _loadingIconState == LoadingState.loading ||
+                      _loadingIconState == LoadingState.success
                   ? null
                   : () {
                       setState(() {
@@ -87,15 +68,21 @@ class _EmailRegisterWidgetState extends State<EmailRegisterWidget> {
                           }).then((response) {
                             setState(
                                 () => _loadingIconState = LoadingState.success);
-                            return response;
+                            return Future.delayed(const Duration(seconds: 2),
+                                () {
+                              setState(() {
+                                _loadingIconState = LoadingState.nothing;
+                              });
+                              return response;
+                            });
                           }));
                     },
               child: const Text('Submit'),
             ),
           ),
           Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: displayLoadingIcon(_loadingIconState)),
+              padding: const EdgeInsets.all(16.0),
+              child: LoadingIcon(state: _loadingIconState, errorMessage: 'Could not send e-mail message')),
         ],
       ),
     );

@@ -1,38 +1,40 @@
 package com.mercury.demo.controllers;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import com.mercury.demo.entities.Member;
 import com.mercury.demo.entities.SMSVerification;
 import com.mercury.demo.entities.Carrier;
 
+import com.mercury.demo.entities.responses.MemberAddResponse;
 import com.mercury.demo.entities.responses.SMSDispatchResponse;
 import com.mercury.demo.entities.responses.SMSVerifyResponse;
 import com.mercury.demo.repositories.MemberRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.DigestUtils;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import com.mercury.demo.mail.SMSEmailService;
 import com.mercury.demo.repositories.CarrierRepository;
 import com.mercury.demo.repositories.SMSVerificationRepository;
 
 import java.security.SecureRandom;
-import java.util.Optional;
+import java.util.*;
 
-@Controller // This means that this class is a Controller
-@RequestMapping(path = "/sms") // This means URL's start with /demo (after Application path)
+@RestController // This means that this class is a Controller
+@RequestMapping(path = "/v") // This means URL's start with /demo (after Application path)
 public class SMSVerificationController {
-    @Autowired private SMSVerificationRepository smsVerificationRepository;
-    @Autowired private CarrierRepository carrierRepository;
-    @Autowired private SMSEmailService mailService;
-    @Autowired private MemberRepository memberRepository;
+    @Autowired
+    private SMSVerificationRepository smsVerificationRepository;
+    @Autowired
+    private CarrierRepository carrierRepository;
+    @Autowired
+    private SMSEmailService mailService;
+    @Autowired
+    private MemberRepository memberRepository;
 
     @PostMapping(path = "/dispatch") // Map ONLY POST Requests
-    public @ResponseBody SMSDispatchResponse requestSMSDispatch(@RequestParam final int countryCode,
+    public  SMSDispatchResponse requestSMSDispatch(@RequestParam final int countryCode,
                                                                 @RequestParam final String phoneNumber,
                                                                 @RequestParam final String carrier) {
         // Calculate expiration time (15 minutes from current moment)
@@ -67,7 +69,7 @@ public class SMSVerificationController {
     }
 
     @PostMapping(path = "/verify") // Map ONLY POST Requests
-    public @ResponseBody SMSVerifyResponse verifySMSCode(@RequestParam final String token,
+    public  SMSVerifyResponse verifySMSCode(@RequestParam final String token,
                                                          @RequestParam final String code
     ) {
         // Search for SMSVerification session using given token
@@ -98,10 +100,60 @@ public class SMSVerificationController {
         return new SMSVerifyResponse(true, userInfo);
     }
 
-    // TODO: Remove this method, it's only for debugging
-    @GetMapping(path = "/all")
-    public @ResponseBody Iterable<SMSVerification> getAllPendingVerifications() {
-        // This returns a JSON or XML with the users
-        return smsVerificationRepository.findAll();
+    @GetMapping(path = "/carriers")
+    @JsonView(Carrier.PublicView.class)
+    public  List<Object> getAllCarriers() {
+        Map<Carrier.CommType, List<Carrier>> response1 = new EnumMap<>(Carrier.CommType.class);
+
+        List<Carrier.CommType> commTypes = new ArrayList<>(List.of(Carrier.CommType.values()));
+        commTypes.sort((o1, o2) -> {
+            if (o1.priority == o2.priority) return 0;
+            return o2.priority < o1.priority ? 1 : -1;
+        });
+        for (Carrier.CommType commType : commTypes) {
+            List<Carrier> responseMap = new ArrayList<>();
+            response1.put(commType, responseMap);
+        }
+
+        Iterable<Carrier> carriers = carrierRepository.findAll();
+
+        carriers.forEach((Carrier carrier) -> {
+            List<Carrier> cl = response1.get(carrier.getType());
+            cl.add(carrier);
+            response1.put(carrier.getType(), cl);
+        });
+
+        List<Object> response = new ArrayList<>();
+        response1.forEach((Carrier.CommType key, Object value) -> {
+            Map<String, Object> responseMap = new HashMap<>();
+            responseMap.put("carriers", value);
+            responseMap.put("type", key.commName);
+            responseMap.put("displayName", key.displayName);
+            response.add(responseMap);
+        });
+
+        return response;
+    }
+
+    @PostMapping(path = "/register") // Map ONLY POST Requests
+    public  MemberAddResponse registerMember(@RequestParam String firstName,
+                                                          @RequestParam String lastName,
+                                                          @RequestParam String token
+    ) {
+        Optional<SMSVerification> sv = smsVerificationRepository
+                .findFirstByIdAndVerified(token, true);
+        if (sv.isPresent()) {
+            int countryCode = sv.get().getCountryCode();
+            String phoneNumber = sv.get().getPhoneNumber();
+
+            Member member = new Member(firstName, lastName, countryCode, phoneNumber);
+            member = memberRepository.save(member);
+
+            smsVerificationRepository.deleteAll(
+                    smsVerificationRepository.findAllByPhoneNumberAndCountryCode(phoneNumber, countryCode));
+            return new MemberAddResponse(member);
+        } else {
+            return new MemberAddResponse("The phone number has not yet been verified.");
+        }
     }
 }

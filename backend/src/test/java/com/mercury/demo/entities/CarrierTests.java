@@ -4,17 +4,17 @@ import org.junit.jupiter.api.Test;
 
 import org.junit.jupiter.api.Assertions;
 
-public class CarrierTests {
+class CarrierTests {
 
     @Test
-    public void formatTextGatewayTest() {
-        final String carrierGateway = "txt.testmobile.dev";
+    void formatTextGatewayTest() {
+        final String carrierGateway = "%s@txt.testmobile.dev";
         final String carrierName = "Test Mobile";
         final String carrierId = "testmobile";
         final String phoneNumber = "1234567890";
 
-        final Carrier carrier = new Carrier(carrierId, carrierName, carrierGateway, false);
-        final String expected = "%s@%s".formatted(phoneNumber, carrierGateway);
+        final Carrier carrier = new Carrier(Carrier.CommType.SMS, carrierId, carrierName, carrierGateway, false);
+        final String expected = carrierGateway.formatted(phoneNumber);
         Assertions.assertEquals(expected, carrier.formatTextGateway(1, phoneNumber));
     }
 }

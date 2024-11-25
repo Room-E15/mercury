@@ -1,160 +1,119 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
+import 'package:mercury_client/models/data/carrier_tab_list.dart';
+import 'package:mercury_client/models/requests/verification_requests.dart';
+import 'package:mercury_client/models/responses/sms_dispatch_response.dart';
+import 'package:mercury_client/pages/register/email_register_widget.dart';
+import 'package:mercury_client/pages/register/sms_register_widget.dart';
 import 'package:mercury_client/widgets/logo.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:mercury_client/pages/register/verification_view.dart';
-import 'package:country_list/country_list.dart';
 
 class StartView extends StatefulWidget {
   static const routeName = '/start';
   final SharedPreferencesWithCache preferences;
 
   const StartView({super.key, required this.preferences});
-  
+
   @override
-  State<StatefulWidget> createState() => _StartViewState();  
+  State<StatefulWidget> createState() => _StartViewState();
+}
+
+enum LoadingState {
+  nothing,
+  loading,
+  success,
+  failure,
 }
 
 class _StartViewState extends State<StartView> {
-  final _formKey = GlobalKey<FormState>(); // Replaced Global Key
-  List<int> countryCodeOptions = [];
-  var _countryCode; // Current selected value
+  final codeController = TextEditingController();
+  List<(Tab, Widget)> tabs = [];
 
   @override
   void initState() {
     super.initState();
-    final countries = Countries.list;
-    for (var c in countries) {
-      var code = c.dialCode;
-      var codeInt = int.parse(code.substring(1));
-      countryCodeOptions.add(codeInt);
-    }
-    countryCodeOptions.sort();
-    countryCodeOptions.remove(1);
-    _countryCode = countryCodeOptions.isNotEmpty ? countryCodeOptions[0] : null;
-  }
 
-  final phoneCarrierOptions = [
-    'AT&T',
-    'Verizon',
-    'T-Mobile'
-  ]; // Options list, TODO get from server
-
-  String? _phoneNumber; // Current phone number
-  String? _phoneCarrier; // Current phone carrier
-  
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: appLogo,
-      ),
-      body: Column(
-        children: [
-          const Padding(
-              padding: EdgeInsets.all(40),
-              child: Text("Welcome! Please enter your phone information.")),
-          Form(
-            key: _formKey,
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: DropdownButtonFormField<int>(
-                          value: _countryCode, // Currently selected value
-                          items: countryCodeOptions.map((int option) {
-                            return DropdownMenuItem<int>(
-                              value: option,
-                              child: Text("+$option"),
+    VerificationRequests.requestCarrierLists().then((CarrierTabList? tabList) {
+      if (tabList == null) {
+        log("Failed to get carrier list");
+        return;
+      }
+      tabList.forEach((type, name, carriers) {
+        setState(() {
+          try {
+            tabs.add(
+              (
+                Tab(text: name),
+                switch (type) {
+                  'sms' => SmsRegisterWidget(
+                      carriers: carriers,
+                      countryCodes: [1, 39],
+                      onSubmit: (BuildContext context,
+                          Future<SMSDispatchResponse?> future) {
+                        future.then((response) {
+                          if (response != null &&
+                              context.mounted &&
+                              response.carrierFound) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => VerificationView(
+                                  preferences: widget.preferences,
+                                  verificationToken: response.token,
+                                ),
+                              ),
                             );
-                          }).toList(),
-                          onChanged: (int? newValue) {
-                            _countryCode = newValue!;
-                          },
-                          decoration: const InputDecoration(
-                            labelText: 'Country',
-                          ),
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      flex: 3,
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: TextFormField(
-                          keyboardType: TextInputType.phone,
-                          decoration: const InputDecoration(
-                            labelText: 'Phone Number',
-                          ),
-                          validator: (value) {
-                            if (value == null || value == '') {
-                              return 'Please enter your 10 digit phone number';
-                            } else if (!RegExp(r'^[0-9]{10}$')
-                                .hasMatch(value)) {
-                              return 'Please enter 10 numerical characters';
-                            }
-                            return null;
-                          },
-                          onChanged: (value) =>
-                              _phoneNumber = value,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: DropdownButtonFormField<String>(
-                    items: phoneCarrierOptions.map((String option) {
-                      return DropdownMenuItem<String>(
-                        value: option,
-                        child: Text(option),
-                      );
-                    }).toList(),
-                    onChanged: (String? newValue) {
-                      _phoneCarrier = newValue!;
-                    },
-                    decoration: const InputDecoration(
-                      labelText: 'Network Carrier',
-                    ),
-                    validator: (value) {
-                      if (value == null) {
-                        return 'Please select your network carrier';
-                      }
-                      return null;
-                    },
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: ElevatedButton(
-                    onPressed: () {
-                      // Validate returns true if the form is valid, or false otherwise.
-                      if (_formKey.currentState!.validate()) {
-                        // If the form is valid, display a snackbar. In the real world,
-                        // you'd often call a server or save the information in a database.
-                        Navigator.push(
+                          }
+                        });
+                      }),
+                  'email' => EmailRegisterWidget(onSubmit:
+                        (BuildContext context,
+                            Future<SMSDispatchResponse?> future) {
+                      future.then((response) {
+                        if (response != null &&
+                            context.mounted &&
+                            response.carrierFound) {
+                          Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (context) => VerificationView(
                                 preferences: widget.preferences,
-                                countryCode: _countryCode,
-                                phoneNumber: _phoneNumber ?? '',
-                                carrier: _phoneCarrier ?? '',
+                                verificationToken: response.token,
                               ),
-                            ));
-                      }
-                    },
-                    child: const Text('Submit'),
-                  ),
-                ),
-              ],
-            ),
+                            ),
+                          );
+                        }
+                      });
+                    }),
+                  _ => throw Exception('Invalid type $type')
+                }
+              ),
+            );
+          } catch (e) {
+            log(e.toString());
+          }
+        });
+      });
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return DefaultTabController(
+      length: tabs.length,
+      child: Scaffold(
+        appBar: AppBar(
+          title: appLogo,
+          bottom: TabBar(
+            tabs: tabs.map((e) => e.$1).toList(),
           ),
-        ],
+        ),
+        body: TabBarView(
+          children: tabs.map((e) => e.$2).toList(),
+        ),
       ),
     );
   }

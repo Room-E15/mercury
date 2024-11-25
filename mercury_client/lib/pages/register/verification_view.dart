@@ -1,38 +1,27 @@
 import 'dart:async';
-import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:mercury_client/models/requests/verification_requests.dart';
 
 import 'package:mercury_client/pages/home/home_view.dart';
 import 'package:mercury_client/widgets/logo.dart';
 import 'package:mercury_client/utils/log_user_info.dart';
-import 'package:mercury_client/models/requests/sms_requests.dart';
 import 'package:mercury_client/models/data/user_info.dart';
 import 'package:mercury_client/pages/register/register_view.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
-
-enum LoadingState {
-  nothing,
-  loading,
-  success,
-  failure,
-}
+import 'package:mercury_client/widgets/loading_icon.dart';
 
 class VerificationView extends StatefulWidget {
   static const routeName = '/verify';
 
   final SharedPreferencesWithCache preferences;
-  final int countryCode;
-  final String phoneNumber;
-  final String carrier;
+  final String verificationToken;
 
   const VerificationView({
     super.key,
     required this.preferences,
-    required this.countryCode,
-    required this.phoneNumber,
-    required this.carrier,
+    required this.verificationToken,
   });
 
   @override
@@ -42,44 +31,6 @@ class VerificationView extends StatefulWidget {
 class VerificationViewState extends State<VerificationView> {
   final codeController = TextEditingController();
   var _loadingIconState = LoadingState.nothing;
-  var _verificationToken = "";
-
-  Widget displayLoadingIcon(LoadingState state) {
-    // TODO add nice animations for check (slowly fills in) and X (shakes widget)
-    switch (state) {
-      case LoadingState.nothing:
-        return Container();
-      case LoadingState.loading:
-        return const CircularProgressIndicator();
-      case LoadingState.success:
-        return const Icon(Icons.check);
-      case LoadingState.failure:
-        return Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
-            Icon(Icons.close),
-            Text('Invalid Verification Code'),
-          ],
-        );
-    }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    SmsRequests.requestSendCode(
-            widget.countryCode, widget.phoneNumber, widget.carrier)
-        .then((response) {
-      if (response != null && response.carrierFound) {
-        setState(() {
-          _verificationToken = response.token;
-        });
-
-        // TODO figure out what to do on this screen if you can't connect to the server
-        // TODO SERIOUSLY SHOW AN ERROR HERE IT'S BAD
-      }
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -111,7 +62,7 @@ class VerificationViewState extends State<VerificationView> {
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: ElevatedButton(
-                onPressed: (_verificationToken == "")
+                onPressed:(widget.verificationToken == "")
                     ? null
                     : () {
                         // when you press the button, it should cause a loading symbol
@@ -121,8 +72,8 @@ class VerificationViewState extends State<VerificationView> {
 
                         // when the server responds, it should change to display a result symbol
 
-                        SmsRequests.requestCheckCode(
-                                codeController.text, _verificationToken)
+                        VerificationRequests.requestVerifyCode(
+                                codeController.text, widget.verificationToken)
                             .then((response) async {
                           final codeIsCorrect = response.correctCode,
                               user = response.userInfo;
@@ -160,8 +111,8 @@ class VerificationViewState extends State<VerificationView> {
                                       MaterialPageRoute(
                                         builder: (context2) => RegisterView(
                                             preferences: widget.preferences,
-                                            countryCode: widget.countryCode,
-                                            phoneNumber: widget.phoneNumber),
+                                            verificationToken:
+                                                widget.verificationToken),
                                       ),
                                       (route) => false);
                                 }
@@ -181,7 +132,7 @@ class VerificationViewState extends State<VerificationView> {
             ),
             Padding(
                 padding: const EdgeInsets.all(16.0),
-                child: displayLoadingIcon(_loadingIconState)),
+                child: LoadingIcon(state: _loadingIconState, errorMessage: 'Invalid Verification Code')),
           ],
         ));
   }
