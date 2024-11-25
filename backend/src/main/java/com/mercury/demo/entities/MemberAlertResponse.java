@@ -29,17 +29,14 @@ public class MemberAlertResponse {
     @Id
     private String memberId;
 
-
     @Id
     private String alertId;
 
     @UpdateTimestamp
     private Instant creationTime;
 
-
     @NotNull
     private Boolean isSafe;
-
 
     @NotNull
     private Double latitude;

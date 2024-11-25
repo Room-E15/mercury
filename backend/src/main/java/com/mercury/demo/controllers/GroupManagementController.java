@@ -1,7 +1,10 @@
 package com.mercury.demo.controllers;
 
-import com.mercury.demo.entities.*;
-import com.mercury.demo.entities.idclass.MemberAlert;
+import com.mercury.demo.entities.Alert;
+import com.mercury.demo.entities.AlertGroup;
+import com.mercury.demo.entities.Member;
+import com.mercury.demo.entities.MemberAlertResponse;
+import com.mercury.demo.entities.Membership;
 import com.mercury.demo.entities.exceptions.DatabaseStateException;
 import com.mercury.demo.entities.responses.GetGroupsResponse;
 import com.mercury.demo.entities.responses.JoinGroupResponse;
@@ -83,26 +86,23 @@ public class GroupManagementController {
 
             final List<Member> membersList = membersByMembership.entrySet().stream().filter(entry -> !entry.getKey().isLeader()).map(Map.Entry::getValue).toList();
             final List<Member> leadersList = membersByMembership.entrySet().stream().filter(entry -> entry.getKey().isLeader()).map(Map.Entry::getValue).toList();
-            List<Member> allMembers = new ArrayList<>(membersList);
+            final List<Member> allMembers = new ArrayList<>(membersList);
             allMembers.addAll(leadersList);
 
-            Optional<Alert> optionalLatestAlert = alertRepository.findFirstByGroupIdOrderByCreationTimeDesc(correspondingGroup.getId());
-            Alert latestAlert = optionalLatestAlert.orElse(null);
+            Optional<Alert> latestAlert = alertRepository.findFirstByGroupIdOrderByCreationTimeDesc(correspondingGroup.getId());
 
-            if (membership.isLeader()) {
+            if (membership.isLeader() && latestAlert.isPresent()) {
                 // get map of latest responses to link members to their responses
-                String alertId = latestAlert == null? null : latestAlert.getId();
-
                 Map<String, MemberAlertResponse> memberToLatestResponses = allMembers
                         .stream()
-                        .map(member -> responseRepository.findFirstByMemberIdAndAlertIdOrderByCreationTimeDesc(member.getId(), alertId))
+                        .map(member -> responseRepository.findFirstByMemberIdAndAlertIdOrderByCreationTimeDesc(member.getId(), latestAlert.get().getId()))
                         .filter(Optional::isPresent)
                         .map(Optional::get)
                         .collect(Collectors.toMap(MemberAlertResponse::getMemberId, response -> response));
 
-                groupResponseList.add(new GetGroupsResponse(correspondingGroup.getId(), correspondingGroup.getGroupName(), true, latestAlert, membersList, leadersList, memberToLatestResponses));
+                groupResponseList.add(new GetGroupsResponse(correspondingGroup.getId(), correspondingGroup.getGroupName(), true, latestAlert.get(), membersList, leadersList, memberToLatestResponses));
             } else {
-                groupResponseList.add(new GetGroupsResponse(correspondingGroup.getId(), correspondingGroup.getGroupName(), false, latestAlert, membersList, leadersList));
+                groupResponseList.add(new GetGroupsResponse(correspondingGroup.getId(), correspondingGroup.getGroupName(), false, membersList, leadersList));
             }
         }
         return groupResponseList;
