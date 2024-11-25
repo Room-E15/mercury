@@ -28,7 +28,7 @@ public class Carrier {
         public final String displayName;
         public final int priority; // Lower is better
 
-        CommType(String name, String displayName, int priority) {
+        CommType(final String name, final String displayName, final int priority) {
             this.commName = name;
             this.displayName = displayName;
             this.priority = priority;
@@ -56,7 +56,7 @@ public class Carrier {
     @JsonView(InternalView.class)
     private CommType type;
 
-    public Carrier(CommType type, String id, String carrierName, String textGateway, boolean includeCountryCodeInEmail) {
+    public Carrier(final CommType type, final String id, final String carrierName, final String textGateway, final boolean includeCountryCodeInEmail) {
         this.id = id;
         this.type = type;
         this.name = carrierName;
