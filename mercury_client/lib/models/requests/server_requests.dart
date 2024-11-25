@@ -3,6 +3,6 @@ abstract class ServerRequests {
   //  then run 'flutter run' with the argument '--dart-define-from-file=env_dev.json'
   static const String _address = String.fromEnvironment('ADDRESS', defaultValue: 'localhost');
   static const String _port = String.fromEnvironment('PORT', defaultValue: '8080');
-  static const String _hostname = "$_address:$_port";
-  static const String baseURL = "http://$_hostname";
+  static const String _hostname = '$_address:$_port';
+  static const String baseURL = 'http://$_hostname';
 }

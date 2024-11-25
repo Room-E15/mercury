@@ -25,7 +25,7 @@ class JoinGroupView extends StatelessWidget {
         children: [
           const Padding(
               padding: EdgeInsetsDirectional.fromSTEB(40, 180, 40, 40),
-              child: Text("Lets join a group!")),
+              child: Text('Lets join a group!')),
           Form(
             key: formKey,
             child: Column(

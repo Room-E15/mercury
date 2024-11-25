@@ -1,37 +1,51 @@
 import 'package:flutter/material.dart';
 import 'package:mercury_client/models/data/group.dart';
-import 'package:mercury_client/models/data/member.dart';
+import 'package:mercury_client/models/data/user.dart';
 import 'package:mercury_client/pages/qr/qr_present_view.dart';
 import 'package:mercury_client/pages/send_alert/send_alert_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-Widget memberWidgetBuilder(context, Member member) {
+final clipBehavior = Clip.antiAliasWithSaveLayer;
+final shape = const RoundedRectangleBorder(
+    borderRadius: BorderRadius.all(Radius.circular(16.0)));
+final margin =
+    const EdgeInsetsDirectional.symmetric(vertical: 10.0, horizontal: 20.0);
+
+Widget memberWidgetBuilder(context, RegisteredUser member, bool isLeader) {
   return Row(
     children: [
       Text(
-        "${member.firstName} ${member.lastName}",
+        '${member.firstName} ${member.lastName}',
         style: TextStyle(
           fontSize: 14.0,
           fontWeight: FontWeight.w400,
         ),
       ),
       Spacer(),
+      !isLeader
+          ? Container()
+          : Text('+${member.countryCode} ${member.phoneNumber}',
+              textAlign: TextAlign.right,
+              style: TextStyle(
+                fontSize: 14.0,
+                fontWeight: FontWeight.w400,
+              )),
     ],
   );
 }
 
-Widget leaderWidgetBuilder(context, Member leader) {
+Widget leaderWidgetBuilder(context, RegisteredUser leader) {
   return Row(
     children: [
       Text(
-        "${leader.firstName} ${leader.lastName}",
+        '${leader.firstName} ${leader.lastName}',
         style: TextStyle(
           fontSize: 14.0,
           fontWeight: FontWeight.w400,
         ),
       ),
       Spacer(),
-      Text("+${leader.countryCode} ${leader.phoneNumber}",
+      Text('+${leader.countryCode} ${leader.phoneNumber}',
           textAlign: TextAlign.right,
           style: TextStyle(
             fontSize: 14.0,
@@ -41,22 +55,19 @@ Widget leaderWidgetBuilder(context, Member leader) {
   );
 }
 
+// TODO refactor, this has code that can be factored out as a funciton
 Widget groupWithAlertWidgetBuilder(
-    context,
-    Group group,
-    Key? key,
-    SharedPreferencesWithCache preferences,
-    List<Member> unsafe,
-    List<Member> noResponse,
-    List<Member> safe) {
+  BuildContext context,
+  Group group,
+  Key? key,
+  SharedPreferencesWithCache preferences,
+) {
   return Column(
     children: [
       Card(
-        clipBehavior: Clip.antiAliasWithSaveLayer,
-        shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(16.0))),
-        margin: const EdgeInsetsDirectional.symmetric(
-            vertical: 10.0, horizontal: 20.0),
+        clipBehavior: clipBehavior,
+        shape: shape,
+        margin: margin,
         child: InkWell(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -111,7 +122,7 @@ Widget groupWithAlertWidgetBuilder(
                           },
                           child: const Padding(
                             padding: EdgeInsets.all(16),
-                            child: Text("SEND ALERT"),
+                            child: Text('SEND ALERT'),
                           ),
                         ),
                       ),
@@ -122,174 +133,238 @@ Widget groupWithAlertWidgetBuilder(
           ),
         ),
       ),
-      Card(
-        clipBehavior: Clip.antiAliasWithSaveLayer,
-        shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(16.0))),
-        margin: const EdgeInsetsDirectional.symmetric(
-            vertical: 10.0, horizontal: 20.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Stack(
-              children: [
-                Positioned.fill(
-                  child: Container(
-                    color: Colors.red,
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsetsDirectional.fromSTEB(8, 2, 2, 2),
+      group.latestAlert == null
+          ? Container()
+          : Card(
+              margin: margin,
+              clipBehavior: clipBehavior,
+              shape: shape,
+              child: Padding(
+                  padding: EdgeInsetsDirectional.fromSTEB(16, 10, 16, 10),
                   child: Row(
                     children: [
-                      Icon(
-                        Icons.cancel_outlined,
-                        color: Colors.black,
+                      // Alert icon
+                      Container(
+                        width: 50,
+                        height: 50,
+                        decoration: BoxDecoration(
+                          color: Color(0xFF4F378B), // Purple background color
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.error_outline,
+                          size: 30,
+                        ),
                       ),
-                      const Padding(
-                          padding: EdgeInsetsDirectional.only(end: 8)),
-                      Text(
-                        "${unsafe.length} ${unsafe.length == 1 ? "Member" : "Members"} NOT OK",
-                        style: TextStyle(
-                          fontSize: 14.0,
-                          fontWeight: FontWeight.w900,
-                          color: Colors.black,
+                      SizedBox(width: 16), // Space between icon and text
+
+                      // Alert text
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              group.latestAlert?.title ?? 'Title Missing',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              group.latestAlert?.description ?? '',
+                              style: TextStyle(
+                                fontSize: 14,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
-                  ),
-                )
-              ],
-            ),
-            Padding(
-              padding: EdgeInsetsDirectional.fromSTEB(16, 6, 16, 10),
-              child: ListView.builder(
-                shrinkWrap: true,
-                restorationId: 'unsafeList',
-                itemCount: unsafe.length, // Number of blank cards
-                // build all the group tiles dynamically using builder method
-                itemBuilder: (context, index) {
-                  final Member member = unsafe[index];
-
-                  return memberWidgetBuilder(context, member);
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
-      Card(
-        clipBehavior: Clip.antiAliasWithSaveLayer,
-        shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(16.0))),
-        margin: const EdgeInsetsDirectional.symmetric(
-            vertical: 10.0, horizontal: 20.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Stack(
-              children: [
-                Positioned.fill(
-                  child: Container(
-                    color: Colors.grey,
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsetsDirectional.fromSTEB(8, 2, 2, 2),
-                  child: Row(
+                  ))),
+      group.unsafeMembers.isEmpty
+          ? Container()
+          : Card(
+              clipBehavior: Clip.antiAliasWithSaveLayer,
+              shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(16.0))),
+              margin: const EdgeInsetsDirectional.symmetric(
+                  vertical: 10.0, horizontal: 20.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Stack(
                     children: [
-                      Icon(
-                        Icons.access_time,
-                        color: Colors.black,
-                      ),
-                      const Padding(
-                          padding: EdgeInsetsDirectional.only(end: 8)),
-                      Text(
-                        "Waiting for ${noResponse.length} ${noResponse.length == 1 ? "Response" : "Responses"}",
-                        style: TextStyle(
-                          fontSize: 14.0,
-                          fontWeight: FontWeight.w900,
-                          color: Colors.black,
+                      Positioned.fill(
+                        child: Container(
+                          color: Colors.red,
                         ),
                       ),
+                      Padding(
+                        padding:
+                            const EdgeInsetsDirectional.fromSTEB(8, 2, 2, 2),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.cancel_outlined,
+                              color: Colors.black,
+                            ),
+                            const Padding(
+                                padding: EdgeInsetsDirectional.only(end: 8)),
+                            Text(
+                              "${group.unsafeMembers.length} ${group.unsafeMembers.length == 1 ? "Member" : "Members"} NOT OK",
+                              style: TextStyle(
+                                fontSize: 14.0,
+                                fontWeight: FontWeight.w900,
+                                color: Colors.black,
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
                     ],
                   ),
-                )
-              ],
-            ),
-            Padding(
-              padding: EdgeInsetsDirectional.fromSTEB(16, 6, 16, 10),
-              child: ListView.builder(
-                shrinkWrap: true,
-                restorationId: 'noResponseList',
-                itemCount: noResponse.length, // Number of blank cards
-                // build all the group tiles dynamically using builder method
-                itemBuilder: (context, index) {
-                  final Member member = noResponse[index];
+                  Padding(
+                    padding: EdgeInsetsDirectional.fromSTEB(16, 6, 16, 10),
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      restorationId: 'unsafeList',
+                      itemCount:
+                          group.unsafeMembers.length, // Number of blank cards
+                      // build all the group tiles dynamically using builder method
+                      itemBuilder: (context, index) {
+                        final member = group.unsafeMembers[index];
 
-                  return memberWidgetBuilder(context, member);
-                },
+                        return memberWidgetBuilder(
+                            context, member, group.isLeader);
+                      },
+                    ),
+                  ),
+                ],
               ),
             ),
-          ],
-        ),
-      ),
-      Card(
-        clipBehavior: Clip.antiAliasWithSaveLayer,
-        shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(16.0))),
-        margin: const EdgeInsetsDirectional.symmetric(
-            vertical: 10.0, horizontal: 20.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Stack(
-              children: [
-                Positioned.fill(
-                  child: Container(
-                    color: Colors.green,
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsetsDirectional.fromSTEB(8, 2, 2, 2),
-                  child: Row(
+      group.noResponseMembers.isEmpty
+          ? Container()
+          : Card(
+              clipBehavior: Clip.antiAliasWithSaveLayer,
+              shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(16.0))),
+              margin: const EdgeInsetsDirectional.symmetric(
+                  vertical: 10.0, horizontal: 20.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Stack(
                     children: [
-                      Icon(
-                        Icons.check_outlined,
-                        color: Colors.black,
-                      ),
-                      const Padding(
-                          padding: EdgeInsetsDirectional.only(end: 8)),
-                      Text(
-                        "${safe.length} ${safe.length == 1 ? "Member" : "Members"} OK",
-                        style: TextStyle(
-                          fontSize: 14.0,
-                          fontWeight: FontWeight.w900,
-                          color: Colors.black,
+                      Positioned.fill(
+                        child: Container(
+                          color: Colors.grey,
                         ),
                       ),
+                      Padding(
+                        padding:
+                            const EdgeInsetsDirectional.fromSTEB(8, 2, 2, 2),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.access_time,
+                              color: Colors.black,
+                            ),
+                            const Padding(
+                                padding: EdgeInsetsDirectional.only(end: 8)),
+                            Text(
+                              "Waiting for ${group.noResponseMembers.length} ${group.noResponseMembers.length == 1 ? "Response" : "Responses"}",
+                              style: TextStyle(
+                                fontSize: 14.0,
+                                fontWeight: FontWeight.w900,
+                                color: Colors.black,
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
                     ],
                   ),
-                )
-              ],
-            ),
-            Padding(
-              padding: EdgeInsetsDirectional.fromSTEB(16, 6, 16, 10),
-              child: ListView.builder(
-                shrinkWrap: true,
-                restorationId: 'safeList',
-                itemCount: safe.length, // Number of blank cards
-                // build all the group tiles dynamically using builder method
-                itemBuilder: (context, index) {
-                  final Member member = safe[index];
+                  Padding(
+                    padding: EdgeInsetsDirectional.fromSTEB(16, 6, 16, 10),
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      restorationId: 'noResponseList',
+                      itemCount: group
+                          .noResponseMembers.length, // Number of blank cards
+                      // build all the group tiles dynamically using builder method
+                      itemBuilder: (context, index) {
+                        final member = group.noResponseMembers[index];
 
-                  return memberWidgetBuilder(context, member);
-                },
+                        return memberWidgetBuilder(
+                            context, member, group.isLeader);
+                      },
+                    ),
+                  ),
+                ],
               ),
             ),
-          ],
-        ),
-      ),
+      group.safeMembers.isEmpty
+          ? Container()
+          : Card(
+              clipBehavior: Clip.antiAliasWithSaveLayer,
+              shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(16.0))),
+              margin: const EdgeInsetsDirectional.symmetric(
+                  vertical: 10.0, horizontal: 20.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Stack(
+                    children: [
+                      Positioned.fill(
+                        child: Container(
+                          color: Colors.green,
+                        ),
+                      ),
+                      Padding(
+                        padding:
+                            const EdgeInsetsDirectional.fromSTEB(8, 2, 2, 2),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.check_outlined,
+                              color: Colors.black,
+                            ),
+                            const Padding(
+                                padding: EdgeInsetsDirectional.only(end: 8)),
+                            Text(
+                              "${group.safeMembers.length} ${group.safeMembers.length == 1 ? "Member" : "Members"} OK",
+                              style: TextStyle(
+                                fontSize: 14.0,
+                                fontWeight: FontWeight.w900,
+                                color: Colors.black,
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    ],
+                  ),
+                  Padding(
+                    padding: EdgeInsetsDirectional.fromSTEB(16, 6, 16, 10),
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      restorationId: 'safeList',
+                      itemCount:
+                          group.safeMembers.length, // Number of blank cards
+                      // build all the group tiles dynamically using builder method
+                      itemBuilder: (context, index) {
+                        final member = group.safeMembers[index];
+
+                        return memberWidgetBuilder(
+                            context, member, group.isLeader);
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
     ],
   );
 }
@@ -375,7 +450,7 @@ Widget groupWithoutAlertWidgetBuilder(context, Group group) {
                 itemCount: group.leaders.length, // Number of blank cards
                 // build all the group tiles dynamically using builder method
                 itemBuilder: (context, index) {
-                  final Member leader = group.leaders[index];
+                  final leader = group.leaders[index];
 
                   return leaderWidgetBuilder(context, leader);
                 },
@@ -435,7 +510,8 @@ Widget groupWithoutAlertWidgetBuilder(context, Group group) {
                       // build all the group tiles dynamically using builder method
                       itemBuilder: (context, index) {
                         final member = group.members[index];
-                        return memberWidgetBuilder(context, member);
+                        return memberWidgetBuilder(
+                            context, member, group.isLeader);
                       },
                     ),
                   ),

@@ -27,11 +27,12 @@ public class MemberController {
         this.smsVerificationRepository = smsVerificationRepository;
     }
 
-    @PostMapping(path="/addMember") // Map ONLY POST Requests
-    public MemberAddResponse addNewMember(@RequestParam String firstName,
-                                                        @RequestParam String lastName,
-                                                        @RequestParam int countryCode,
-                                                        @RequestParam String phoneNumber
+    // TODO consider changing so we're only returning the ID of the new member instead of a custom object
+    @PostMapping(path = "/addMember") // Map ONLY POST Requests
+    public MemberAddResponse addNewMember(@RequestParam final String firstName,
+                                          @RequestParam final String lastName,
+                                          @RequestParam final int countryCode,
+                                          @RequestParam final String phoneNumber
     ) {
         final Optional<SMSVerification> smsVerification = smsVerificationRepository
                 .getFirstByPhoneNumberAndCountryCodeAndVerified(phoneNumber, countryCode, true);

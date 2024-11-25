@@ -26,7 +26,7 @@ class JoinServerPromptView extends StatelessWidget {
               icon: const Icon(Icons.arrow_back)),
         ),
         body: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-          const Center(child: Text("Hi, Albert Alertstein")),
+          const Center(child: Text('Hi, Albert Alertstein')),
           Padding(
             padding: const EdgeInsetsDirectional.fromSTEB(8, 2, 2, 2),
             child: Column(
@@ -35,7 +35,7 @@ class JoinServerPromptView extends StatelessWidget {
                   padding: EdgeInsetsDirectional.only(top: 150),
                 ),
                 const Text(
-                  "Join a server to start",
+                  'Join a server to start',
                 ),
                 const Padding(
                   padding: EdgeInsetsDirectional.only(top: 30),

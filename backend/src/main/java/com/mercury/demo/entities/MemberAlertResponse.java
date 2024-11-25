@@ -41,18 +41,20 @@ public class MemberAlertResponse {
     @NotNull
     private Double latitude;
 
+
     @NotNull
     private Double longitude;
 
-    @NotNull
-    private Integer batteryPercent;
 
-    public MemberAlertResponse(String memberId, String alertId, Boolean isSafe, Double latitude, Double longitude, Integer batteryPercent) {
+    @NotNull
+    private Integer battery;
+
+    public MemberAlertResponse(String memberId, String alertId, Boolean isSafe, Double latitude, Double longitude, Integer battery) {
         this.memberId = memberId;
         this.alertId = alertId;
         this.isSafe = isSafe;
         this.latitude = latitude;
         this.longitude = longitude;
-        this.batteryPercent = batteryPercent;
+        this.battery = battery;
     }
 }

@@ -3,7 +3,7 @@ import 'package:mercury_client/widgets/loading_widget.dart';
 import 'package:mercury_client/widgets/logo.dart';
 import 'package:mercury_client/pages/home/home_view.dart';
 import 'package:mercury_client/models/requests/member_requests.dart';
-import 'package:mercury_client/models/data/user_info.dart';
+import 'package:mercury_client/models/data/user.dart';
 import 'package:mercury_client/utils/log_user_info.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -31,7 +31,7 @@ class _RegisterViewState extends State<RegisterView> {
   final lastNameController = TextEditingController();
 
   Future<String?>? _futureUserId;
-  UserInfo? _user;
+  User? _user;
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +44,7 @@ class _RegisterViewState extends State<RegisterView> {
           const Padding(
               padding: EdgeInsets.all(40),
               child: Text(
-                  "Thanks for verifying! Please enter your name to get started.")),
+                  'Thanks for verifying! Please enter your name to get started.')),
           Form(
             key: _formKey,
             child: Column(
@@ -90,14 +90,14 @@ class _RegisterViewState extends State<RegisterView> {
                       // Validate returns true if the form is valid, or false otherwise.
                       if (_formKey.currentState!.validate()) {
                         setState(() {
-                          _user = UserInfo(
+                          _user = User(
                             firstName: firstNameController.text,
                             lastName: lastNameController.text,
                             countryCode: widget.countryCode,
                             phoneNumber: widget.phoneNumber,
                           );
                           _futureUserId = MemberRequests.requestRegisterUser(
-                              _user as UserInfo);
+                              _user as User);
                         });
                       }
                     },
@@ -119,8 +119,8 @@ class _RegisterViewState extends State<RegisterView> {
                             } else if (context.mounted && _user != null) {
                               logUserInfo(
                                 widget.preferences,
-                                RegisteredUserInfo.fromUser(
-                                  _user as UserInfo,
+                                RegisteredUser.fromUser(
+                                  _user as User,
                                   userId,
                                 ),
                               ).then((_) {

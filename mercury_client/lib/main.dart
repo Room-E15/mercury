@@ -12,6 +12,7 @@ void main() async {
 
   // Set up the SettingsController, which will glue user settings to multiple
   // Flutter Widgets.
+
   final settingsController = SettingsController(SettingsService());
 
   final sharedPreferences = await SharedPreferencesWithCache.create(
