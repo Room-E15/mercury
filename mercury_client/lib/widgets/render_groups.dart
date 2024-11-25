@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:mercury_client/models/data/group.dart';
@@ -170,8 +172,10 @@ Future<Widget> getGroupWidgets(
   SharedPreferencesWithCache preferences,
   String filterSearch,
   List<Group> groups,
-) async {
+  FutureOr<dynamic> Function()? onRefresh,
+) async { 
   return EasyRefresh(
+      onRefresh: onRefresh,
       header: ClassicHeader(
         dragText: "Pull down to refresh",
         armedText: "Release to refresh",

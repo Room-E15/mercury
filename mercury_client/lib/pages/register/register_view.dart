@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mercury_client/models/requests/verification_requests.dart';
-import 'package:mercury_client/models/responses/user_creation_response.dart';
 import 'package:mercury_client/widgets/loading_icon.dart';
-import 'package:mercury_client/widgets/loading_widget.dart';
 import 'package:mercury_client/widgets/logo.dart';
 import 'package:mercury_client/pages/home/home_view.dart';
 import 'package:mercury_client/models/data/user_info.dart';

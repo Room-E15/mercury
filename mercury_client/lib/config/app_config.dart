@@ -5,4 +5,7 @@ abstract class AppConfig {
 
   // Developer setting for use Caching
   static const bool useCaching = true;
+
+  // Seconds before the app will refresh the alerts
+  static const int alertRefreshRate = 5000;  // seconds
 }

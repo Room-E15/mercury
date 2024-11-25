@@ -10,13 +10,16 @@ import com.mercury.demo.entities.responses.SMSDispatchResponse;
 import com.mercury.demo.entities.responses.SMSVerifyResponse;
 import com.mercury.demo.repositories.MemberRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.util.DigestUtils;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.mercury.demo.mail.SMSEmailService;
 import com.mercury.demo.repositories.CarrierRepository;
 import com.mercury.demo.repositories.SMSVerificationRepository;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.security.SecureRandom;
 import java.util.*;
@@ -24,17 +27,27 @@ import java.util.*;
 @RestController // This means that this class is a Controller
 @RequestMapping(path = "/v") // This means URL's start with /demo (after Application path)
 public class SMSVerificationController {
+    private final SMSVerificationRepository smsVerificationRepository;
+
+    private final CarrierRepository carrierRepository;
+
+    private final SMSEmailService mailService;
+
+    private final MemberRepository memberRepository;
+
     @Autowired
-    private SMSVerificationRepository smsVerificationRepository;
-    @Autowired
-    private CarrierRepository carrierRepository;
-    @Autowired
-    private SMSEmailService mailService;
-    @Autowired
-    private MemberRepository memberRepository;
+    public SMSVerificationController(final SMSVerificationRepository smsVerificationRepository,
+                                     final CarrierRepository carrierRepository,
+                                     final SMSEmailService mailService,
+                                     final MemberRepository memberRepository) {
+        this.smsVerificationRepository = smsVerificationRepository;
+        this.carrierRepository = carrierRepository;
+        this.mailService = mailService;
+        this.memberRepository = memberRepository;
+    }
 
     @PostMapping(path = "/dispatch") // Map ONLY POST Requests
-    public  SMSDispatchResponse requestSMSDispatch(@RequestParam final int countryCode,
+    public SMSDispatchResponse requestSMSDispatch(@RequestParam final int countryCode,
                                                                 @RequestParam final String phoneNumber,
                                                                 @RequestParam final String carrier) {
         // Calculate expiration time (15 minutes from current moment)
@@ -69,7 +82,7 @@ public class SMSVerificationController {
     }
 
     @PostMapping(path = "/verify") // Map ONLY POST Requests
-    public  SMSVerifyResponse verifySMSCode(@RequestParam final String token,
+    public SMSVerifyResponse verifySMSCode(@RequestParam final String token,
                                                          @RequestParam final String code
     ) {
         // Search for SMSVerification session using given token
@@ -140,11 +153,11 @@ public class SMSVerificationController {
                                                           @RequestParam String lastName,
                                                           @RequestParam String token
     ) {
-        Optional<SMSVerification> sv = smsVerificationRepository
+        final Optional<SMSVerification> smsVerification = smsVerificationRepository
                 .findFirstByIdAndVerified(token, true);
-        if (sv.isPresent()) {
-            int countryCode = sv.get().getCountryCode();
-            String phoneNumber = sv.get().getPhoneNumber();
+        if (smsVerification.isPresent()) {
+            final int countryCode = smsVerification.get().getCountryCode();
+            final String phoneNumber = smsVerification.get().getPhoneNumber();
 
             Member member = new Member(firstName, lastName, countryCode, phoneNumber);
             member = memberRepository.save(member);

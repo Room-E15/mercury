@@ -20,18 +20,25 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.util.DigestUtils;
 
+import java.util.List;
 import java.util.Optional;
 
 class TestSMSVerificationController {
     private static final Member MEMBER = new Member("Giorno", "Giovanna", 39, "12345678910");
     private static final String CARRIER_NAME = "Verizon";
+    private static final String FAKE_CARRIER = "SimpleMobile";
+    private static final String TOKEN = "1234567890";
+    private static final SMSVerification VERIFICATION = new SMSVerification(MEMBER.getCountryCode(), MEMBER.getPhoneNumber(), 12, "12");
 
     @Mock
     private SMSVerificationRepository mockSmsVerificationRepository;
+
     @Mock
     private CarrierRepository mockCarrierRepository;
+
     @Mock
     private SMSEmailService mockMailService;
+
     @Mock
     private MemberRepository mockMemberRepository;
 
@@ -46,7 +53,7 @@ class TestSMSVerificationController {
     @Test
     void testRequestSMSDispatch() {
         final Carrier carrier = new Carrier(Carrier.CommType.SMS, "1", CARRIER_NAME, "vibes", false);
-        final SMSVerification smsVerification = new SMSVerification(MEMBER.getCountryCode(), MEMBER.getPhoneNumber(), 12, "12");
+        final SMSVerification smsVerification = VERIFICATION;
         smsVerification.setId("1");
         final SMSDispatchResponse expectedDispatchResponse = new SMSDispatchResponse(true, smsVerification.getId());
 
@@ -64,11 +71,11 @@ class TestSMSVerificationController {
     void testRequestSMSDispatchWithoutCarrier() {
         final SMSDispatchResponse expectedDispatchResponse = new SMSDispatchResponse(false, null);
 
-        Mockito.when(mockCarrierRepository.findById("SimpleMobile")).thenReturn(Optional.empty());
+        Mockito.when(mockCarrierRepository.findById(FAKE_CARRIER)).thenReturn(Optional.empty());
 
-        Assertions.assertEquals(expectedDispatchResponse, controller.requestSMSDispatch(MEMBER.getCountryCode(), MEMBER.getPhoneNumber(), "SimpleMobile"));
+        Assertions.assertEquals(expectedDispatchResponse, controller.requestSMSDispatch(MEMBER.getCountryCode(), MEMBER.getPhoneNumber(), FAKE_CARRIER));
 
-        Mockito.verify(mockCarrierRepository, Mockito.times(1)).findById("SimpleMobile");
+        Mockito.verify(mockCarrierRepository, Mockito.times(1)).findById(FAKE_CARRIER);
     }
 
     @Test
@@ -123,28 +130,46 @@ class TestSMSVerificationController {
         expectedMember.setId("123");
         MEMBER.setId(null);
 
-        final String expectedToken = "1234567890";
         final SMSVerification expectedSMSVerification = new SMSVerification(expectedMember.getCountryCode(),
                 expectedMember.getPhoneNumber(),
                 0L, "");
-        expectedSMSVerification.setId(expectedToken);
+        expectedSMSVerification.setId(TOKEN);
         expectedSMSVerification.setVerified(true);
-        final MemberAddResponse expectedResponse = new MemberAddResponse(expectedMember);
 
+        Mockito.when(mockSmsVerificationRepository.findFirstByIdAndVerified(TOKEN, true)).thenReturn(Optional.of(new SMSVerification(MEMBER.getCountryCode(), MEMBER.getPhoneNumber(), 10L, "abcd")));
         Mockito.when(mockMemberRepository.save(MEMBER)).thenReturn(expectedMember);
         Mockito.when(mockSmsVerificationRepository
-                        .findFirstByIdAndVerified(expectedToken, true))
+                        .findFirstByIdAndVerified(TOKEN, true))
                 .thenReturn(Optional.of(expectedSMSVerification));
+
+        Assertions.assertEquals(
+                new MemberAddResponse(expectedMember),
+                controller.registerMember(
+                        MEMBER.getFirstName(),
+                        MEMBER.getLastName(),
+                        TOKEN));
+
+        Mockito.verify(mockMemberRepository, Mockito.times(1)).save(MEMBER);
+        Mockito.verify(mockSmsVerificationRepository, Mockito.times(1))
+                .findFirstByIdAndVerified(Mockito.anyString(), Mockito.anyBoolean());
+        Mockito.verify(mockMemberRepository, Mockito.times(1)).save(MEMBER);
+    }
+
+    @Test
+    void testAddMemberWithoutVerifiedNumber() {
+        final MemberAddResponse expectedResponse = new MemberAddResponse("The phone number has not yet been verified.");
+        Mockito.when(mockSmsVerificationRepository
+                        .findFirstByIdAndVerified(TOKEN, true))
+                .thenReturn(Optional.empty());
 
         Assertions.assertEquals(
                 expectedResponse,
                 controller.registerMember(
                         MEMBER.getFirstName(),
                         MEMBER.getLastName(),
-                        expectedToken));
+                        TOKEN));
 
-        Mockito.verify(mockMemberRepository, Mockito.times(1)).save(MEMBER);
         Mockito.verify(mockSmsVerificationRepository, Mockito.times(1))
-                .findFirstByIdAndVerified(expectedToken, true);
+                .findFirstByIdAndVerified(TOKEN, true);
     }
 }

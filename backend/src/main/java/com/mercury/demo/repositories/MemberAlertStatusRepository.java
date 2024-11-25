@@ -1,6 +1,5 @@
 package com.mercury.demo.repositories;
 
-import com.mercury.demo.entities.Alert;
 import com.mercury.demo.entities.MemberAlertStatus;
 import com.mercury.demo.entities.MemberAlertStatus.Status;
 import com.mercury.demo.entities.idclass.MemberAlert;
@@ -8,7 +7,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 
 import java.util.List;
-import java.util.stream.Stream;
 
 public interface MemberAlertStatusRepository extends CrudRepository<MemberAlertStatus, MemberAlert> {
     List<MemberAlertStatus> findByMemberIdAndStatusOrStatusOrderByLastSeen(String memberId, Status statusSeen, Status statusUnseen);
