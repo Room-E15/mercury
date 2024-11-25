@@ -11,5 +11,5 @@ public interface AlertRepository extends CrudRepository<Alert, String> {
     @Query(value = "SELECT a FROM Alert a WHERE a.id IN ?1 ORDER BY a.creationTime")
     List<Alert> findByIds(List<String> ids);
 
-    Optional<Alert> findFirstByGroupIdOrderByCreationTime(String groupId);
+    Optional<Alert> findFirstByGroupIdOrderByCreationTimeDesc(String groupId);
 }

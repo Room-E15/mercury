@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:mercury_client/models/data/group.dart';
@@ -58,7 +60,7 @@ Widget groupWidgetBuilder(Key? widgetKey, BuildContext context,
         const EdgeInsetsDirectional.symmetric(vertical: 10.0, horizontal: 20.0),
     child: InkWell(
       onTap: () {
-        if (!group.isLeader || group.latestAlert == null) {
+        if (!group.isLeader) {
           Navigator.push(
             context,
             MaterialPageRoute(

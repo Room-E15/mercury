@@ -11,7 +11,7 @@ final shape = const RoundedRectangleBorder(
 final margin =
     const EdgeInsetsDirectional.symmetric(vertical: 10.0, horizontal: 20.0);
 
-Widget memberWidgetBuilder(context, RegisteredUser member) {
+Widget memberWidgetBuilder(context, RegisteredUser member, bool isLeader) {
   return Row(
     children: [
       Text(
@@ -22,6 +22,14 @@ Widget memberWidgetBuilder(context, RegisteredUser member) {
         ),
       ),
       Spacer(),
+      !isLeader
+          ? Container()
+          : Text('+${member.countryCode} ${member.phoneNumber}',
+              textAlign: TextAlign.right,
+              style: TextStyle(
+                fontSize: 14.0,
+                fontWeight: FontWeight.w400,
+              )),
     ],
   );
 }
@@ -227,7 +235,8 @@ Widget groupWithAlertWidgetBuilder(
                       itemBuilder: (context, index) {
                         final member = group.unsafeMembers[index];
 
-                        return memberWidgetBuilder(context, member);
+                        return memberWidgetBuilder(
+                            context, member, group.isLeader);
                       },
                     ),
                   ),
@@ -287,7 +296,8 @@ Widget groupWithAlertWidgetBuilder(
                       itemBuilder: (context, index) {
                         final member = group.noResponseMembers[index];
 
-                        return memberWidgetBuilder(context, member);
+                        return memberWidgetBuilder(
+                            context, member, group.isLeader);
                       },
                     ),
                   ),
@@ -347,7 +357,8 @@ Widget groupWithAlertWidgetBuilder(
                       itemBuilder: (context, index) {
                         final member = group.safeMembers[index];
 
-                        return memberWidgetBuilder(context, member);
+                        return memberWidgetBuilder(
+                            context, member, group.isLeader);
                       },
                     ),
                   ),
@@ -499,7 +510,8 @@ Widget groupWithoutAlertWidgetBuilder(context, Group group) {
                       // build all the group tiles dynamically using builder method
                       itemBuilder: (context, index) {
                         final member = group.members[index];
-                        return memberWidgetBuilder(context, member);
+                        return memberWidgetBuilder(
+                            context, member, group.isLeader);
                       },
                     ),
                   ),

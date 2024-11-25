@@ -69,7 +69,7 @@ class LeaderGroupView extends StatelessWidget {
               icon: const Icon(Icons.person_rounded))
         ],
       ),
-      body: group.responseCount == 0
+      body: group.latestAlert != null
           ? groupWithAlertWidgetBuilder(context, group, key, preferences)
           : groupWithoutAlertWidgetBuilder(context, group),
     );

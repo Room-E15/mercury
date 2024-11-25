@@ -70,7 +70,7 @@ public class GroupManagementController {
             List<Member> allMembers = new ArrayList<>(membersList);
             allMembers.addAll(leadersList);
 
-            Optional<Alert> optionalLatestAlert = alertRepository.findFirstByGroupIdOrderByCreationTime(correspondingGroup.getId());
+            Optional<Alert> optionalLatestAlert = alertRepository.findFirstByGroupIdOrderByCreationTimeDesc(correspondingGroup.getId());
             Alert latestAlert = optionalLatestAlert.orElse(null);
 
             if (membership.isLeader()) {
