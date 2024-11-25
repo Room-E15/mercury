@@ -21,6 +21,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -130,7 +131,36 @@ class TestSendAlertController {
     }
 
     @Test
-    void testConfirmAlertsSeen() throws JsonProcessingException {
+    void testConfirmAlertsSeenWithNoAlerts() throws JsonProcessingException {
+        final MemberAlertStatus statusOneSeen = new MemberAlertStatus(GROUP_ID, NO_USER_ID, MemberAlertStatus.Status.SEEN);
+        final MemberAlertStatus statusOneUnseen = new MemberAlertStatus("789", NO_USER_ID, MemberAlertStatus.Status.UNSEEN);
+        final MemberAlertStatus statusTwoSeen = new MemberAlertStatus("12", NO_USER_ID, MemberAlertStatus.Status.SEEN);
+        final MemberAlertStatus statusTwoUnseen = new MemberAlertStatus("34", NO_USER_ID, MemberAlertStatus.Status.UNSEEN);
+        final List<String> notCorrectAlerts = List.of(statusOneSeen.getAlertId(), statusOneUnseen.getAlertId(), statusTwoSeen.getAlertId(), statusTwoUnseen.getAlertId());
+        final List<MemberAlertStatus> expectedAlerts = List.of();
+
+        Assertions.assertEquals(expectedAlerts, controller.confirmAlertsSeen(USER_ID, MAPPER.writeValueAsString(notCorrectAlerts)));
+    }
+
+    @Test
+    void testConfirmAlertsSeenWithOneAlert() throws JsonProcessingException {
+        final MemberAlertStatus status = new MemberAlertStatus(GROUP_ID, USER_ID, MemberAlertStatus.Status.SEEN);
+        final String alertId = status.getAlertId();
+        final List<MemberAlertStatus> expectedAlerts = List.of(status);
+        final List<MemberAlertStatus> updatedAlerts = expectedAlerts.stream().map(alert -> new MemberAlertStatus(alert.getAlertId(), alert.getMemberId(), Status.SEEN)).toList();
+        controller.objectMapper = MAPPER;
+
+        Mockito.when(mockStatusRepository.findByAlertIds(List.of(alertId))).thenReturn(expectedAlerts);
+        Mockito.when(mockStatusRepository.save(status)).thenReturn(updatedAlerts.get(0));
+
+        Assertions.assertEquals(updatedAlerts, controller.confirmAlertsSeen(USER_ID, MAPPER.writeValueAsString(List.of(alertId))));
+
+        Mockito.verify(mockStatusRepository, Mockito.times(1)).findByAlertIds(Mockito.anyList());
+        Mockito.verify(mockStatusRepository, Mockito.times(1)).save(Mockito.any());
+    }
+
+    @Test
+    void testConfirmAlertsSeenWithFourAlerts() throws JsonProcessingException {
         final MemberAlertStatus statusOneSeen = new MemberAlertStatus(GROUP_ID, USER_ID, MemberAlertStatus.Status.SEEN);
         final MemberAlertStatus statusOneUnseen = new MemberAlertStatus("789", USER_ID, MemberAlertStatus.Status.UNSEEN);
         final MemberAlertStatus statusTwoSeen = new MemberAlertStatus("12", USER_ID, MemberAlertStatus.Status.SEEN);
@@ -149,6 +179,28 @@ class TestSendAlertController {
 
         Mockito.verify(mockStatusRepository, Mockito.times(1)).findByAlertIds(Mockito.anyList());
         Mockito.verify(mockStatusRepository, Mockito.times(4)).save(Mockito.any());
+    }
+
+    @Test
+    void testConfirmAlertsSeenWithTwentyAlerts() throws JsonProcessingException {
+        final List<MemberAlertStatus> expectedAlerts = new ArrayList<>();
+        final List<MemberAlertStatus> updatedAlerts = new ArrayList<>();
+        for (int i = 0; i < 20; i++) {
+            final MemberAlertStatus newAlertStatus = new MemberAlertStatus(String.valueOf(i), USER_ID, i % 2 == 0 ? Status.UNSEEN : Status.SEEN);
+            final MemberAlertStatus seenAlertStatus = new MemberAlertStatus(String.valueOf(i), USER_ID, Status.SEEN);
+            expectedAlerts.add(newAlertStatus);
+            updatedAlerts.add(seenAlertStatus);
+
+            Mockito.when(mockStatusRepository.save(new MemberAlertStatus(String.valueOf(i), USER_ID, Status.SEEN))).thenReturn(seenAlertStatus);
+        }
+        controller.objectMapper = MAPPER;
+
+        Mockito.when(mockStatusRepository.findByAlertIds(expectedAlerts.stream().map(MemberAlertStatus::getAlertId).toList())).thenReturn(expectedAlerts);
+
+        Assertions.assertEquals(updatedAlerts, controller.confirmAlertsSeen(USER_ID, MAPPER.writeValueAsString(expectedAlerts.stream().map(MemberAlertStatus::getAlertId).toList())));
+
+        Mockito.verify(mockStatusRepository, Mockito.times(1)).findByAlertIds(Mockito.anyList());
+        Mockito.verify(mockStatusRepository, Mockito.times(20)).save(Mockito.any());
     }
 
     @Test
@@ -179,17 +231,5 @@ class TestSendAlertController {
         Mockito.verify(mockMapper, Mockito.times(1)).readValue(Mockito.anyString(), Mockito.any(TypeReference.class));
 
         controller.objectMapper = MAPPER;
-    }
-
-    @Test
-    void testConfirmAlertsSeenWithNoAlerts() throws JsonProcessingException {
-        final MemberAlertStatus statusOneSeen = new MemberAlertStatus(GROUP_ID, NO_USER_ID, MemberAlertStatus.Status.SEEN);
-        final MemberAlertStatus statusOneUnseen = new MemberAlertStatus("789", NO_USER_ID, MemberAlertStatus.Status.UNSEEN);
-        final MemberAlertStatus statusTwoSeen = new MemberAlertStatus("12", NO_USER_ID, MemberAlertStatus.Status.SEEN);
-        final MemberAlertStatus statusTwoUnseen = new MemberAlertStatus("34", NO_USER_ID, MemberAlertStatus.Status.UNSEEN);
-        final List<String> notCorrectAlerts = List.of(statusOneSeen.getAlertId(), statusOneUnseen.getAlertId(), statusTwoSeen.getAlertId(), statusTwoUnseen.getAlertId());
-        final List<MemberAlertStatus> expectedAlerts = List.of();
-
-        Assertions.assertEquals(expectedAlerts, controller.confirmAlertsSeen(USER_ID, MAPPER.writeValueAsString(notCorrectAlerts)));
     }
 }

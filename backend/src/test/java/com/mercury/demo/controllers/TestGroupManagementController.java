@@ -17,6 +17,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -167,6 +168,38 @@ class TestGroupManagementController {
     }
 
     @Test
+    void testGetGroupWithNoGroups() {
+        final List<GetGroupsResponse> expectedResponses = new ArrayList<>();
+
+        Mockito.when(mockMembershipRepository.findByMemberId(MEMBER_ID)).thenReturn(List.of());
+
+        Assertions.assertEquals(expectedResponses, controller.getGroups(MEMBER.getId()));
+
+        // These verifications confirm that each method with these parameters were used this number of times
+        Mockito.verify(mockMembershipRepository, Mockito.times(1)).findByMemberId(MEMBER.getId());
+    }
+
+    @Test
+    void testGetGroupWithOneGroup() {
+        final Membership membership = new Membership(MEMBER_ID, ALERT_GROUP_ID, true);
+        final GetGroupsResponse expectedResponse = new GetGroupsResponse(ALERT_GROUP_ID, ALERT_GROUP.getGroupName(), 1, 0,
+                true, List.of(), List.of(MEMBER));
+
+        Mockito.when(mockMembershipRepository.findByMemberId(MEMBER_ID)).thenReturn(List.of(membership));
+        Mockito.when(mockAlertGroupRepository.findById(ALERT_GROUP_ID)).thenReturn(Optional.of(ALERT_GROUP));
+        Mockito.when(mockMembershipRepository.findByGroupId(ALERT_GROUP_ID)).thenReturn(List.of(membership));
+        Mockito.when(mockMemberRepository.findById(MEMBER.getId())).thenReturn(Optional.of(MEMBER));
+
+        Assertions.assertEquals(List.of(expectedResponse), controller.getGroups(MEMBER.getId()));
+
+        // These verifications confirm that each method with these parameters were used this number of times
+        Mockito.verify(mockMembershipRepository, Mockito.times(1)).findByMemberId(MEMBER.getId());
+        Mockito.verify(mockAlertGroupRepository, Mockito.times(1)).findById(Mockito.anyString());
+        Mockito.verify(mockMemberRepository, Mockito.times(1)).findById(MEMBER.getId());
+        Mockito.verify(mockMembershipRepository, Mockito.times(1)).findByGroupId(Mockito.anyString());
+    }
+
+    @Test
     void testGetGroupWithTwoGroups() {
         final AlertGroup alertGroup = new AlertGroup(GROUP_NAME);
         alertGroup.setId(PHONE_NUMBER);
@@ -195,6 +228,36 @@ class TestGroupManagementController {
         Mockito.verify(mockMembershipRepository, Mockito.times(1)).findByGroupId(alertGroup.getId());
         Mockito.verify(mockMembershipRepository, Mockito.times(1)).findByGroupId(alertGroupTwo.getId());
     }
+
+
+
+    @Test
+    void testGetGroupWithTwentyGroups() {
+        final List<Membership> memberships = new ArrayList<>();
+        final List<GetGroupsResponse> expectedResponses = new ArrayList<>();
+        for (int i = 0; i < 20; i++) {
+            final Membership newMembership = new Membership(MEMBER_ID, String.valueOf(i), i == 0);
+            memberships.add(newMembership);
+            final AlertGroup newAlertGroup = new AlertGroup("Group" + i);
+            newAlertGroup.setId(String.valueOf(i));
+            expectedResponses.add(new GetGroupsResponse(newAlertGroup.getId(), newAlertGroup.getGroupName(), 1, 0,
+                    newMembership.isLeader(), i != 0 ? List.of(MEMBER) : List.of(), i == 0 ? List.of(MEMBER) : List.of()));
+
+            Mockito.when(mockAlertGroupRepository.findById(newAlertGroup.getId())).thenReturn(Optional.of(newAlertGroup));
+            Mockito.when(mockMembershipRepository.findByGroupId(newAlertGroup.getId())).thenReturn(List.of(newMembership));
+            Mockito.when(mockMemberRepository.findById(MEMBER.getId())).thenReturn(Optional.of(MEMBER));
+        }
+        Mockito.when(mockMembershipRepository.findByMemberId(MEMBER_ID)).thenReturn(memberships);
+
+        Assertions.assertEquals(expectedResponses, controller.getGroups(MEMBER.getId()));
+
+        // These verifications confirm that each method with these parameters were used this number of times
+        Mockito.verify(mockMembershipRepository, Mockito.times(1)).findByMemberId(MEMBER.getId());
+        Mockito.verify(mockAlertGroupRepository, Mockito.times(20)).findById(Mockito.anyString());
+        Mockito.verify(mockMemberRepository, Mockito.times(20)).findById(MEMBER.getId());
+        Mockito.verify(mockMembershipRepository, Mockito.times(20)).findByGroupId(Mockito.anyString());
+    }
+
 
     @Test
     void testGetGroupGroupNotFound() {
