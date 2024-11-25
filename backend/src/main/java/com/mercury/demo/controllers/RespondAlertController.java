@@ -31,7 +31,7 @@ public class RespondAlertController {
                                                  @RequestParam final Boolean isSafe,
                                                  @RequestParam final Double latitude,
                                                  @RequestParam final Double longitude,
-                                                 @RequestParam final Integer batteryPercent) {
+                                                 @RequestParam final Integer battery) {
 
         MemberAlertStatus status = statusRepository.findByMemberIdAndAlertId(memberId, alertId);
 
@@ -40,7 +40,7 @@ public class RespondAlertController {
             status.setStatus(MemberAlertStatus.Status.RESPONDED);
             statusRepository.save(status);
             // then save the response
-            return responseRepository.save(new MemberAlertResponse(memberId, alertId, isSafe, latitude, longitude, batteryPercent));
+            return responseRepository.save(new MemberAlertResponse(memberId, alertId, isSafe, latitude, longitude, battery));
         } else {
             throw new DatabaseStateException("Could not find an active status for this member");
         }

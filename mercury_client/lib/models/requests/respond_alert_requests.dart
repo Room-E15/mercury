@@ -12,7 +12,7 @@ class RespondAlertRequests extends ServerRequests {
 
   static Future<String?> saveAlertResponse({required String memberId, required String alertId, required bool isSafe}) async {
     final location = await LocationService.getCurrentLocation();
-    final batteryPercent = await BatteryService.getBatteryPercentage();
+    final battery = await BatteryService.getBatteryPercentage();
 
     final response = await post(
       Uri.parse('${ServerRequests.baseURL}$subURL/save'),

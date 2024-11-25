@@ -8,5 +8,5 @@ import java.util.List;
 import java.util.Optional;
 
 public interface MemberAlertResponseRepository extends CrudRepository<MemberAlertResponse, MemberAlert> {
-    Optional<MemberAlertResponse> findFirstByMemberIdOrderByCreationTimeDesc(String memberId);
+    Optional<MemberAlertResponse> findFirstByMemberIdAndAlertIdOrderByCreationTimeDesc(String memberId, String alertId);
 }

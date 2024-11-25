@@ -44,7 +44,7 @@ class SendAlertRequests extends ServerRequests {
   }
 
   static Future<List<Alert>> fetchAlerts(final String memberId, final Iterable<Alert> ignored) async {
-    log("[$subURL] Fetching alerts");
+    log('[$subURL] Fetching alerts');
     final response = await get(
       Uri.parse('${ServerRequests.baseURL}$subURL/get'),
       headers: {
