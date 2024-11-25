@@ -11,6 +11,17 @@ class Alert {
     required this.description,
   });
 
+  @override
+  bool operator ==(Object other) =>
+      other is Alert &&
+      id == other.id &&
+      groupId == other.groupId &&
+      title == other.title &&
+      description == other.description;
+
+  @override
+  int get hashCode => Object.hash(id, groupId, title, description);
+
   factory Alert.fromJson(Map<String, dynamic> data) {
     if (data
         case {

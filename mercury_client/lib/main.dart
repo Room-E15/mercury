@@ -7,8 +7,8 @@ import 'pages/settings/settings_service.dart';
 import 'config/app_config.dart';
 
 void main() async {
-  WidgetsFlutterBinding
-      .ensureInitialized(); // needs to be called before any other asynchronous operations in main
+  // needs to be called before any other asynchronous operations in main
+  WidgetsFlutterBinding.ensureInitialized(); 
 
   // Set up the SettingsController, which will glue user settings to multiple
   // Flutter Widgets.

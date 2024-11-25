@@ -1,5 +1,6 @@
 package com.mercury.demo.mail;
 
+import com.mercury.demo.entities.exceptions.DatabaseStateException;
 import jakarta.mail.Message;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -13,8 +14,13 @@ import jakarta.mail.internet.MimeMessage;
 
 @Component
 public class SMSEmailService implements SMSManager {
+    private final JavaMailSender mailSender;
+
     @Autowired
-    private JavaMailSender mailSender;
+    public SMSEmailService(final JavaMailSender mailSender) {
+        super();
+        this.mailSender = mailSender;
+    }
 
     @Override
     public void dispatchSMS(final String code,
@@ -30,6 +36,8 @@ public class SMSEmailService implements SMSManager {
             message.setText(htmlContent);
 
             mailSender.send(message);
-        } catch (MessagingException ignored) {}
+        } catch (final MessagingException e) {
+            throw new DatabaseStateException(e.getMessage());
+        }
     }
 }

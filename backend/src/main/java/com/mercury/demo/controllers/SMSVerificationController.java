@@ -8,31 +8,44 @@ import com.mercury.demo.entities.responses.SMSDispatchResponse;
 import com.mercury.demo.entities.responses.SMSVerifyResponse;
 import com.mercury.demo.repositories.MemberRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.mercury.demo.mail.SMSEmailService;
 import com.mercury.demo.repositories.CarrierRepository;
 import com.mercury.demo.repositories.SMSVerificationRepository;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.security.SecureRandom;
 import java.util.Optional;
 
-@Controller // This means that this class is a Controller
+@RestController // This means that this class is a Controller
 @RequestMapping(path = "/sms") // This means URL's start with /demo (after Application path)
 public class SMSVerificationController {
-    @Autowired private SMSVerificationRepository smsVerificationRepository;
-    @Autowired private CarrierRepository carrierRepository;
-    @Autowired private SMSEmailService mailService;
-    @Autowired private MemberRepository memberRepository;
+    private final SMSVerificationRepository smsVerificationRepository;
+
+    private final CarrierRepository carrierRepository;
+
+    private final SMSEmailService mailService;
+
+    private final MemberRepository memberRepository;
+
+    @Autowired
+    public SMSVerificationController(final SMSVerificationRepository smsVerificationRepository,
+                                     final CarrierRepository carrierRepository,
+                                     final SMSEmailService mailService,
+                                     final MemberRepository memberRepository) {
+        this.smsVerificationRepository = smsVerificationRepository;
+        this.carrierRepository = carrierRepository;
+        this.mailService = mailService;
+        this.memberRepository = memberRepository;
+    }
 
     @PostMapping(path = "/dispatch") // Map ONLY POST Requests
-    public @ResponseBody SMSDispatchResponse requestSMSDispatch(@RequestParam final int countryCode,
+    public SMSDispatchResponse requestSMSDispatch(@RequestParam final int countryCode,
                                                                 @RequestParam final String phoneNumber,
                                                                 @RequestParam final String carrier) {
         // Calculate expiration time (15 minutes from current moment)
@@ -67,7 +80,7 @@ public class SMSVerificationController {
     }
 
     @PostMapping(path = "/verify") // Map ONLY POST Requests
-    public @ResponseBody SMSVerifyResponse verifySMSCode(@RequestParam final String token,
+    public SMSVerifyResponse verifySMSCode(@RequestParam final String token,
                                                          @RequestParam final String code
     ) {
         // Search for SMSVerification session using given token
@@ -100,7 +113,7 @@ public class SMSVerificationController {
 
     // TODO: Remove this method, it's only for debugging
     @GetMapping(path = "/all")
-    public @ResponseBody Iterable<SMSVerification> getAllPendingVerifications() {
+    public Iterable<SMSVerification> getAllPendingVerifications() {
         // This returns a JSON or XML with the users
         return smsVerificationRepository.findAll();
     }

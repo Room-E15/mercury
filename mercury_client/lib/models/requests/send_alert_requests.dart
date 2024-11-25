@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:http/http.dart';
+import 'package:mercury_client/config/app_config.dart';
 import 'package:mercury_client/models/data/alert.dart';
 import 'package:mercury_client/models/requests/server_requests.dart';
 
@@ -29,12 +30,26 @@ class SendAlertRequests extends ServerRequests {
     }
   }
 
-  static Future<List<Alert>> fetchAlerts(final String memberId) async {
-    log('[$subURL] Fetching alerts');
+  // band-aid solution to have alerts fetched in the background while app running
+  static Future<void> backgroundFetchAlerts({
+    required final String memberId,
+    required final Iterable<Alert> ignored,
+    required final Future<void> Function(List<Alert>) onNewAlert,
+  }) async {
+    while (true) {
+      var future = fetchAlerts(memberId, ignored).then(onNewAlert).onError((error, stackTrace) {});
+      await Future.delayed(Duration(milliseconds: AppConfig.alertRefreshRate));
+      await future;
+    }
+  }
+
+  static Future<List<Alert>> fetchAlerts(final String memberId, final Iterable<Alert> ignored) async {
+    log("[$subURL] Fetching alerts");
     final response = await get(
       Uri.parse('${ServerRequests.baseURL}$subURL/get'),
       headers: {
         'memberId': memberId,
+        'ignoreAlertIds': jsonEncode(ignored.map((alert) => alert.id).toList()),
       },
     ).onError((error, stackTrace) {
       return Response('', 500);

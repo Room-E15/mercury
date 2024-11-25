@@ -4,22 +4,21 @@ import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 
 class BatteryService {
-  final Battery _battery = Battery();
+  static final Battery _battery = Battery();
 
-  // TODO change before merging
-  Future<int> getBatteryPercentage() async {
+  static Future<int> getBatteryPercentage() async {
+    var batteryLevel = -1;
     try {
-      return await _battery.batteryLevel;
-    } on PlatformException catch (error) {
-      log('Failed to get battery percentage: $error');
-      // TODO can this return be better?
-      return -1; // Return -1 or another fallback value to indicate an error
+      batteryLevel = await _battery.batteryLevel;
+    } on PlatformException catch (e) {
+      log('[Battery] Failed to get battery level: $e');
     }
+    return batteryLevel;
   }
 }
 
 class LocationService {
-  Future<Position?> getCurrentLocation() async {
+  static Future<Position?> getCurrentLocation() async {
     bool serviceEnabled;
     LocationPermission permission;
 
