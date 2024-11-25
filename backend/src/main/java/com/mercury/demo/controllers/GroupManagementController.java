@@ -9,7 +9,11 @@ import com.mercury.demo.entities.Membership;
 import com.mercury.demo.entities.exceptions.DatabaseStateException;
 import com.mercury.demo.entities.responses.GetGroupsResponse;
 import com.mercury.demo.entities.responses.JoinGroupResponse;
-import com.mercury.demo.repositories.*;
+import com.mercury.demo.repositories.AlertGroupRepository;
+import com.mercury.demo.repositories.AlertRepository;
+import com.mercury.demo.repositories.MemberAlertResponseRepository;
+import com.mercury.demo.repositories.MemberRepository;
+import com.mercury.demo.repositories.MembershipRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,7 +28,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @RestController // This means that this class is a Controller
-@RequestMapping(path="/group") // This means URL's start with /group (after Application path)
+@RequestMapping(path = "/group") // This means URL's start with /group (after Application path)
 public class GroupManagementController {
     private final AlertGroupRepository alertGroupRepository;
 
@@ -51,9 +55,9 @@ public class GroupManagementController {
         this.responseRepository = responseRepository;
     }
 
-    @PostMapping(path="/createGroup") // Map ONLY POST Requests
-    public String createGroup (@RequestParam final String groupName,
-                               @RequestParam final String memberId
+    @PostMapping(path = "/createGroup") // Map ONLY POST Requests
+    public String createGroup(@RequestParam final String groupName,
+                              @RequestParam final String memberId
     ) {
         AlertGroup group = new AlertGroup(groupName);
         final Optional<Member> user = memberRepository.findById(memberId);
@@ -70,10 +74,9 @@ public class GroupManagementController {
     }
 
     // TODO change to GET request
-    @PostMapping(path="/getGroups") // Map ONLY POST Requests
+    @PostMapping(path = "/getGroups") // Map ONLY POST Requests
     @JsonView(Member.WithoutIdView.class)
-    public List<GetGroupsResponse> getGroups (@RequestParam final String memberId
-    ) {
+    public List<GetGroupsResponse> getGroups(@RequestParam final String memberId) {
         // TODO: optimize, this code has tooooo many streams
         final List<Membership> groupMemberships = membershipRepository.findByMemberId(memberId);
         List<GetGroupsResponse> groupResponseList = new ArrayList<>();
@@ -102,17 +105,20 @@ public class GroupManagementController {
                         .map(Optional::get)
                         .collect(Collectors.toMap(MemberAlertResponse::getMemberId, response -> response));
 
-                groupResponseList.add(new GetGroupsResponse(correspondingGroup.getId(), correspondingGroup.getGroupName(), membership.isLeader(), latestAlert.get(), membersList, leadersList, memberToLatestResponses));
+                groupResponseList.add(new GetGroupsResponse(correspondingGroup.getId(),
+                        correspondingGroup.getGroupName(), membership.isLeader(), latestAlert.get(), membersList,
+                        leadersList, memberToLatestResponses));
             } else {
-                groupResponseList.add(new GetGroupsResponse(correspondingGroup.getId(), correspondingGroup.getGroupName(), membership.isLeader(), membersList, leadersList));
+                groupResponseList.add(new GetGroupsResponse(correspondingGroup.getId(),
+                        correspondingGroup.getGroupName(), membership.isLeader(), membersList, leadersList));
             }
         }
         return groupResponseList;
     }
 
-    @PostMapping(path="/joinGroup") // Map ONLY POST Requests
-    public JoinGroupResponse joinGroup (@RequestParam final String memberId,
-                                        @RequestParam final String groupId
+    @PostMapping(path = "/joinGroup") // Map ONLY POST Requests
+    public JoinGroupResponse joinGroup(@RequestParam final String memberId,
+                                       @RequestParam final String groupId
     ) {
         final Member user = memberRepository.findById(memberId).orElseThrow(() -> new DatabaseStateException(String.format("User with the id %s not found", memberId)));
         final AlertGroup group = alertGroupRepository.findById(groupId).orElseThrow(() -> new DatabaseStateException(String.format("Group with the id %s not found", groupId)));
