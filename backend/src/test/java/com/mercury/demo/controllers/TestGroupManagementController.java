@@ -1,13 +1,16 @@
 package com.mercury.demo.controllers;
 
+import com.mercury.demo.entities.Alert;
 import com.mercury.demo.entities.AlertGroup;
 import com.mercury.demo.entities.Member;
+import com.mercury.demo.entities.MemberAlertResponse;
 import com.mercury.demo.entities.Membership;
 import com.mercury.demo.entities.exceptions.DatabaseStateException;
 import com.mercury.demo.entities.responses.GetGroupsResponse;
 import com.mercury.demo.entities.responses.JoinGroupResponse;
 import com.mercury.demo.repositories.AlertGroupRepository;
 import com.mercury.demo.repositories.AlertRepository;
+import com.mercury.demo.repositories.MemberAlertResponseRepository;
 import com.mercury.demo.repositories.MemberRepository;
 import com.mercury.demo.repositories.MembershipRepository;
 import org.junit.jupiter.api.Assertions;
@@ -19,8 +22,12 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 class TestGroupManagementController {
@@ -31,6 +38,7 @@ class TestGroupManagementController {
     private static final String ALERT_GROUP_ID = UUID.randomUUID().toString();
     private static final AlertGroup ALERT_GROUP = new AlertGroup(GROUP_NAME);
     private static final String MEMBER_ID = UUID.randomUUID().toString();
+    private static final String ALERT_ID = UUID.randomUUID().toString();
 
     @Mock
     private MembershipRepository mockMembershipRepository;
@@ -43,6 +51,9 @@ class TestGroupManagementController {
 
     @Mock
     private AlertRepository mockAlertRepository;
+
+    @Mock
+    private MemberAlertResponseRepository responseRepository;
 
     @InjectMocks
     private GroupManagementController controller;
@@ -190,18 +201,24 @@ class TestGroupManagementController {
     }
 
     @Test
-    void testGetGroupWithOneGroup() {
+    void testGetGroupWithOneGroupOneAlert() {
         final Membership membership = new Membership(MEMBER_ID, ALERT_GROUP_ID, true);
+        Optional<Alert> latestAlert = Optional.of(new Alert(ALERT_GROUP_ID, "", ""));
+        latestAlert.get().setId(ALERT_ID);
+        final Optional<MemberAlertResponse> optionalResponse = Optional.of(new MemberAlertResponse(MEMBER_ID, ALERT_GROUP_ID, true, 0.0, 0.0, 100));
+        final Map<String, MemberAlertResponse> memberToResponse = new HashMap<>();
+        memberToResponse.put(MEMBER_ID, optionalResponse.get());
         final GetGroupsResponse expectedResponse = new GetGroupsResponse(ALERT_GROUP_ID, ALERT_GROUP.getGroupName(),
-                true, List.of(), List.of(MEMBER));
+                true, latestAlert.get(), List.of(), List.of(MEMBER), memberToResponse);
 
         Mockito.when(mockMembershipRepository.findByMemberId(MEMBER_ID)).thenReturn(List.of(membership));
-        Mockito.when(mockAlertRepository.findFirstByGroupIdOrderByCreationTimeDesc(PHONE_NUMBER)).thenReturn(Optional.empty());
+        Mockito.when(mockAlertRepository.findFirstByGroupIdOrderByCreationTimeDesc(ALERT_GROUP_ID)).thenReturn(latestAlert);
         Mockito.when(mockAlertGroupRepository.findById(ALERT_GROUP_ID)).thenReturn(Optional.of(ALERT_GROUP));
         Mockito.when(mockMembershipRepository.findByGroupId(ALERT_GROUP_ID)).thenReturn(List.of(membership));
         Mockito.when(mockMemberRepository.findById(MEMBER.getId())).thenReturn(Optional.of(MEMBER));
+        Mockito.when(responseRepository.findFirstByMemberIdAndAlertIdOrderByCreationTimeDesc(MEMBER_ID, latestAlert.get().getId())).thenReturn(optionalResponse);
 
-        Assertions.assertEquals(List.of(expectedResponse), controller.getGroups(MEMBER.getId()));
+        Assertions.assertEquals(List.of(expectedResponse).toString(), controller.getGroups(MEMBER.getId()).toString());
 
         // These verifications confirm that each method with these parameters were used this number of times
         Mockito.verify(mockMembershipRepository, Mockito.times(1)).findByMemberId(MEMBER.getId());
@@ -209,6 +226,35 @@ class TestGroupManagementController {
         Mockito.verify(mockAlertGroupRepository, Mockito.times(1)).findById(Mockito.anyString());
         Mockito.verify(mockMemberRepository, Mockito.times(1)).findById(MEMBER.getId());
         Mockito.verify(mockMembershipRepository, Mockito.times(1)).findByGroupId(Mockito.anyString());
+        Mockito.verify(responseRepository, Mockito.times(1)).findFirstByMemberIdAndAlertIdOrderByCreationTimeDesc(Mockito.anyString(), Mockito.anyString());
+    }
+
+    @Test
+    void testGetGroupWithOneGroupOneAlertNoResponse() {
+        final Membership membership = new Membership(MEMBER_ID, ALERT_GROUP_ID, true);
+        Optional<Alert> latestAlert = Optional.of(new Alert(ALERT_GROUP_ID, "", ""));
+        latestAlert.get().setId(ALERT_ID);
+        final Map<String, MemberAlertResponse> memberToResponse = new HashMap<>();
+        memberToResponse.put("dummy", null);
+        final GetGroupsResponse expectedResponse = new GetGroupsResponse(ALERT_GROUP_ID, ALERT_GROUP.getGroupName(),
+                true, latestAlert.get(), List.of(), List.of(MEMBER), memberToResponse);
+
+        Mockito.when(mockMembershipRepository.findByMemberId(MEMBER_ID)).thenReturn(List.of(membership));
+        Mockito.when(mockAlertRepository.findFirstByGroupIdOrderByCreationTimeDesc(ALERT_GROUP_ID)).thenReturn(latestAlert);
+        Mockito.when(mockAlertGroupRepository.findById(ALERT_GROUP_ID)).thenReturn(Optional.of(ALERT_GROUP));
+        Mockito.when(mockMembershipRepository.findByGroupId(ALERT_GROUP_ID)).thenReturn(List.of(membership));
+        Mockito.when(mockMemberRepository.findById(MEMBER.getId())).thenReturn(Optional.of(MEMBER));
+        Mockito.when(responseRepository.findFirstByMemberIdAndAlertIdOrderByCreationTimeDesc(MEMBER_ID, latestAlert.get().getId())).thenReturn(Optional.empty());
+
+        Assertions.assertEquals(List.of(expectedResponse).toString(), controller.getGroups(MEMBER.getId()).toString());
+
+        // These verifications confirm that each method with these parameters were used this number of times
+        Mockito.verify(mockMembershipRepository, Mockito.times(1)).findByMemberId(MEMBER.getId());
+        Mockito.verify(mockAlertRepository, Mockito.times(1)).findFirstByGroupIdOrderByCreationTimeDesc(Mockito.anyString());
+        Mockito.verify(mockAlertGroupRepository, Mockito.times(1)).findById(Mockito.anyString());
+        Mockito.verify(mockMemberRepository, Mockito.times(1)).findById(MEMBER.getId());
+        Mockito.verify(mockMembershipRepository, Mockito.times(1)).findByGroupId(Mockito.anyString());
+        Mockito.verify(responseRepository, Mockito.times(1)).findFirstByMemberIdAndAlertIdOrderByCreationTimeDesc(Mockito.anyString(), Mockito.anyString());
     }
 
     @Test
@@ -244,8 +290,6 @@ class TestGroupManagementController {
         Mockito.verify(mockMembershipRepository, Mockito.times(1)).findByGroupId(alertGroupTwo.getId());
     }
 
-
-
     @Test
     void testGetGroupWithTwentyGroups() {
         final List<Membership> memberships = new ArrayList<>();
@@ -274,7 +318,6 @@ class TestGroupManagementController {
         Mockito.verify(mockMemberRepository, Mockito.times(20)).findById(MEMBER.getId());
         Mockito.verify(mockMembershipRepository, Mockito.times(20)).findByGroupId(Mockito.anyString());
     }
-
 
     @Test
     void testGetGroupGroupNotFound() {

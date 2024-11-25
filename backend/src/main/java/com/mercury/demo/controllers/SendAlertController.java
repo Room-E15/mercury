@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.xml.crypto.Data;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -49,7 +50,7 @@ public class SendAlertController {
     public Alert sendAlert(@RequestParam final String memberId,
                            @RequestParam final String groupId,
                            @RequestParam final String title,
-                           @RequestParam final String description) {
+                           @RequestParam final String description) throws DatabaseStateException {
         // If the member is not a leader of this group, they should not be able to send an alert
         Membership userMembership = membershipRepository.findByMemberIdAndGroupId(memberId, groupId);
         if (userMembership != null && !userMembership.isLeader()) {
