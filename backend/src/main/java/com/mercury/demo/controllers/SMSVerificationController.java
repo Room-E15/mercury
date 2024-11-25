@@ -22,7 +22,11 @@ import com.mercury.demo.repositories.SMSVerificationRepository;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.security.SecureRandom;
-import java.util.*;
+import java.util.Optional;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.HashMap;
 
 @RestController // This means that this class is a Controller
 @RequestMapping(path = "/v") // This means URL's start with /demo (after Application path)
@@ -48,8 +52,8 @@ public class SMSVerificationController {
 
     @PostMapping(path = "/dispatch") // Map ONLY POST Requests
     public SMSDispatchResponse requestSMSDispatch(@RequestParam final int countryCode,
-                                                                @RequestParam final String phoneNumber,
-                                                                @RequestParam final String carrier) {
+                                                  @RequestParam final String phoneNumber,
+                                                  @RequestParam final String carrier) {
         // Calculate expiration time (15 minutes from current moment)
         final long expiration = (System.currentTimeMillis() / 1000) + 60 * 15; // 15 minutes
 
@@ -83,7 +87,7 @@ public class SMSVerificationController {
 
     @PostMapping(path = "/verify") // Map ONLY POST Requests
     public SMSVerifyResponse verifySMSCode(@RequestParam final String token,
-                                                         @RequestParam final String code
+                                           @RequestParam final String code
     ) {
         // Search for SMSVerification session using given token
         final Optional<SMSVerification> optionalSMSVerificationSession = smsVerificationRepository.findById(token);
@@ -94,7 +98,7 @@ public class SMSVerificationController {
 
         if (!smsVerification.isVerified()) {
             // Hash the given code and compare to what we have stored in the db
-            String codeHash = DigestUtils.md5DigestAsHex(code.getBytes());
+            final String codeHash = DigestUtils.md5DigestAsHex(code.getBytes());
             if (!smsVerification.getVerificationCodeHash().equals(codeHash)) {
                 return new SMSVerifyResponse(false, null);
             }
@@ -115,43 +119,27 @@ public class SMSVerificationController {
 
     @GetMapping(path = "/carriers")
     @JsonView(Carrier.PublicView.class)
-    public  List<Object> getAllCarriers() {
-        Map<Carrier.CommType, List<Carrier>> response1 = new EnumMap<>(Carrier.CommType.class);
-
-        List<Carrier.CommType> commTypes = new ArrayList<>(List.of(Carrier.CommType.values()));
-        commTypes.sort((o1, o2) -> {
-            if (o1.priority == o2.priority) return 0;
-            return o2.priority < o1.priority ? 1 : -1;
-        });
-        for (Carrier.CommType commType : commTypes) {
-            List<Carrier> responseMap = new ArrayList<>();
-            response1.put(commType, responseMap);
-        }
-
-        Iterable<Carrier> carriers = carrierRepository.findAll();
-
-        carriers.forEach((Carrier carrier) -> {
-            List<Carrier> cl = response1.get(carrier.getType());
-            cl.add(carrier);
-            response1.put(carrier.getType(), cl);
-        });
-
-        List<Object> response = new ArrayList<>();
-        response1.forEach((Carrier.CommType key, Object value) -> {
-            Map<String, Object> responseMap = new HashMap<>();
-            responseMap.put("carriers", value);
-            responseMap.put("type", key.commName);
-            responseMap.put("displayName", key.displayName);
-            response.add(responseMap);
+    public List<Object> getAllCarriers() {
+        final List<Carrier.CommType> enumList = List.of(Carrier.CommType.values());
+        final List<Object> response = new ArrayList<>();
+        enumList.forEach((Carrier.CommType key) -> {
+            final List<Carrier> value = carrierRepository.findAllByType(key);
+            final Map<String, Object> responseMap = new HashMap<>();
+            if (!value.isEmpty()) {
+                responseMap.put("carriers", value);
+                responseMap.put("type", key.commName);
+                responseMap.put("displayName", key.displayName);
+                response.add(responseMap);
+            }
         });
 
         return response;
     }
 
     @PostMapping(path = "/register") // Map ONLY POST Requests
-    public  MemberAddResponse registerMember(@RequestParam String firstName,
-                                                          @RequestParam String lastName,
-                                                          @RequestParam String token
+    public MemberAddResponse registerMember(@RequestParam final String firstName,
+                                            @RequestParam final String lastName,
+                                            @RequestParam final String token
     ) {
         final Optional<SMSVerification> smsVerification = smsVerificationRepository
                 .findFirstByIdAndVerified(token, true);

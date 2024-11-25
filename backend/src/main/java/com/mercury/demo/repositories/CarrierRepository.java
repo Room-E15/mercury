@@ -4,7 +4,10 @@ import org.springframework.data.repository.CrudRepository;
 
 import com.mercury.demo.entities.Carrier;
 
+import java.util.List;
+
 // This will be AUTO IMPLEMENTED by Spring into a Bean called userRepository
 // CRUD refers Create, Read, Update, Delete
 public interface CarrierRepository extends CrudRepository<Carrier, String> {
+    List<Carrier> findAllByType(Carrier.CommType commType);
 }

@@ -20,12 +20,11 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.util.DigestUtils;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 class TestSMSVerificationController {
     private static final Member MEMBER = new Member("Giorno", "Giovanna", 39, "12345678910");
-    private static final String CARRIER_NAME = "Verizon";
+    private static final Carrier CARRIER = new Carrier(Carrier.CommType.SMS, "1", "Verizon", "vibes", false);
     private static final String FAKE_CARRIER = "SimpleMobile";
     private static final String TOKEN = "1234567890";
     private static final SMSVerification VERIFICATION = new SMSVerification(MEMBER.getCountryCode(), MEMBER.getPhoneNumber(), 12, "12");
@@ -52,15 +51,14 @@ class TestSMSVerificationController {
 
     @Test
     void testRequestSMSDispatch() {
-        final Carrier carrier = new Carrier(Carrier.CommType.SMS, "1", CARRIER_NAME, "vibes", false);
         final SMSVerification smsVerification = VERIFICATION;
         smsVerification.setId("1");
         final SMSDispatchResponse expectedDispatchResponse = new SMSDispatchResponse(true, smsVerification.getId());
 
-        Mockito.when(mockCarrierRepository.findById(CARRIER_NAME)).thenReturn(Optional.of(carrier));
+        Mockito.when(mockCarrierRepository.findById(CARRIER.getName())).thenReturn(Optional.of(CARRIER));
         Mockito.when(mockSmsVerificationRepository.save(Mockito.any(SMSVerification.class))).thenReturn(smsVerification);
 
-        Assertions.assertEquals(expectedDispatchResponse, controller.requestSMSDispatch(MEMBER.getCountryCode(), MEMBER.getPhoneNumber(), CARRIER_NAME));
+        Assertions.assertEquals(expectedDispatchResponse, controller.requestSMSDispatch(MEMBER.getCountryCode(), MEMBER.getPhoneNumber(), CARRIER.getName()));
 
         Mockito.verify(mockCarrierRepository, Mockito.times(1)).findById(Mockito.any());
         Mockito.verify(mockSmsVerificationRepository, Mockito.times(1)).save(Mockito.any());
@@ -123,6 +121,20 @@ class TestSMSVerificationController {
         Mockito.verify(mockSmsVerificationRepository, Mockito.times(1)).findById(Mockito.any());
     }
 
+    @Test
+    void testGetCarriers() {
+        final List<Map<String, Object>> expectedCarrierInfo = new ArrayList<>();
+        expectedCarrierInfo.add(new HashMap<>());
+        expectedCarrierInfo.get(0).put("type", "sms");
+        expectedCarrierInfo.get(0).put("displayName", "Text Message");
+        expectedCarrierInfo.get(0).put("carriers", List.of(CARRIER));
+
+        Mockito.when(mockCarrierRepository.findAllByType(Carrier.CommType.SMS)).thenReturn(List.of(CARRIER));
+
+        Assertions.assertEquals(expectedCarrierInfo, controller.getAllCarriers());
+
+        Mockito.verify(mockCarrierRepository, Mockito.times(Carrier.CommType.values().length)).findAllByType(Mockito.any());
+    }
 
     @Test
     void testRegister() {
