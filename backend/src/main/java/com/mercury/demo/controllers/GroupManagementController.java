@@ -75,7 +75,6 @@ public class GroupManagementController {
     // TODO change to GET request
     @PostMapping(path="/getGroups") // Map ONLY POST Requests
     public List<GetGroupsResponse> getGroups (@RequestParam final String memberId) {
-        // TODO: optimize, this code has tooooo many streams
         final List<Membership> groupMemberships = membershipRepository.findByMemberId(memberId);
         List<GetGroupsResponse> groupResponseList = new ArrayList<>();
 
