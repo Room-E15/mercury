@@ -29,7 +29,7 @@
 	<properties>
 		<java.version>17</java.version>
 		<sonar.coverage.jacoco.xmlReportPaths>
-			../backend/target/site/jacoco-aggregate/jacoco.xml
+			../backend/target/site/jacoco/jacoco.xml
 		</sonar.coverage.jacoco.xmlReportPaths>
 	</properties>
 	<dependencies>
