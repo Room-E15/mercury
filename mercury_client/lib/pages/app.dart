@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -109,16 +110,19 @@ class MyApp extends StatelessWidget {
                     case SettingsView.routeName:
                       return SettingsView(controller: settingsController);
                     case JoinServerPromptView.routeName:
-                      return JoinServerPromptView();
+                      return JoinServerPromptView(
+                          preferences: sharedPreferences);
                     default:
                       return HomeView(preferences: sharedPreferences);
                   }
                 },
               );
             },
-            home: sharedPreferences.getBool('registered') == true
-                ? HomeView(preferences: sharedPreferences)
-                : StartView(preferences: sharedPreferences));
+            home: sharedPreferences.getString('apiEndpoint') != null
+                ? (sharedPreferences.getBool('registered') == true
+                    ? HomeView(preferences: sharedPreferences)
+                    : StartView(preferences: sharedPreferences))
+                : JoinServerPromptView(preferences: sharedPreferences));
       },
     );
   }

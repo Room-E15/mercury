@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:mercury_client/models/requests/respond_alert_requests.dart';
 import 'package:mercury_client/pages/register/start_view.dart';
+import 'package:mercury_client/utils/functions.dart';
 import 'package:mercury_client/widgets/alert_widget.dart';
 
 import 'package:mercury_client/widgets/render_groups.dart';
@@ -96,10 +97,7 @@ class HomeViewState extends State<HomeView> {
                   Text('Logout')
                 ]),
                 onPressed: () {
-                  // Clear user info, keep the user's theme
-                  final theme = widget.preferences.getInt('themeMode');
-                  widget.preferences.clear();
-                  widget.preferences.setInt('themeMode', theme!);
+                  clearUserData(widget.preferences);
 
                   Navigator.pushNamedAndRemoveUntil(
                     context,

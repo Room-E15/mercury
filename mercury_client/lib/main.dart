@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mercury_client/models/requests/server_requests.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'pages/app.dart';
@@ -21,7 +22,8 @@ void main() async {
         'lastName',
         'countryCode',
         'phoneNumber',
-        'themeMode'
+        'themeMode',
+        'apiEndpoint',
       },
     ),
   );
@@ -37,6 +39,9 @@ void main() async {
   // Load the user's preferred theme while the splash screen is displayed.
   // This prevents a sudden theme change when the app is first displayed.
   await settingsController.loadSettings();
+
+  // Pass the preferences to Server Requests so it can see the API Endpoint
+  ServerRequests.init(sharedPreferences);
 
   // Run the app and pass in the SettingsController. The app listens to the
   // SettingsController for changes, then passes it further down to the

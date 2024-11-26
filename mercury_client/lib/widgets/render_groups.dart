@@ -7,7 +7,6 @@ import 'package:mercury_client/models/requests/group_requests.dart';
 import 'package:mercury_client/pages/create_group/create_group_view.dart';
 import 'package:mercury_client/pages/group_dashboard/leader_group_view.dart';
 import 'package:mercury_client/pages/group_dashboard/member_group_view.dart';
-import 'package:mercury_client/pages/join_group/join_group_view.dart';
 import 'package:mercury_client/pages/qr/qr_scan_view.dart';
 import 'package:mercury_client/pages/send_alert/send_alert_view.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
