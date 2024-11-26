@@ -40,8 +40,6 @@ class _StartViewState extends State<StartView> {
     'AT&T',
     'Verizon',
     'T-Mobile',
-    'Google Voice',
-    'TIM',
   ]; // Options list, TODO get from server
 
   String? _phoneNumber; // Current phone number
