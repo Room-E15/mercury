@@ -28,17 +28,18 @@ import java.util.UUID;
 
 class TestDevController {
     private static final List<Member> MEMBERS = List.of(
-            new Member("Aidan", "Sacco", 1, "6503958675"),
-                new Member("Cameron", "Wolff", 1, "9499220667"),
-            new Member("Caden", "Upson", 1, "9494320420"),
-                new Member("Rishi", "Gupta", 1, "4088390474"));
+            new Member("Aidan", "Sacco", 1, "6503958675", "att"),
+                new Member("Cameron", "Wolff", 1, "9499220667", "verizon"),
+            new Member("Caden", "Upson", 1, "9494320420", "verizon"),
+                new Member("Rishi", "Gupta", 1, "4088390474", "att"));
     private static final List<AlertGroup> GROUPS = List.of(new AlertGroup("Aidan's Group"),
             new AlertGroup("Cameron's Group"),
             new AlertGroup("Caden's Group"),
             new AlertGroup("Rishi's Group"));
     private static final int COUNTRY_CODE = 1;
     private static final String PHONE_NUMBER = "1234567890";
-    private static final SMSVerification VERIFICATION = new SMSVerification(COUNTRY_CODE, PHONE_NUMBER, 0L, "");
+    private static final String CARRIER = "devcarrier";
+    private static final SMSVerification VERIFICATION = new SMSVerification(COUNTRY_CODE, PHONE_NUMBER, CARRIER, 0L, "");
 
     @Mock
     private AlertGroupRepository mockAlertGroupRepository;
@@ -120,14 +121,14 @@ class TestDevController {
     void testCreateMember() {
         final String userId = UUID.randomUUID().toString();
         final Member member = MEMBERS.get(0);
-        final Member memberWithId = new Member(member.getFirstName(), member.getLastName(), member.getCountryCode(), member.getPhoneNumber());
+        final Member memberWithId = new Member(member.getFirstName(), member.getLastName(), member.getCountryCode(), member.getPhoneNumber(), member.getCarrierId());
         final Map<String, String> expectedResponse = Map.of("status", "success", "id", userId);
         memberWithId.setId(userId);
 
         Mockito.when(mockMemberRepository.findByPhoneNumberAndCountryCode(member.getPhoneNumber(), member.getCountryCode())).thenReturn(Optional.empty());
         Mockito.when(mockMemberRepository.save(member)).thenReturn(memberWithId);
 
-        Assertions.assertEquals(expectedResponse, controller.createMember(member.getFirstName(), member.getLastName(), member.getCountryCode(), member.getPhoneNumber()));
+        Assertions.assertEquals(expectedResponse, controller.createMember(member.getFirstName(), member.getLastName(), member.getCountryCode(), member.getPhoneNumber(), member.getCarrierId()));
 
         Mockito.verify(mockMemberRepository, Mockito.times(1)).findByPhoneNumberAndCountryCode(Mockito.anyString(), Mockito.anyInt());
         Mockito.verify(mockMemberRepository, Mockito.times(1)).save(Mockito.any());
@@ -140,7 +141,7 @@ class TestDevController {
 
         Mockito.when(mockMemberRepository.findByPhoneNumberAndCountryCode(member.getPhoneNumber(), member.getCountryCode())).thenReturn(Optional.of(member));
 
-        Assertions.assertEquals(expectedResponse, controller.createMember(member.getFirstName(), member.getLastName(), member.getCountryCode(), member.getPhoneNumber()));
+        Assertions.assertEquals(expectedResponse, controller.createMember(member.getFirstName(), member.getLastName(), member.getCountryCode(), member.getPhoneNumber(), member.getCarrierId()));
 
         Mockito.verify(mockMemberRepository, Mockito.times(1)).findByPhoneNumberAndCountryCode(Mockito.anyString(), Mockito.anyInt());
     }
@@ -181,7 +182,7 @@ class TestDevController {
         Mockito.when(mockSMSVerificationRepository.findByPhoneNumberAndCountryCode(PHONE_NUMBER, COUNTRY_CODE)).thenReturn(Optional.empty());
         Mockito.when(mockSMSVerificationRepository.save(VERIFICATION)).thenReturn(VERIFICATION);
 
-        Assertions.assertEquals(expectedResponse, controller.forceVerify(PHONE_NUMBER, COUNTRY_CODE));
+        Assertions.assertEquals(expectedResponse, controller.forceVerify(PHONE_NUMBER, COUNTRY_CODE, CARRIER));
 
         Mockito.verify(mockSMSVerificationRepository, Mockito.times(1)).findByPhoneNumberAndCountryCode(Mockito.anyString(), Mockito.anyInt());
         Mockito.verify(mockSMSVerificationRepository, Mockito.times(2)).save(Mockito.any());
@@ -194,7 +195,7 @@ class TestDevController {
 
         Mockito.when(mockSMSVerificationRepository.findByPhoneNumberAndCountryCode(PHONE_NUMBER, COUNTRY_CODE)).thenReturn(Optional.of(VERIFICATION));
 
-        Assertions.assertEquals(expectedResponse, controller.forceVerify(PHONE_NUMBER, COUNTRY_CODE));
+        Assertions.assertEquals(expectedResponse, controller.forceVerify(PHONE_NUMBER, COUNTRY_CODE, CARRIER));
 
         Mockito.verify(mockSMSVerificationRepository, Mockito.times(1)).findByPhoneNumberAndCountryCode(Mockito.anyString(), Mockito.anyInt());
     }
@@ -207,7 +208,7 @@ class TestDevController {
         Mockito.when(mockSMSVerificationRepository.findByPhoneNumberAndCountryCode(PHONE_NUMBER, COUNTRY_CODE)).thenReturn(Optional.of(VERIFICATION));
         Mockito.when(mockSMSVerificationRepository.save(VERIFICATION)).thenReturn(VERIFICATION);
 
-        Assertions.assertEquals(expectedResponse, controller.forceVerify(PHONE_NUMBER, COUNTRY_CODE));
+        Assertions.assertEquals(expectedResponse, controller.forceVerify(PHONE_NUMBER, COUNTRY_CODE, CARRIER));
 
         Mockito.verify(mockSMSVerificationRepository, Mockito.times(1)).findByPhoneNumberAndCountryCode(Mockito.anyString(), Mockito.anyInt());
         Mockito.verify(mockSMSVerificationRepository, Mockito.times(1)).save(Mockito.any());

@@ -4,15 +4,11 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mercury.demo.entities.Alert;
-import com.mercury.demo.entities.Member;
-import com.mercury.demo.entities.MemberAlertStatus;
+import com.mercury.demo.entities.*;
 import com.mercury.demo.entities.MemberAlertStatus.Status;
-import com.mercury.demo.entities.Membership;
 import com.mercury.demo.entities.exceptions.DatabaseStateException;
-import com.mercury.demo.repositories.AlertRepository;
-import com.mercury.demo.repositories.MemberAlertStatusRepository;
-import com.mercury.demo.repositories.MembershipRepository;
+import com.mercury.demo.mail.SMSEmailService;
+import com.mercury.demo.repositories.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,6 +19,7 @@ import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 class TestSendAlertController {
@@ -30,7 +27,7 @@ class TestSendAlertController {
     private static final String TITLE = "Earthquake in Milan";
     private static final String GROUP_ID = "123";
     private static final Alert ALERT = new Alert(GROUP_ID, TITLE, DESCRIPTION);
-    private static final Member MEMBER = new Member("Giorno", "Giovanna", 39, "12345678910");
+    private static final Member MEMBER = new Member("Giorno", "Giovanna", 39, "12345678910", "devcarrier");
     private static final String USER_ID = UUID.randomUUID().toString();
     private static final String NO_USER_ID = "Gone";
     private static final ObjectMapper MAPPER = new ObjectMapper();
@@ -43,6 +40,18 @@ class TestSendAlertController {
 
     @Mock
     private MembershipRepository mockMembershipRepository;
+
+    @Mock
+    private MemberRepository mockMemberRepository;
+
+    @Mock
+    private CarrierRepository mockCarrierRepository;
+
+    @Mock
+    private AlertGroupRepository mockAlertGroupRepository;
+
+    @Mock
+    private SMSEmailService mockMailService;
 
     @Mock
     private ObjectMapper mockMapper;
@@ -60,18 +69,27 @@ class TestSendAlertController {
     void testSendAlert() {
         final MemberAlertStatus alertStatusWithoutId = new MemberAlertStatus(GROUP_ID, USER_ID, MemberAlertStatus.Status.UNSEEN);
         final Membership membership = new Membership(USER_ID, GROUP_ID, true);
+        final AlertGroup group = new AlertGroup("group");
+        final Carrier carrier = new Carrier("devcarrier", "AidanMail", "%s@asacco.dev", false);
         final Alert expectedAlert = new Alert(GROUP_ID, TITLE, DESCRIPTION);
         expectedAlert.setId(GROUP_ID);
+        group.setId(GROUP_ID);
 
         Mockito.when(mockAlertRepository.save(ALERT)).thenReturn(expectedAlert);
+        Mockito.when(mockAlertGroupRepository.findById(GROUP_ID)).thenReturn(Optional.of(group));
+        Mockito.when(mockMemberRepository.findById(Mockito.anyString())).thenReturn(Optional.of(MEMBER));
+        Mockito.when(mockCarrierRepository.findById(Mockito.anyString())).thenReturn(Optional.of(carrier));
         Mockito.when(mockMembershipRepository.findByGroupId(GROUP_ID)).thenReturn(List.of(membership));
         Mockito.when(mockStatusRepository.save(new MemberAlertStatus(GROUP_ID, USER_ID, MemberAlertStatus.Status.UNSEEN))).thenReturn(alertStatusWithoutId);
 
         Assertions.assertEquals(expectedAlert, controller.sendAlert("abcd", GROUP_ID, TITLE, DESCRIPTION));
 
         Mockito.verify(mockAlertRepository, Mockito.times(1)).save(ALERT);
-        Mockito.verify(mockMembershipRepository, Mockito.times(1)).findByGroupId("123");
+        Mockito.verify(mockAlertGroupRepository, Mockito.times(1)).findById(GROUP_ID);
+        Mockito.verify(mockMemberRepository, Mockito.times(1)).findById(Mockito.anyString());
+        Mockito.verify(mockMembershipRepository, Mockito.times(2)).findByGroupId("123");
         Mockito.verify(mockStatusRepository, Mockito.times(1)).save(alertStatusWithoutId);
+        Mockito.verify(mockMailService, Mockito.times(1)).dispatchSMS(Mockito.anyString(), Mockito.anyInt(), Mockito.anyString(), Mockito.any());
     }
 
     @Test

@@ -20,7 +20,8 @@ class TestMemberController {
     private static final String LAST_NAME = "Giovanna";
     private static final int COUNTRY_CODE = 1;
     private static final String PHONE_NUMBER = "1234567890";
-    private static final Member MEMBER = new Member(FIRST_NAME, LAST_NAME, COUNTRY_CODE, PHONE_NUMBER);
+    private static final String CARRIER = "devcarrier";
+    private static final Member MEMBER = new Member(FIRST_NAME, LAST_NAME, COUNTRY_CODE, PHONE_NUMBER, CARRIER);
 
     @Mock
     private MemberRepository mockMemberRepository;
@@ -38,11 +39,11 @@ class TestMemberController {
 
     @Test
     void testAddMember() {
-        final Member expectedMember = new Member("Giorno", "Giovanna", 123, "12345678910");
+        final Member expectedMember = new Member("Giorno", "Giovanna", 123, "12345678910", "devcarrier");
         expectedMember.setId("123");
         MEMBER.setId(null);
 
-        Mockito.when(mockSMSVerificationRepository.getFirstByPhoneNumberAndCountryCodeAndVerified(PHONE_NUMBER, COUNTRY_CODE, true)).thenReturn(Optional.of(new SMSVerification(COUNTRY_CODE, PHONE_NUMBER, 10L, "abcd")));
+        Mockito.when(mockSMSVerificationRepository.getFirstByPhoneNumberAndCountryCodeAndVerified(PHONE_NUMBER, COUNTRY_CODE, true)).thenReturn(Optional.of(new SMSVerification(COUNTRY_CODE, PHONE_NUMBER, CARRIER, 10L, "abcd")));
         Mockito.when(mockMemberRepository.save(MEMBER)).thenReturn(expectedMember);
 
         Assertions.assertEquals(new MemberAddResponse(expectedMember), controller.addNewMember(MEMBER.getFirstName(), MEMBER.getLastName(), MEMBER.getCountryCode(), MEMBER.getPhoneNumber()));

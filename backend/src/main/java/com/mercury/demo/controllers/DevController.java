@@ -30,19 +30,19 @@ public class DevController {
     private static final String SUCCESS = "success";
     private static final String DESCRIPTION = "description";
 
-    private final  AlertGroupRepository alertGroupRepository;
+    private final AlertGroupRepository alertGroupRepository;
 
-    private final  AlertRepository alertRepository;
+    private final AlertRepository alertRepository;
 
-    private final  CarrierRepository carrierRepository;
+    private final CarrierRepository carrierRepository;
 
-    private final  MemberAlertStatusRepository memberAlertStatusRepository;
+    private final MemberAlertStatusRepository memberAlertStatusRepository;
 
-    private final  MemberRepository memberRepository;
+    private final MemberRepository memberRepository;
 
-    private final  MembershipRepository membershipRepository;
+    private final MembershipRepository membershipRepository;
 
-    private final  SMSVerificationRepository smsVerificationRepository;
+    private final SMSVerificationRepository smsVerificationRepository;
 
     long previousTime;
 
@@ -117,13 +117,13 @@ public class DevController {
 
         final Member[] members = new Member[4];
         members[0] = getMemberOrSaveIfNotExist(
-                new Member("Aidan", "Sacco", 1, "6503958675"));
+                new Member("Aidan", "Sacco", 1, "6503958675", "att"));
         members[1] = getMemberOrSaveIfNotExist(
-                new Member("Cameron", "Wolff", 1, "9499220667"));
+                new Member("Cameron", "Wolff", 1, "9499220667", "verizon"));
         members[2] = getMemberOrSaveIfNotExist(
-                new Member("Caden", "Upson", 1, "9494320420"));
+                new Member("Caden", "Upson", 1, "9494320420", "verizon"));
         members[3] = getMemberOrSaveIfNotExist(
-                new Member("Rishi", "Gupta", 1, "4088390474"));
+                new Member("Rishi", "Gupta", 1, "4088390474", "att"));
 
         final AlertGroup[] groups = new AlertGroup[4];
         groups[0] = getGroupOrSaveIfNotExist(new AlertGroup("Aidan's Group"));
@@ -148,10 +148,11 @@ public class DevController {
     }
 
     @PostMapping("/member/create")
-    public  Map<String, Object> createMember(@RequestParam String firstName,
-                                                              @RequestParam String lastName,
-                                                              @RequestParam int countryCode,
-                                                              @RequestParam String phoneNumber
+    public Map<String, Object> createMember(@RequestParam String firstName,
+                                            @RequestParam String lastName,
+                                            @RequestParam int countryCode,
+                                            @RequestParam String phoneNumber,
+                                            @RequestParam String carrierId
     ) {
         final HashMap<String, Object> response = new HashMap<>();
 
@@ -160,7 +161,7 @@ public class DevController {
                     response.put(STATUS, "error");
                     response.put(DESCRIPTION, "Member with phone number " + phoneNumber + " already exists.");
                 }, () -> {
-                    final Member m = memberRepository.save(new Member(firstName, lastName, countryCode, phoneNumber));
+                    final Member m = memberRepository.save(new Member(firstName, lastName, countryCode, phoneNumber, carrierId));
                     response.put(STATUS, SUCCESS);
                     response.put("id", m.getId());
                 }
@@ -170,7 +171,7 @@ public class DevController {
     }
 
     @PostMapping("/group/create")
-    public  Map<String, Object> createGroup(@RequestParam String name) {
+    public Map<String, Object> createGroup(@RequestParam String name) {
         final Map<String, Object> response = new HashMap<>();
 
         alertGroupRepository.findByGroupName(name).ifPresentOrElse(
@@ -188,8 +189,9 @@ public class DevController {
     }
 
     @PutMapping("/sms/forceverify")
-    public  Map<String, Object> forceVerify(@RequestParam String phoneNumber,
-                                                             @RequestParam int countryCode) {
+    public Map<String, Object> forceVerify(@RequestParam String phoneNumber,
+                                           @RequestParam int countryCode,
+                                           @RequestParam String carrierId) {
         final Map<String, Object> response = new HashMap<>();
 
         smsVerificationRepository.findByPhoneNumberAndCountryCode(phoneNumber, countryCode).ifPresentOrElse(
@@ -205,7 +207,7 @@ public class DevController {
                     }
                 }, () -> {
                     final SMSVerification v = smsVerificationRepository.save(
-                            new SMSVerification(countryCode, phoneNumber, 0L, ""));
+                            new SMSVerification(countryCode, phoneNumber, carrierId, 0L, ""));
                     v.setVerified(true);
                     smsVerificationRepository.save(v);
                     response.put(STATUS, SUCCESS);
@@ -215,7 +217,6 @@ public class DevController {
 
         return response;
     }
-
 
 
     private Member getMemberOrSaveIfNotExist(final Member member) {

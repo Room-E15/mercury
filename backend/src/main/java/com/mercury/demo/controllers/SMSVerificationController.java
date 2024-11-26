@@ -46,8 +46,8 @@ public class SMSVerificationController {
 
     @PostMapping(path = "/dispatch") // Map ONLY POST Requests
     public SMSDispatchResponse requestSMSDispatch(@RequestParam final int countryCode,
-                                                                @RequestParam final String phoneNumber,
-                                                                @RequestParam final String carrier) {
+                                                  @RequestParam final String phoneNumber,
+                                                  @RequestParam final String carrier) {
         // Calculate expiration time (15 minutes from current moment)
         final long expiration = (System.currentTimeMillis() / 1000) + 60 * 15; // 15 minutes
 
@@ -67,10 +67,11 @@ public class SMSVerificationController {
         final Carrier c = optionalCarrier.get();
 
         // Send the text
-        mailService.dispatchSMS(code.toString(), countryCode, phoneNumber, c);
+        final String message = " Welcome to Mercury! Your verification code is: " + code;
+        mailService.dispatchSMS(message, countryCode, phoneNumber, c);
 
         // Register SMSVerification session
-        SMSVerification smsVerification = new SMSVerification(countryCode, phoneNumber, expiration, hash);
+        SMSVerification smsVerification = new SMSVerification(countryCode, phoneNumber, carrier, expiration, hash);
         smsVerificationRepository.deleteAll(
                 smsVerificationRepository.findAllByPhoneNumberAndCountryCode(phoneNumber, countryCode));
         smsVerification = smsVerificationRepository.save(smsVerification);
@@ -81,7 +82,7 @@ public class SMSVerificationController {
 
     @PostMapping(path = "/verify") // Map ONLY POST Requests
     public SMSVerifyResponse verifySMSCode(@RequestParam final String token,
-                                                         @RequestParam final String code
+                                           @RequestParam final String code
     ) {
         // Search for SMSVerification session using given token
         final Optional<SMSVerification> optionalSMSVerificationSession = smsVerificationRepository.findById(token);
@@ -111,7 +112,6 @@ public class SMSVerificationController {
         return new SMSVerifyResponse(true, userInfo);
     }
 
-    // TODO: Remove this method, it's only for debugging
     @GetMapping(path = "/all")
     public Iterable<SMSVerification> getAllPendingVerifications() {
         // This returns a JSON or XML with the users

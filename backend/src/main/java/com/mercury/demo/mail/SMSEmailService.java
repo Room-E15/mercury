@@ -23,7 +23,7 @@ public class SMSEmailService implements SMSManager {
     }
 
     @Override
-    public void dispatchSMS(final String code,
+    public void dispatchSMS(final String content,
                             final int countryCode,
                             final String phoneNumber,
                             final Carrier carrier) {
@@ -32,8 +32,7 @@ public class SMSEmailService implements SMSManager {
             final MimeMessage message = mailSender.createMimeMessage();
             message.setFrom(new InternetAddress("mercury@asacco.dev"));
             message.setRecipient(Message.RecipientType.TO, new InternetAddress(toAddress));
-            final String htmlContent = " Welcome to Mercury! Your verification code is: " + code;
-            message.setText(htmlContent);
+            message.setText(content);
 
             mailSender.send(message);
         } catch (final MessagingException e) {

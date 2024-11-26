@@ -72,7 +72,6 @@ public class GroupManagementController {
         return "Saved";
     }
 
-    // TODO change to GET request
     @PostMapping(path="/getGroups") // Map ONLY POST Requests
     public List<GetGroupsResponse> getGroups (@RequestParam final String memberId) {
         final List<Membership> groupMemberships = membershipRepository.findByMemberId(memberId);

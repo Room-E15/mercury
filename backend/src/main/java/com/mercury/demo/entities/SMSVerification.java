@@ -24,10 +24,13 @@ public class SMSVerification {
     private String id;
 
     @NotNull
+    private int countryCode;
+
+    @NotNull
     private String phoneNumber;
 
     @NotNull
-    private int countryCode;
+    private String carrierId;
 
     @NotNull
     private String verificationCodeHash;
@@ -40,10 +43,12 @@ public class SMSVerification {
 
     public SMSVerification(final int countryCode,
                            final String phoneNumber,
+                           final String carrierId,
                            final long expiration,
                            final String verificationCodeHash) {
         this.countryCode = countryCode;
         this.phoneNumber = phoneNumber;
+        this.carrierId = carrierId;
         this.expiration = expiration;
         this.verificationCodeHash = verificationCodeHash;
     }

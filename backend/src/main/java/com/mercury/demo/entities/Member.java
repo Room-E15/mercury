@@ -35,14 +35,18 @@ public class Member {
     @NotNull
     private String phoneNumber;
 
-    public Member(final String firstName, final String lastName, final int countryCode, final String phoneNumber) {
+    @NotNull
+    private String carrierId;
+
+    public Member(final String firstName, final String lastName, final int countryCode, final String phoneNumber, final String carrierId) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.countryCode = countryCode;
         this.phoneNumber = phoneNumber;
+        this.carrierId = carrierId;
     }
 
     public Member(final Member member) {
-        this(member.id, member.firstName, member.lastName, member.countryCode, member.phoneNumber);
+        this(member.id, member.firstName, member.lastName, member.countryCode, member.phoneNumber, member.carrierId);
     }
 }
