@@ -1,18 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:mobile_scanner/mobile_scanner.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:mercury_client/pages/qr/qr_scan_view.dart';
 import 'package:mercury_client/pages/settings/settings_controller.dart';
 import 'package:mercury_client/pages/settings/settings_view.dart';
 import 'package:mercury_client/pages/profile/profile_view.dart';
 import 'package:mercury_client/pages/register/start_view.dart';
 import 'package:mercury_client/pages/home/home_view.dart';
 import 'package:mercury_client/pages/join_server_prompt/join_server_prompt_view.dart';
-// import 'home/dev_home_view.dart'; // TODO remove before merging
 
 /// The Widget that configures your application.
 class MyApp extends StatelessWidget {

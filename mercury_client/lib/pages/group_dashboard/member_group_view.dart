@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:mercury_client/pages/settings/settings_view.dart';
 import 'package:mercury_client/models/data/group.dart';
-import 'package:mercury_client/pages/join_server_prompt/join_server_prompt_view.dart';
 import 'package:mercury_client/pages/profile/profile_view.dart';
 import 'package:mercury_client/widgets/logo.dart';
 import 'package:mercury_client/widgets/member_widgets.dart';

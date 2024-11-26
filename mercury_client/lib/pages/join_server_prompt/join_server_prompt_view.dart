@@ -1,7 +1,6 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import 'package:mercury_client/pages/home/home_view.dart';
 
 import 'package:mercury_client/pages/qr/qr_scan_view.dart';
 import 'package:mercury_client/pages/register/start_view.dart';
@@ -13,7 +12,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class JoinServerPromptView extends StatelessWidget {
   static const routeName = '/join_server_prompt';
 
-  SharedPreferencesWithCache preferences;
+  final SharedPreferencesWithCache preferences;
 
   JoinServerPromptView({
     super.key,

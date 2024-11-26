@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:mercury_client/pages/join_server_prompt/join_server_prompt_view.dart';
+import 'package:mercury_client/utils/functions.dart';
 import 'package:mercury_client/widgets/logo.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -10,9 +12,9 @@ class StartView extends StatefulWidget {
   final SharedPreferencesWithCache preferences;
 
   const StartView({super.key, required this.preferences});
-  
+
   @override
-  State<StatefulWidget> createState() => _StartViewState();  
+  State<StatefulWidget> createState() => _StartViewState();
 }
 
 class _StartViewState extends State<StartView> {
@@ -37,12 +39,14 @@ class _StartViewState extends State<StartView> {
   final phoneCarrierOptions = [
     'AT&T',
     'Verizon',
-    'T-Mobile'
+    'T-Mobile',
+    'Google Voice',
+    'TIM',
   ]; // Options list, TODO get from server
 
   String? _phoneNumber; // Current phone number
   String? _phoneCarrier; // Current phone carrier
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -99,8 +103,7 @@ class _StartViewState extends State<StartView> {
                             }
                             return null;
                           },
-                          onChanged: (value) =>
-                              _phoneNumber = value,
+                          onChanged: (value) => _phoneNumber = value,
                         ),
                       ),
                     ),
@@ -151,6 +154,29 @@ class _StartViewState extends State<StartView> {
                     },
                     child: const Text('Submit'),
                   ),
+                ),
+              ],
+            ),
+          ),
+          Spacer(),
+          Padding(
+            padding: EdgeInsets.all(24),
+            child: Column(
+              children: [
+                const Padding(
+                  padding: EdgeInsets.all(12),
+                  child: Text('Not sure if this is the right server?'),
+                ),
+                OutlinedButton(
+                  onPressed: () {
+                    clearUserData(widget.preferences);
+                    Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => JoinServerPromptView(
+                                preferences: widget.preferences)));
+                  },
+                  child: Text('Switch Server'),
                 ),
               ],
             ),
