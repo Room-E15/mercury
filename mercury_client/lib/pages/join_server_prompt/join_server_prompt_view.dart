@@ -55,6 +55,7 @@ class JoinServerPromptView extends StatelessWidget {
                         context,
                         MaterialPageRoute(
                           builder: (context) => QRScanView(
+                            callerContext: context,
                             barcodeType: BarcodeType.url,
                           ),
                         ),

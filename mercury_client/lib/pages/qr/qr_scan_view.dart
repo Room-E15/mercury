@@ -5,31 +5,66 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 
 // Push the QRScanView to get a new value
 class QRScanView extends StatelessWidget {
-  final RegExp? barcodeRegex;
-  final BarcodeType? barcodeType;
-
-  QRScanView({
-    super.key,
-    this.barcodeRegex,
-    this.barcodeType,
-  });
-
   static const routeName = '/qr_scan';
-
 
   static final MobileScannerController controller = MobileScannerController(
     cameraResolution: Size(480, 640),
     detectionSpeed: DetectionSpeed.unrestricted,
   );
 
+  final BuildContext callerContext;
+  final RegExp? barcodeRegex;
+  final BarcodeType? barcodeType;
+
+  const QRScanView({
+    super.key,
+    this.barcodeRegex,
+    this.barcodeType,
+    required this.callerContext,
+  });
+
+  void _onDetect(
+      final BuildContext context, final BarcodeCapture barcodeCapture) {
+    // QR validation checking
+    if (barcodeCapture.barcodes.isEmpty ||
+        barcodeCapture.barcodes.firstOrNull == null ||
+        barcodeCapture.barcodes.first.rawValue == null) {
+      log('[QR SCANNER] No barcode detected');
+      Navigator.pop(context);
+      return;
+    }
+
+    final rawValue = barcodeCapture.barcodes.first.rawValue as String;
+
+    if (barcodeRegex != null && !(barcodeRegex as RegExp).hasMatch(rawValue)) {
+      log('[QR SCANNER] Barcode does not match regex: $rawValue');
+      Navigator.pop(context);
+      return;
+    }
+
+    if (barcodeType != null &&
+        barcodeCapture.barcodes.first.type != barcodeType) {
+      log('[QR SCANNER] Barcode type does not match: $rawValue');
+      Navigator.pop(context);
+      return;
+    }
+
+    Navigator.pop(context, barcodeCapture.barcodes.first);
+  }
+
+  Rect _buildScanWindow(BuildContext context) {
+    final Size layoutSize = MediaQuery.sizeOf(context);
+    final double scanWindowWidth = layoutSize.width / 3;
+    final double scanWindowHeight = layoutSize.height / 2;
+    return Rect.fromCenter(
+      center: layoutSize.center(Offset.zero),
+      width: scanWindowWidth,
+      height: scanWindowHeight,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final scanWindow = Rect.fromCenter(
-      center: MediaQuery.sizeOf(context).center(Offset.zero),
-      width: 480,
-      height: 640,
-    );
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Scan QR Code'),
@@ -39,34 +74,9 @@ class QRScanView extends StatelessWidget {
         children: [
           MobileScanner(
             fit: BoxFit.contain,
-            scanWindow: scanWindow,
+            scanWindow: _buildScanWindow(context),
             controller: controller,
-            onDetect: (barcodeCapture) {
-              // QR validation checking
-              if (barcodeCapture.barcodes.isEmpty 
-              || barcodeCapture.barcodes.firstOrNull == null
-              || barcodeCapture.barcodes.first.rawValue == null) {
-                log('[QR SCANNER] No barcode detected');
-                Navigator.pop(context);
-                return;
-              } 
-
-              final rawValue = barcodeCapture.barcodes.first.rawValue as String; 
-
-              if (barcodeRegex != null &&  !(barcodeRegex as RegExp).hasMatch(rawValue)) {
-                log('[QR SCANNER] Barcode does not match regex: $rawValue');
-                Navigator.pop(context);
-                return;
-              }
-
-              if (barcodeType != null && barcodeCapture.barcodes.first.type != barcodeType) {                
-                log('[QR SCANNER] Barcode type does not match: $rawValue');
-                Navigator.pop(context);
-                return;
-              }
-
-              Navigator.pop(context, barcodeCapture.barcodes.first);
-            },
+            onDetect: (barcode) => _onDetect(context, barcode),
             errorBuilder: (context, error, child) {
               return ScannerErrorWidget(error: error);
             },

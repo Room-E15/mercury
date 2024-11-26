@@ -108,8 +108,6 @@ class MyApp extends StatelessWidget {
                       return ProfileView(preferences: sharedPreferences);
                     case SettingsView.routeName:
                       return SettingsView(controller: settingsController);
-                    case QRScanView.routeName:
-                      return QRScanView();
                     case JoinServerPromptView.routeName:
                       return JoinServerPromptView();
                     default:

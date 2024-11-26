@@ -257,16 +257,18 @@ Future<Widget> getGroupWidgets(
                               onPressed: () async {
                                 Navigator.pop(context);
 
-                                final barcode = await Navigator.push(
+                                // final barcode = await Navigator.push(
+                                Navigator.push(
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) => QRScanView(
+                                      callerContext: context,
                                       // barcodeType: BarcodeType.url,
                                       barcodeRegex: RegExp(
                                           r'[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'),
                                     ),
                                   ),
-                                );
+                                ).then((barcode) {
 
                                 if (barcode is Barcode &&
                                     barcode.rawValue != null) {
@@ -283,6 +285,7 @@ Future<Widget> getGroupWidgets(
                                   //             '')
                                   //     .then((groups) => onRefresh());
                                 }
+                                });
                               },
                               child: const Padding(
                                 padding: EdgeInsets.all(2),
