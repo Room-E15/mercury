@@ -258,34 +258,34 @@ Future<Widget> getGroupWidgets(
                                 Navigator.pop(context);
 
                                 // final barcode = await Navigator.push(
-                                Navigator.push(
+                                final barcode = await Navigator.push(
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) => QRScanView(
-                                      callerContext: context,
-                                      // barcodeType: BarcodeType.url,
                                       barcodeRegex: RegExp(
                                           r'[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'),
                                     ),
                                   ),
-                                ).then((barcode) {
+                                );
 
                                 if (barcode is Barcode &&
                                     barcode.rawValue != null) {
                                   // If we have a barcode, attempt to join the group
                                   log('[GROUP JOIN] [userId: ${preferences.getString('id') ?? 'ERROR'}] [groupId: ${barcode.rawValue}]');
-                                  // await GroupRequests.requestJoinGroup(
-                                  //   preferences.getString('id') ?? '',
-                                  //   barcode.rawValue as String,
-                                  // );
+                                  await GroupRequests.requestJoinGroup(
+                                    preferences.getString('id') ?? '',
+                                    barcode.rawValue as String,
+                                  );
 
-                                  // // Get the new list of groups
-                                  // GroupRequests.fetchGroups(
-                                  //         preferences.getString('id') ??
-                                  //             '')
-                                  //     .then((groups) => onRefresh());
+                                  // Get the new list of groups
+                                  GroupRequests.fetchGroups(
+                                          preferences.getString('id') ??
+                                              '')
+                                      .then((groups) => onRefresh());
+                                } else {
+                                  // If we don't have a barcode, do nothing
+                                  log('[GROUP JOIN] No barcode detected');
                                 }
-                                });
                               },
                               child: const Padding(
                                 padding: EdgeInsets.all(2),
