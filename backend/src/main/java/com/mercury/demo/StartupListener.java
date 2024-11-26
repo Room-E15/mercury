@@ -20,8 +20,10 @@ public class StartupListener implements ApplicationListener<ContextRefreshedEven
     @Override
     public void onApplicationEvent(@Nullable ContextRefreshedEvent event) {
         carrierRepository.save(
-                new Carrier("at&t", "AT&T", "txt.att.net", false));
+                new Carrier("att", "AT&T", "txt.att.net", false));
         carrierRepository.save(
                 new Carrier("verizon", "Verizon", "vtext.com", false));
+        carrierRepository.save(
+                new Carrier("tmobile", "T-Mobile", "tmomail.net", false));
     }
 }
