@@ -5,3 +5,5 @@ target/
 mercury_client/env_dev.json
 mercury_client/android/app/build.gradle
 mercury_client/.env
+server_qr_codes/*
+!/server_qr_codes/.gitkeep
