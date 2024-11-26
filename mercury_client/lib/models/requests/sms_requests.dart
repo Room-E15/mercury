@@ -18,7 +18,7 @@ class SmsRequests extends ServerRequests {
       body: {
         'countryCode': countryCode.toString(),
         'phoneNumber': phoneNumber,
-        'carrier': carrier.toLowerCase(),
+        'carrier': carrier.toLowerCase().replaceAll(RegExp(r'[^a-zA-Z\d\s:]'), ''),
       },
     ).onError((error, stackTrace) {
       return Response('', 500);
