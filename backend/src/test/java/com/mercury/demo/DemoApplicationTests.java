@@ -11,7 +11,7 @@ class DemoApplicationTests {
 	@Test
 	void contextLoads() {
 		/*
-		The @SpringBootTest annotation provides the testing framework needed, no code ncessary.
+		The @SpringBootTest annotation provides the testing framework needed, no code necessary.
 		 */
 	}
 
