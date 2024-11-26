@@ -48,5 +48,3 @@ app.*.map.json
 # Mercury client packages
 
 !.vscode/launch.json
-env_home.json
-env_school.json
