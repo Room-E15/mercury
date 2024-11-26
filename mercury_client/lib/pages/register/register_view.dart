@@ -57,34 +57,30 @@ class _RegisterViewState extends State<RegisterView> {
                       labelText: 'First Name',
                     ),
                     validator: (value) {
-                      if (value == null) {
-                        return 'Please enter some text';
-                      } else if (!RegExp(r'^[a-zA-Z]+$').hasMatch(value)) {
-                        return 'Please only use only alphabetical characters';
+                      if (value == null || value == '') {
+                        return 'Please enter a first name';
                       }
                       return null;
                     },
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.all(16.0),
+                  padding: const EdgeInsets.all(14.0),
                   child: TextFormField(
                     controller: lastNameController,
                     decoration: const InputDecoration(
                       labelText: 'Last Name',
                     ),
                     validator: (value) {
-                      if (value == null) {
-                        return 'Please enter some text';
-                      } else if (!RegExp(r'^[a-zA-Z]+$').hasMatch(value)) {
-                        return 'Please only use only alphabetical characters';
+                      if (value == null || value == '') {
+                        return 'Please enter a last name';
                       }
                       return null;
                     },
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.all(16.0),
+                  padding: const EdgeInsets.all(14.0),
                   child: ElevatedButton(
                     onPressed: () {
                       // Validate returns true if the form is valid, or false otherwise.
