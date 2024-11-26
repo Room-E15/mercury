@@ -11,6 +11,64 @@ final shape = const RoundedRectangleBorder(
 final margin =
     const EdgeInsetsDirectional.symmetric(vertical: 10.0, horizontal: 20.0);
 
+Widget groupTitleCard(BuildContext context, Group group, Key? key,
+    SharedPreferencesWithCache preferences) {
+  return Card(
+    clipBehavior: clipBehavior,
+    shape: shape,
+    margin: margin,
+    child: InkWell(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Padding(
+            padding: EdgeInsetsDirectional.fromSTEB(16, 10, 16, 10),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    group.name,
+                    style: const TextStyle(
+                      fontSize: 24.0,
+                      fontWeight: FontWeight.w700,
+                    ),
+                    textAlign: TextAlign.start,
+                    softWrap: true,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (group.isLeader)
+            Padding(
+              padding: const EdgeInsetsDirectional.fromSTEB(16, 12, 16, 16),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: FilledButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => SendAlertView(
+                                preferences: preferences, group: group),
+                          ),
+                        );
+                      },
+                      child: const Padding(
+                        padding: EdgeInsets.all(16),
+                        child: Text('SEND ALERT'),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+        ],
+      ),
+    ),
+  );
+}
 
 // TODO refactor, this has code that can be factored out as a funciton
 Widget groupWithAlertWidgetBuilder(
@@ -21,75 +79,6 @@ Widget groupWithAlertWidgetBuilder(
 ) {
   return Column(
     children: [
-      Card(
-        clipBehavior: clipBehavior,
-        shape: shape,
-        margin: margin,
-        child: InkWell(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Padding(
-                padding: EdgeInsetsDirectional.fromSTEB(16, 10, 16, 10),
-                child: Row(
-                  children: [
-                    Text(
-                      group.name,
-                      style: const TextStyle(
-                        fontSize: 24.0,
-                        fontWeight: FontWeight.w700,
-                      ),
-                      textAlign: TextAlign.start,
-                    ),
-                    const Spacer(),
-                    IconButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  // QR Code screen
-                                  QRPresentView(
-                                      key: key,
-                                      groupId: group.id,
-                                      groupName: group.name),
-                            ),
-                          );
-                        },
-                        icon: const Icon(Icons.add_circle_outline,
-                            size: 40, color: Color(0xFF4F378B))),
-                  ],
-                ),
-              ),
-              if (group.isLeader)
-                Padding(
-                  padding: const EdgeInsetsDirectional.fromSTEB(16, 12, 16, 16),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: FilledButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => SendAlertView(
-                                    preferences: preferences, group: group),
-                              ),
-                            );
-                          },
-                          child: const Padding(
-                            padding: EdgeInsets.all(16),
-                            child: Text('SEND ALERT'),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-            ],
-          ),
-        ),
-      ),
       group.latestAlert == null
           ? Container()
           : Card(
@@ -111,6 +100,7 @@ Widget groupWithAlertWidgetBuilder(
                         child: Icon(
                           Icons.error_outline,
                           size: 30,
+                          color: Colors.white,
                         ),
                       ),
                       SizedBox(width: 16), // Space between icon and text
@@ -192,8 +182,7 @@ Widget groupWithAlertWidgetBuilder(
                       itemBuilder: (context, index) {
                         final member = group.unsafeMembers[index];
 
-                        return memberWithInfoWidgetBuilder(
-                            context, member);
+                        return memberWithInfoWidgetBuilder(context, member);
                       },
                     ),
                   ),
@@ -253,8 +242,7 @@ Widget groupWithAlertWidgetBuilder(
                       itemBuilder: (context, index) {
                         final member = group.noResponseMembers[index];
 
-                        return memberWithInfoWidgetBuilder(
-                            context, member);
+                        return memberWithInfoWidgetBuilder(context, member);
                       },
                     ),
                   ),
@@ -314,8 +302,7 @@ Widget groupWithAlertWidgetBuilder(
                       itemBuilder: (context, index) {
                         final member = group.safeMembers[index];
 
-                        return memberWithInfoWidgetBuilder(
-                            context, member);
+                        return memberWithInfoWidgetBuilder(context, member);
                       },
                     ),
                   ),
@@ -326,39 +313,10 @@ Widget groupWithAlertWidgetBuilder(
   );
 }
 
-Widget groupWithoutAlertWidgetBuilder(context, Group group) {
+Widget groupWithoutAlertWidgetBuilder(
+    BuildContext context, Group group, Key? key, Widget Function(BuildContext, String) barWidget) {
   return Column(
     children: [
-      Card(
-        clipBehavior: Clip.antiAliasWithSaveLayer,
-        shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(16.0))),
-        margin: const EdgeInsetsDirectional.symmetric(
-            vertical: 10.0, horizontal: 20.0),
-        child: InkWell(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Padding(
-                padding: EdgeInsetsDirectional.fromSTEB(16, 10, 16, 10),
-                child: Row(
-                  children: [
-                    Text(
-                      group.name,
-                      style: const TextStyle(
-                        fontSize: 24.0,
-                        fontWeight: FontWeight.w700,
-                      ),
-                      textAlign: TextAlign.start,
-                    ),
-                    const Spacer(),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
       // Leader view card!
       Card(
         clipBehavior: Clip.antiAliasWithSaveLayer,
@@ -394,6 +352,8 @@ Widget groupWithoutAlertWidgetBuilder(context, Group group) {
                           color: Colors.white,
                         ),
                       ),
+                      Spacer(),
+                      barWidget(context, 'Leader'),
                     ],
                   ),
                 )
@@ -453,6 +413,8 @@ Widget groupWithoutAlertWidgetBuilder(context, Group group) {
                                 color: Colors.white,
                               ),
                             ),
+                            Spacer(),
+                            barWidget(context, 'Member'),
                           ],
                         ),
                       )

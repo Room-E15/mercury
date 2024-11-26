@@ -120,9 +120,7 @@ class SendAlertView extends StatelessWidget {
                   child: Row(
                     children: [
                       Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: FilledButton(
+                        child: FilledButton(
                             onPressed: () {
                               if (formKey.currentState!.validate()) {
                                 SendAlertRequests.saveAlert(
@@ -137,8 +135,10 @@ class SendAlertView extends StatelessWidget {
                                 });
                               }
                             },
-                            child: const Text('SEND ALERT'),
-                          ),
+                            child: const Padding(
+                              padding: EdgeInsets.all(16),
+                              child: Text('SEND ALERT'),
+                            ),
                         ),
                       ),
                     ],
