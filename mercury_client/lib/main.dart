@@ -8,13 +8,9 @@ import 'config/app_config.dart';
 
 void main() async {
   // needs to be called before any other asynchronous operations in main
-  WidgetsFlutterBinding.ensureInitialized(); 
+  WidgetsFlutterBinding.ensureInitialized();
 
-  // Set up the SettingsController, which will glue user settings to multiple
-  // Flutter Widgets.
-
-  final settingsController = SettingsController(SettingsService());
-
+  // Set up SharedPreferences with a cache to save user info locally
   final sharedPreferences = await SharedPreferencesWithCache.create(
     cacheOptions: const SharedPreferencesWithCacheOptions(
       // When an allowlist is included, any keys that aren't included cannot be used.
@@ -25,9 +21,14 @@ void main() async {
         'lastName',
         'countryCode',
         'phoneNumber',
+        'themeMode'
       },
     ),
   );
+
+  // Set up the SettingsController, which will glue user settings to multiple
+  // Flutter Widgets.
+  final settingsController = SettingsController(SettingsService(), sharedPreferences);
 
   if (AppConfig.useCaching == false) {
     sharedPreferences.clear();

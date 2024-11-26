@@ -1,7 +1,11 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
+import 'package:mercury_client/pages/home/home_view.dart';
 
 import 'package:mercury_client/pages/qr/qr_scan_view.dart';
 import 'package:mercury_client/widgets/logo.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
 
 class JoinServerPromptView extends StatelessWidget {
   JoinServerPromptView({
@@ -46,9 +50,24 @@ class JoinServerPromptView extends StatelessWidget {
                       backgroundColor: const Color(0xFF4F378B),
                       foregroundColor: const Color(0xFFFFFFFF),
                     ),
-                    onPressed: () {
-                      Navigator.restorablePushNamed(
-                          context, QRScanView.routeName);
+                    onPressed: () async {
+                      final serverAddress = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => QRScanView(
+                            barcodeType: BarcodeType.url,
+                          ),
+                        ),
+                      );
+
+                      if (serverAddress is Barcode && context.mounted) {
+                        // TODO do something with address
+                        log('[SERVER URL] ${serverAddress.url?.url}');
+                        Navigator.pushNamedAndRemoveUntil(
+                            context, HomeView.routeName, (route) => false);
+                      } else {
+                        // TODO do something on error
+                      }
                     },
                     icon: const Icon(Icons.add))
               ],

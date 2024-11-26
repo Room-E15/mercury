@@ -100,6 +100,8 @@ class MyApp extends StatelessWidget {
                 settings: routeSettings,
                 builder: (BuildContext context) {
                   switch (routeSettings.name) {
+                    case StartView.routeName:
+                      return StartView(preferences: sharedPreferences);
                     case HomeView.routeName:
                       return HomeView(preferences: sharedPreferences);
                     case ProfileView.routeName:
@@ -107,7 +109,7 @@ class MyApp extends StatelessWidget {
                     case SettingsView.routeName:
                       return SettingsView(controller: settingsController);
                     case QRScanView.routeName:
-                      return const QRScanView();
+                      return QRScanView();
                     case JoinServerPromptView.routeName:
                       return JoinServerPromptView();
                     default:

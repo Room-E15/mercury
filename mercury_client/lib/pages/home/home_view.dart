@@ -3,6 +3,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:mercury_client/models/requests/respond_alert_requests.dart';
+import 'package:mercury_client/pages/register/start_view.dart';
 import 'package:mercury_client/widgets/alert_widget.dart';
 
 import 'package:mercury_client/widgets/render_groups.dart';
@@ -47,6 +48,7 @@ class HomeViewState extends State<HomeView> {
     _futureGroups = GroupRequests.fetchGroups(memberId);
 
     SendAlertRequests.backgroundFetchAlerts(
+        preferences: widget.preferences,
         memberId: memberId,
         ignored: _alerts,
         onNewAlert: (alerts) async {
@@ -86,7 +88,25 @@ class HomeViewState extends State<HomeView> {
                   Scaffold.of(context2).closeDrawer();
                   Navigator.restorablePushNamed(
                       context, JoinServerPromptView.routeName);
-                })
+                }),
+            TextButton(
+                child: const Row(children: [
+                  Icon(Icons.logout),
+                  Padding(padding: EdgeInsetsDirectional.only(end: 10)),
+                  Text('Logout')
+                ]),
+                onPressed: () {
+                  // Clear user info, keep the user's theme
+                  final theme = widget.preferences.getInt('themeMode');
+                  widget.preferences.clear();
+                  widget.preferences.setInt('themeMode', theme!);
+
+                  Navigator.pushNamedAndRemoveUntil(
+                    context,
+                    // TODO update when we implement servers
+                    StartView.routeName, (route) => false,
+                  );
+                }),
           ]);
         })),
       ),
@@ -137,7 +157,8 @@ class HomeViewState extends State<HomeView> {
                   setState(() {
                     _alerts.removeFirst();
                   });
-                  SendAlertRequests.fetchAlerts(memberId, _alerts).then((alerts) {
+                  SendAlertRequests.fetchAlerts(memberId, _alerts)
+                      .then((alerts) {
                     setState(() => _alerts.addAll(alerts));
                   });
                 }

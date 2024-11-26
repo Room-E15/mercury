@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:mercury_client/models/data/group.dart';
@@ -8,6 +6,7 @@ import 'package:mercury_client/pages/group_dashboard/leader_group_view.dart';
 import 'package:mercury_client/pages/group_dashboard/member_group_view.dart';
 import 'package:mercury_client/pages/join_group/join_group_view.dart';
 import 'package:mercury_client/pages/send_alert/send_alert_view.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 Widget groupWidgetBuilder(Key? widgetKey, BuildContext context,
@@ -251,9 +250,10 @@ Future<Widget> getGroupWidgets(
                               padding: EdgeInsets.only(left: 20),
                             ),
                             FilledButton(
-                              onPressed: () {
+                              onPressed: () async {
                                 Navigator.pop(context);
-                                Navigator.push(
+
+                                final barcode = await Navigator.push(
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) => JoinGroupView(
@@ -261,6 +261,9 @@ Future<Widget> getGroupWidgets(
                                         preferences: preferences),
                                   ),
                                 );
+
+                                if (barcode is Barcode) {
+                                }
                               },
                               child: const Padding(
                                 padding: EdgeInsets.all(2),

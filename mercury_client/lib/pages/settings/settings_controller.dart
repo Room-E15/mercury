@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'settings_service.dart';
 
@@ -8,10 +9,11 @@ import 'settings_service.dart';
 /// Controllers glue Data Services to Flutter Widgets. The SettingsController
 /// uses the SettingsService to store and retrieve user settings.
 class SettingsController with ChangeNotifier {
-  SettingsController(this._settingsService);
+  SettingsController(this._settingsService, this.preferences);
 
   // Make SettingsService a private variable so it is not used directly.
   final SettingsService _settingsService;
+  final SharedPreferencesWithCache preferences;
 
   // Make ThemeMode a private variable so it is not updated directly without
   // also persisting the changes with the SettingsService.
@@ -24,7 +26,14 @@ class SettingsController with ChangeNotifier {
   /// local database or the internet. The controller only knows it can load the
   /// settings from the service.
   Future<void> loadSettings() async {
-    _themeMode = ThemeMode.dark;
+
+  if (preferences.getInt('themeMode') != null) {
+    _themeMode = ThemeMode.values[preferences.getInt('themeMode') ?? ThemeMode.system.index];
+  } else {
+    _themeMode = ThemeMode.system;
+  }
+
+
 
     // Important! Inform listeners a change has occurred.
     notifyListeners();
@@ -39,6 +48,9 @@ class SettingsController with ChangeNotifier {
 
     // Otherwise, store the new ThemeMode in memory
     _themeMode = newThemeMode;
+
+    // Cache the new theme
+    await preferences.setInt('themeMode', newThemeMode.index);
 
     // Important! Inform listeners a change has occurred.
     notifyListeners();

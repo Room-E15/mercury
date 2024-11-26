@@ -5,6 +5,7 @@ import 'package:http/http.dart';
 import 'package:mercury_client/config/app_config.dart';
 import 'package:mercury_client/models/data/alert.dart';
 import 'package:mercury_client/models/requests/server_requests.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SendAlertRequests extends ServerRequests {
   static final subURL = '/sendAlert';
@@ -32,11 +33,12 @@ class SendAlertRequests extends ServerRequests {
 
   // band-aid solution to have alerts fetched in the background while app running
   static Future<void> backgroundFetchAlerts({
+    required final SharedPreferencesWithCache preferences,
     required final String memberId,
     required final Iterable<Alert> ignored,
     required final Future<void> Function(List<Alert>) onNewAlert,
   }) async {
-    while (true) {
+    while (preferences.getBool('registered') == true) {
       var future = fetchAlerts(memberId, ignored).then(onNewAlert).onError((error, stackTrace) {});
       await Future.delayed(Duration(milliseconds: AppConfig.alertRefreshRate));
       await future;
