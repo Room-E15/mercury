@@ -314,7 +314,7 @@ Widget groupWithAlertWidgetBuilder(
 }
 
 Widget groupWithoutAlertWidgetBuilder(
-    BuildContext context, Group group, Key? key, Widget Function(BuildContext, String) barWidget) {
+    BuildContext context, Group group, Key? key) {
   return Column(
     children: [
       // Leader view card!
@@ -352,8 +352,6 @@ Widget groupWithoutAlertWidgetBuilder(
                           color: Colors.white,
                         ),
                       ),
-                      Spacer(),
-                      barWidget(context, 'Leader'),
                     ],
                   ),
                 )
@@ -413,8 +411,6 @@ Widget groupWithoutAlertWidgetBuilder(
                                 color: Colors.white,
                               ),
                             ),
-                            Spacer(),
-                            barWidget(context, 'Member'),
                           ],
                         ),
                       )
