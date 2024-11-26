@@ -1,4 +1,6 @@
-### Project Mercury
+### Mercury Messenger
+
+![Alt Text](https://drive.google.com/uc?export=download&id=13C8d4FsyfX8pxgD2GRr7jXov1mIaBj8i)
 
 ## Tech Stack
 
