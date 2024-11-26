@@ -46,7 +46,10 @@ public class SendAlertController {
     public SendAlertController(final AlertRepository alertRepository,
                                final MemberAlertStatusRepository memberAlertStatusRepository,
                                final MembershipRepository membershipRepository,
-                               final SMSEmailService mailService, MemberRepository memberRepository, CarrierRepository carrierRepository, AlertGroupRepository alertGroupRepository) {
+                               final SMSEmailService mailService,
+                               final MemberRepository memberRepository,
+                               final CarrierRepository carrierRepository,
+                               final AlertGroupRepository alertGroupRepository) {
         this.alertRepository = alertRepository;
         this.statusRepository = memberAlertStatusRepository;
         this.membershipRepository = membershipRepository;
