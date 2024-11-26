@@ -3,13 +3,11 @@ import 'dart:developer';
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:mercury_client/models/data/group.dart';
-import 'package:mercury_client/models/requests/group_requests.dart';
 import 'package:mercury_client/pages/create_group/create_group_view.dart';
 import 'package:mercury_client/pages/group_dashboard/leader_group_view.dart';
 import 'package:mercury_client/pages/group_dashboard/member_group_view.dart';
-import 'package:mercury_client/pages/qr/qr_scan_view.dart';
+import 'package:mercury_client/pages/join_group/join_group_view.dart';
 import 'package:mercury_client/pages/send_alert/send_alert_view.dart';
-import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 Widget groupWidgetBuilder(Key? widgetKey, BuildContext context,
@@ -23,7 +21,6 @@ Widget groupWidgetBuilder(Key? widgetKey, BuildContext context,
   IconData statusIcon;
   String statusText;
   Color statusColor;
-  double topPadding;
 
   if (unsafe) {
     progressValue = 1;
@@ -48,10 +45,8 @@ Widget groupWidgetBuilder(Key? widgetKey, BuildContext context,
         "${group.memberCount} ${group.memberCount == 1 ? "member" : "members"}";
 
     statusColor = Colors.white;
-    topPadding = 10;
   } else {
     statusColor = const Color.fromARGB(164, 0, 0, 0);
-    topPadding = 20;
   }
 
   return Card(
@@ -117,18 +112,22 @@ Widget groupWidgetBuilder(Key? widgetKey, BuildContext context,
             ],
           ),
           Padding(
-            padding: EdgeInsetsDirectional.fromSTEB(16, topPadding, 16, 10),
+            padding: EdgeInsetsDirectional.fromSTEB(16, 16, 16, 10),
             child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              mainAxisSize: MainAxisSize.max,
               children: [
-                Text(
-                  group.name,
-                  style: const TextStyle(
-                    fontSize: 24.0,
-                    fontWeight: FontWeight.w700,
+                Expanded(
+                  child: Text(
+                    group.name,
+                    style: const TextStyle(
+                      fontSize: 24.0,
+                      fontWeight: FontWeight.w700,
+                    ),
+                    textAlign: TextAlign.start,
+                    softWrap: true,
                   ),
-                  textAlign: TextAlign.start,
                 ),
-                const Spacer(),
                 const Icon(Icons.chevron_right),
               ],
             ),
@@ -163,6 +162,105 @@ Widget groupWidgetBuilder(Key? widgetKey, BuildContext context,
         ],
       ),
     ),
+  );
+}
+
+showModal(BuildContext context, Key? widgetKey,
+    SharedPreferencesWithCache preferences) {
+  showModalBottomSheet(
+    context: context,
+    shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(16.0), topRight: Radius.circular(16.0))),
+    builder: (BuildContext context) {
+      return Container(
+        height: 96,
+        padding: EdgeInsets.all(16),
+        child: Column(children: [
+          SizedBox(
+            width: 40.0,
+            height: 4.0,
+            child: Container(
+              decoration: BoxDecoration(
+                  color: Theme.of(context)
+                      .colorScheme
+                      .surfaceContainerHighest, //Colors.white54,
+                  shape: BoxShape.rectangle,
+                  borderRadius: BorderRadius.all(Radius.circular(8.0))),
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.only(top: 10),
+          ),
+          Flex(
+            direction: Axis.horizontal,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              FilledButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => CreateGroupView(
+                          key: widgetKey, preferences: preferences),
+                    ),
+                  );
+                },
+                child: const Padding(
+                  padding: EdgeInsets.all(2),
+                  child: Text('CREATE GROUP'),
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.fromLTRB(1, 2, 0, 2),
+              ),
+              FilledButton(
+                onPressed: () async {
+                  Navigator.pop(context);
+
+                  // final barcode = await Navigator.push(
+                  final barcode = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => QRScanView(
+                        barcodeRegex: RegExp(
+                            r'[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'),
+                      ),
+                    ),
+                  );
+
+                  if (barcode is Barcode &&
+                      barcode.rawValue != null) {
+                    // If we have a barcode, attempt to join the group
+                    log('[GROUP JOIN] [userId: ${preferences.getString('id') ?? 'ERROR'}] [groupId: ${barcode.rawValue}]');
+                    await GroupRequests.requestJoinGroup(
+                      preferences.getString('id') ?? '',
+                      barcode.rawValue as String,
+                    );
+
+                    // Get the new list of groups
+                    GroupRequests.fetchGroups(
+                            preferences.getString('id') ??
+                                '')
+                        .then((groups) => onRefresh());
+                  } else {
+                    // If we don't have a barcode, do nothing
+                    log('[GROUP JOIN] No barcode detected');
+                  }
+                },
+                child: const Padding(
+                  padding: EdgeInsets.fromLTRB(11, 2, 11, 2),
+                  child: Text('JOIN GROUP'),
+                ),
+              )
+            ],
+          )
+        ]),
+      );
+    },
   );
 }
 
@@ -202,107 +300,42 @@ Future<Widget> getGroupWidgets(
             }
           } else {
             // plus icon tile TODO refactor to take out separete widgets
-            return IconButton(
-              onPressed: () {
-                showModalBottomSheet(
-                  context: context,
-                  shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(16.0),
-                          topRight: Radius.circular(16.0))),
-                  builder: (BuildContext context) {
-                    return Container(
-                      width: 360,
-                      height: 90,
-                      padding: EdgeInsets.fromLTRB(16, 10, 16, 5),
-                      child: Column(children: [
-                        SizedBox(
-                          width: 40.0,
-                          height: 4.0,
-                          child: Container(
-                            decoration: BoxDecoration(
-                                color: Colors.white54,
-                                shape: BoxShape.rectangle,
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(8.0))),
+            return Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                Padding(
+                  padding: const EdgeInsetsDirectional.fromSTEB(16, 12, 16, 26),
+                  child: OutlinedButton(
+                    onPressed: () => showModal(context, widgetKey, preferences),
+                    style: OutlinedButton.styleFrom(
+                        side: BorderSide(
+                          color: const Color(0xFF4F378B),
+                          width: 2,
+                        ),
+                        padding: EdgeInsets.symmetric(horizontal: 12)),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.fromLTRB(4, 0, 4, 0),
+                          child: Text(
+                            'Add Group',
+                            style: TextStyle(
+                              fontSize: 16.0,
+                              color: const Color(0xFF4F378B),
+                            ),
                           ),
                         ),
-                        Padding(
-                          padding: EdgeInsets.only(top: 10),
+                        Icon(
+                          Icons.add,
+                          color: const Color(0xFF4F378B),
                         ),
-                        Row(
-                          children: [
-                            FilledButton(
-                              onPressed: () {
-                                Navigator.pop(context);
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => CreateGroupView(
-                                        key: widgetKey,
-                                        preferences: preferences),
-                                  ),
-                                );
-                              },
-                              child: const Padding(
-                                padding: EdgeInsets.all(2),
-                                child: Text('CREATE GROUP'),
-                              ),
-                            ),
-                            Padding(
-                              padding: EdgeInsets.only(left: 20),
-                            ),
-                            FilledButton(
-                              onPressed: () async {
-                                Navigator.pop(context);
-
-                                // final barcode = await Navigator.push(
-                                final barcode = await Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => QRScanView(
-                                      barcodeRegex: RegExp(
-                                          r'[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'),
-                                    ),
-                                  ),
-                                );
-
-                                if (barcode is Barcode &&
-                                    barcode.rawValue != null) {
-                                  // If we have a barcode, attempt to join the group
-                                  log('[GROUP JOIN] [userId: ${preferences.getString('id') ?? 'ERROR'}] [groupId: ${barcode.rawValue}]');
-                                  await GroupRequests.requestJoinGroup(
-                                    preferences.getString('id') ?? '',
-                                    barcode.rawValue as String,
-                                  );
-
-                                  // Get the new list of groups
-                                  GroupRequests.fetchGroups(
-                                          preferences.getString('id') ??
-                                              '')
-                                      .then((groups) => onRefresh());
-                                } else {
-                                  // If we don't have a barcode, do nothing
-                                  log('[GROUP JOIN] No barcode detected');
-                                }
-                              },
-                              child: const Padding(
-                                padding: EdgeInsets.all(2),
-                                child: Text('JOIN GROUP'),
-                              ),
-                            )
-                          ],
-                        )
-                      ]),
-                    );
-                  },
-                );
-              },
-              icon: const Icon(
-                Icons.add_circle_outline,
-                size: 40,
-                color: Color(0xFF4F378B),
-              ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             );
           }
         },
