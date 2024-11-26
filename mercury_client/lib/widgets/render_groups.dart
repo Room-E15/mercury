@@ -3,11 +3,13 @@ import 'dart:developer';
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:mercury_client/models/data/group.dart';
+import 'package:mercury_client/models/requests/group_requests.dart';
 import 'package:mercury_client/pages/create_group/create_group_view.dart';
 import 'package:mercury_client/pages/group_dashboard/leader_group_view.dart';
 import 'package:mercury_client/pages/group_dashboard/member_group_view.dart';
-import 'package:mercury_client/pages/join_group/join_group_view.dart';
+import 'package:mercury_client/pages/qr/qr_scan_view.dart';
 import 'package:mercury_client/pages/send_alert/send_alert_view.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 Widget groupWidgetBuilder(Key? widgetKey, BuildContext context,
@@ -166,7 +168,7 @@ Widget groupWidgetBuilder(Key? widgetKey, BuildContext context,
 }
 
 showModal(BuildContext context, Key? widgetKey,
-    SharedPreferencesWithCache preferences) {
+    SharedPreferencesWithCache preferences, Future<void> Function() onRefresh) {
   showModalBottomSheet(
     context: context,
     shape: const RoundedRectangleBorder(
@@ -232,8 +234,7 @@ showModal(BuildContext context, Key? widgetKey,
                     ),
                   );
 
-                  if (barcode is Barcode &&
-                      barcode.rawValue != null) {
+                  if (barcode is Barcode && barcode.rawValue != null) {
                     // If we have a barcode, attempt to join the group
                     log('[GROUP JOIN] [userId: ${preferences.getString('id') ?? 'ERROR'}] [groupId: ${barcode.rawValue}]');
                     await GroupRequests.requestJoinGroup(
@@ -242,9 +243,7 @@ showModal(BuildContext context, Key? widgetKey,
                     );
 
                     // Get the new list of groups
-                    GroupRequests.fetchGroups(
-                            preferences.getString('id') ??
-                                '')
+                    GroupRequests.fetchGroups(preferences.getString('id') ?? '')
                         .then((groups) => onRefresh());
                   } else {
                     // If we don't have a barcode, do nothing
@@ -307,7 +306,7 @@ Future<Widget> getGroupWidgets(
                 Padding(
                   padding: const EdgeInsetsDirectional.fromSTEB(16, 12, 16, 26),
                   child: OutlinedButton(
-                    onPressed: () => showModal(context, widgetKey, preferences),
+                    onPressed: () => showModal(context, widgetKey, preferences, onRefresh),
                     style: OutlinedButton.styleFrom(
                         side: BorderSide(
                           color: const Color(0xFF4F378B),
