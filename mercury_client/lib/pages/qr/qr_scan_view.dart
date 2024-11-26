@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
@@ -15,7 +17,7 @@ class QRScanView extends StatelessWidget {
   static const routeName = '/qr_scan';
 
 
-  final MobileScannerController controller = MobileScannerController(
+  static final MobileScannerController controller = MobileScannerController(
     cameraResolution: Size(480, 640),
     detectionSpeed: DetectionSpeed.unrestricted,
   );
@@ -44,17 +46,23 @@ class QRScanView extends StatelessWidget {
               if (barcodeCapture.barcodes.isEmpty 
               || barcodeCapture.barcodes.firstOrNull == null
               || barcodeCapture.barcodes.first.rawValue == null) {
-                throw Error();
+                log('[QR SCANNER] No barcode detected');
+                Navigator.pop(context);
+                return;
               } 
 
               final rawValue = barcodeCapture.barcodes.first.rawValue as String; 
 
-              if (barcodeRegex != null &&  (barcodeRegex as RegExp).hasMatch(rawValue)) {
-                throw Error();
+              if (barcodeRegex != null &&  !(barcodeRegex as RegExp).hasMatch(rawValue)) {
+                log('[QR SCANNER] Barcode does not match regex: $rawValue');
+                Navigator.pop(context);
+                return;
               }
 
-              if (barcodeType != null && barcodeCapture.barcodes.first.type != barcodeType) {
-                throw Error();
+              if (barcodeType != null && barcodeCapture.barcodes.first.type != barcodeType) {                
+                log('[QR SCANNER] Barcode type does not match: $rawValue');
+                Navigator.pop(context);
+                return;
               }
 
               Navigator.pop(context, barcodeCapture.barcodes.first);
