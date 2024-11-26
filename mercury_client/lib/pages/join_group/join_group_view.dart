@@ -25,7 +25,7 @@ class JoinGroupView extends StatelessWidget {
         children: [
           const Padding(
               padding: EdgeInsetsDirectional.fromSTEB(40, 180, 40, 40),
-              child: Text('Lets join a group!')),
+              child: Text('Manually enter a join code')),
           Form(
             key: formKey,
             child: Column(
@@ -35,7 +35,7 @@ class JoinGroupView extends StatelessWidget {
                   child: TextFormField(
                     controller: groupIdController,
                     decoration: const InputDecoration(
-                      labelText: 'Group Id',
+                      labelText: 'Join Code',
                     ),
                     validator: (value) {
                       if (value == null) {

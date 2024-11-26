@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -100,25 +101,28 @@ class MyApp extends StatelessWidget {
                 settings: routeSettings,
                 builder: (BuildContext context) {
                   switch (routeSettings.name) {
+                    case StartView.routeName:
+                      return StartView(preferences: sharedPreferences);
                     case HomeView.routeName:
                       return HomeView(preferences: sharedPreferences);
                     case ProfileView.routeName:
                       return ProfileView(preferences: sharedPreferences);
                     case SettingsView.routeName:
                       return SettingsView(controller: settingsController);
-                    case QRScanView.routeName:
-                      return const QRScanView();
                     case JoinServerPromptView.routeName:
-                      return JoinServerPromptView();
+                      return JoinServerPromptView(
+                          preferences: sharedPreferences);
                     default:
                       return HomeView(preferences: sharedPreferences);
                   }
                 },
               );
             },
-            home: sharedPreferences.getBool('registered') == true
-                ? HomeView(preferences: sharedPreferences)
-                : StartView(preferences: sharedPreferences));
+            home: sharedPreferences.getString('apiEndpoint') != null
+                ? (sharedPreferences.getBool('registered') == true
+                    ? HomeView(preferences: sharedPreferences)
+                    : StartView(preferences: sharedPreferences))
+                : JoinServerPromptView(preferences: sharedPreferences));
       },
     );
   }

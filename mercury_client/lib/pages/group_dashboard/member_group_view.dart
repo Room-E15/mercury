@@ -43,37 +43,6 @@ class MemberGroupView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       drawerEnableOpenDragGesture: false,
-      drawer: SafeArea(
-        child: Drawer(child: Builder(builder: (BuildContext context2) {
-          return Column(children: [
-            Padding(
-                padding: const EdgeInsets.only(top: 50, bottom: 50),
-                child: appLogo),
-            TextButton(
-                child: const Row(children: [
-                  Icon(Icons.settings),
-                  Padding(padding: EdgeInsetsDirectional.only(end: 10)),
-                  Text('Settings')
-                ]),
-                onPressed: () {
-                  Scaffold.of(context2).closeDrawer();
-                  Navigator.restorablePushNamed(
-                      context, SettingsView.routeName);
-                }),
-            TextButton(
-                child: const Row(children: [
-                  Icon(Icons.door_back_door),
-                  Padding(padding: EdgeInsetsDirectional.only(end: 10)),
-                  Text('Leave Server')
-                ]),
-                onPressed: () {
-                  Scaffold.of(context2).closeDrawer();
-                  Navigator.restorablePushNamed(
-                      context, JoinServerPromptView.routeName);
-                })
-          ]);
-        })),
-      ),
       appBar: AppBar(
         title: appLogo,
         centerTitle: true,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mercury_client/models/requests/server_requests.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'pages/app.dart';
@@ -8,13 +9,9 @@ import 'config/app_config.dart';
 
 void main() async {
   // needs to be called before any other asynchronous operations in main
-  WidgetsFlutterBinding.ensureInitialized(); 
+  WidgetsFlutterBinding.ensureInitialized();
 
-  // Set up the SettingsController, which will glue user settings to multiple
-  // Flutter Widgets.
-
-  final settingsController = SettingsController(SettingsService());
-
+  // Set up SharedPreferences with a cache to save user info locally
   final sharedPreferences = await SharedPreferencesWithCache.create(
     cacheOptions: const SharedPreferencesWithCacheOptions(
       // When an allowlist is included, any keys that aren't included cannot be used.
@@ -25,9 +22,15 @@ void main() async {
         'lastName',
         'countryCode',
         'phoneNumber',
+        'themeMode',
+        'apiEndpoint',
       },
     ),
   );
+
+  // Set up the SettingsController, which will glue user settings to multiple
+  // Flutter Widgets.
+  final settingsController = SettingsController(SettingsService(), sharedPreferences);
 
   if (AppConfig.useCaching == false) {
     sharedPreferences.clear();
@@ -36,6 +39,9 @@ void main() async {
   // Load the user's preferred theme while the splash screen is displayed.
   // This prevents a sudden theme change when the app is first displayed.
   await settingsController.loadSettings();
+
+  // Pass the preferences to Server Requests so it can see the API Endpoint
+  ServerRequests.init(sharedPreferences);
 
   // Run the app and pass in the SettingsController. The app listens to the
   // SettingsController for changes, then passes it further down to the

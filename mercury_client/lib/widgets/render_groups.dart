@@ -3,11 +3,13 @@ import 'dart:developer';
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:mercury_client/models/data/group.dart';
+import 'package:mercury_client/models/requests/group_requests.dart';
 import 'package:mercury_client/pages/create_group/create_group_view.dart';
 import 'package:mercury_client/pages/group_dashboard/leader_group_view.dart';
 import 'package:mercury_client/pages/group_dashboard/member_group_view.dart';
-import 'package:mercury_client/pages/join_group/join_group_view.dart';
+import 'package:mercury_client/pages/qr/qr_scan_view.dart';
 import 'package:mercury_client/pages/send_alert/send_alert_view.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 Widget groupWidgetBuilder(Key? widgetKey, BuildContext context,
@@ -251,16 +253,38 @@ Future<Widget> getGroupWidgets(
                               padding: EdgeInsets.only(left: 20),
                             ),
                             FilledButton(
-                              onPressed: () {
+                              onPressed: () async {
                                 Navigator.pop(context);
-                                Navigator.push(
+
+                                // final barcode = await Navigator.push(
+                                final barcode = await Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => JoinGroupView(
-                                        key: widgetKey,
-                                        preferences: preferences),
+                                    builder: (context) => QRScanView(
+                                      barcodeRegex: RegExp(
+                                          r'[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'),
+                                    ),
                                   ),
                                 );
+
+                                if (barcode is Barcode &&
+                                    barcode.rawValue != null) {
+                                  // If we have a barcode, attempt to join the group
+                                  log('[GROUP JOIN] [userId: ${preferences.getString('id') ?? 'ERROR'}] [groupId: ${barcode.rawValue}]');
+                                  await GroupRequests.requestJoinGroup(
+                                    preferences.getString('id') ?? '',
+                                    barcode.rawValue as String,
+                                  );
+
+                                  // Get the new list of groups
+                                  GroupRequests.fetchGroups(
+                                          preferences.getString('id') ??
+                                              '')
+                                      .then((groups) => onRefresh());
+                                } else {
+                                  // If we don't have a barcode, do nothing
+                                  log('[GROUP JOIN] No barcode detected');
+                                }
                               },
                               child: const Padding(
                                 padding: EdgeInsets.all(2),

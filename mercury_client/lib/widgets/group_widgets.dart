@@ -11,7 +11,6 @@ final shape = const RoundedRectangleBorder(
 final margin =
     const EdgeInsetsDirectional.symmetric(vertical: 10.0, horizontal: 20.0);
 
-
 // TODO refactor, this has code that can be factored out as a funciton
 Widget groupWithAlertWidgetBuilder(
   BuildContext context,
@@ -42,22 +41,30 @@ Widget groupWithAlertWidgetBuilder(
                       textAlign: TextAlign.start,
                     ),
                     const Spacer(),
-                    IconButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  // QR Code screen
-                                  QRPresentView(
-                                      key: key,
-                                      groupId: group.id,
-                                      groupName: group.name),
-                            ),
-                          );
-                        },
-                        icon: const Icon(Icons.add_circle_outline,
-                            size: 40, color: Color(0xFF4F378B))),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                // QR Code screen
+                                QRPresentView(
+                                    key: key,
+                                    groupId: group.id,
+                                    groupName: group.name),
+                          ),
+                        );
+                      },
+                      child: Row(
+                        children: [
+                          const Text('Add Group',
+                              style: TextStyle(
+                                  fontSize: 12, color: Color(0xFF4F378B))),
+                          const Icon(Icons.add_circle_outline,
+                              size: 40, color: Color(0xFF4F378B))
+                        ],
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -192,8 +199,7 @@ Widget groupWithAlertWidgetBuilder(
                       itemBuilder: (context, index) {
                         final member = group.unsafeMembers[index];
 
-                        return memberWithInfoWidgetBuilder(
-                            context, member);
+                        return memberWithInfoWidgetBuilder(context, member);
                       },
                     ),
                   ),
@@ -253,8 +259,7 @@ Widget groupWithAlertWidgetBuilder(
                       itemBuilder: (context, index) {
                         final member = group.noResponseMembers[index];
 
-                        return memberWithInfoWidgetBuilder(
-                            context, member);
+                        return memberWithInfoWidgetBuilder(context, member);
                       },
                     ),
                   ),
@@ -314,8 +319,7 @@ Widget groupWithAlertWidgetBuilder(
                       itemBuilder: (context, index) {
                         final member = group.safeMembers[index];
 
-                        return memberWithInfoWidgetBuilder(
-                            context, member);
+                        return memberWithInfoWidgetBuilder(context, member);
                       },
                     ),
                   ),

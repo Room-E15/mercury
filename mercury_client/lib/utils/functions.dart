@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'package:battery_plus/battery_plus.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class BatteryService {
   static final Battery _battery = Battery();
@@ -54,4 +55,13 @@ class LocationService {
       return null;
     }
   }
+}
+
+void clearUserData(SharedPreferencesWithCache preferences) {
+  preferences.remove('registered');
+  preferences.remove('id');
+  preferences.remove('firstName');
+  preferences.remove('lastName');
+  preferences.remove('countryCode');
+  preferences.remove('phoneNumber');
 }
