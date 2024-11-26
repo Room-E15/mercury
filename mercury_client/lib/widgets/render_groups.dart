@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:mercury_client/models/data/group.dart';

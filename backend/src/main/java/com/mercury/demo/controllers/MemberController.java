@@ -27,7 +27,6 @@ public class MemberController {
         this.smsVerificationRepository = smsVerificationRepository;
     }
 
-    // TODO consider changing so we're only returning the ID of the new member instead of a custom object
     @PostMapping(path = "/addMember") // Map ONLY POST Requests
     public MemberAddResponse addNewMember(@RequestParam final String firstName,
                                           @RequestParam final String lastName,
@@ -37,7 +36,7 @@ public class MemberController {
         final Optional<SMSVerification> smsVerification = smsVerificationRepository
                 .getFirstByPhoneNumberAndCountryCodeAndVerified(phoneNumber, countryCode, true);
         if (smsVerification.isPresent()) {
-            Member member = new Member(firstName, lastName, countryCode, phoneNumber);
+            Member member = new Member(firstName, lastName, countryCode, phoneNumber, smsVerification.get().getCarrierId());
             member = memberRepository.save(member);
             smsVerificationRepository.deleteAll(
                     smsVerificationRepository.findAllByPhoneNumberAndCountryCode(phoneNumber, countryCode));

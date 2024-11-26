@@ -22,18 +22,17 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 
 class TestGroupManagementController {
     private static final Member MEMBER = new Member("Giorno", "Giovanna", 123,
-            "1226765555");
+            "1226765555", "tmobile");
     private static final String PHONE_NUMBER = "1234567890";
+    private static final String CARRIER = "devcarrier";
     private static final String GROUP_NAME = "AIA";
     private static final String ALERT_GROUP_ID = UUID.randomUUID().toString();
     private static final AlertGroup ALERT_GROUP = new AlertGroup(GROUP_NAME);
@@ -96,7 +95,7 @@ class TestGroupManagementController {
     void testJoinGroup() {
         final AlertGroup alertGroup = new AlertGroup(GROUP_NAME);
         alertGroup.setId(PHONE_NUMBER);
-        final Member member = new Member("Test", "ing", 1, PHONE_NUMBER);
+        final Member member = new Member("Test", "ing", 1, PHONE_NUMBER, CARRIER);
 
         final Membership membership = new Membership(member.getId(), alertGroup.getId(), false);
 
@@ -164,7 +163,7 @@ class TestGroupManagementController {
     void testGetGroupWithTwoMembers() {
         final AlertGroup alertGroup = new AlertGroup(GROUP_NAME);
         alertGroup.setId(PHONE_NUMBER);
-        final Member memberTwo = new Member("Test", "ing", 4, PHONE_NUMBER);
+        final Member memberTwo = new Member("Test", "ing", 4, PHONE_NUMBER, CARRIER);
         memberTwo.setId("1234");
         final Membership membership = new Membership(MEMBER.getId(), alertGroup.getId(), true);
         final Membership membershipTwo = new Membership(memberTwo.getId(), alertGroup.getId(), false);

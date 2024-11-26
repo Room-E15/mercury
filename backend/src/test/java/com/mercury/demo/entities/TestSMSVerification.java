@@ -9,8 +9,9 @@ class TestSMSVerification {
     private static final String PHONE = "6501234565";
     private static final Long EXPIRATION = 1200L;
     private static final boolean VERIFIED = false;
-    private static final SMSVerification VERIFICATION = new SMSVerification(COUNTRY_CODE, PHONE, EXPIRATION, VERIFICATION_HASH);
-    private static final SMSVerification VERIFICATION_WITH_ID = new SMSVerification("id", PHONE, COUNTRY_CODE,VERIFICATION_HASH, VERIFIED, EXPIRATION);
+    private static final String CARRIER = "devcarrier";
+    private static final SMSVerification VERIFICATION = new SMSVerification(COUNTRY_CODE, PHONE, CARRIER, EXPIRATION, VERIFICATION_HASH);
+    private static final SMSVerification VERIFICATION_WITH_ID = new SMSVerification("id", COUNTRY_CODE, PHONE, CARRIER, VERIFICATION_HASH, VERIFIED, EXPIRATION);
 
     @Test
     void testSMSVerificationConstructor() {
@@ -22,8 +23,8 @@ class TestSMSVerification {
 
     @Test
     void testMemberToString() {
-        final String expectedString = String.format("SMSVerification(id=null, phoneNumber=%s, countryCode=%s, verificationCodeHash=%s, verified=%s, expiration=%s)",
-                PHONE, COUNTRY_CODE, VERIFICATION_HASH, VERIFIED, EXPIRATION);
+        final String expectedString = String.format("SMSVerification(id=null, countryCode=%s, phoneNumber=%s, carrierId=%s, verificationCodeHash=%s, verified=%s, expiration=%s)",
+                COUNTRY_CODE, PHONE, CARRIER, VERIFICATION_HASH, VERIFIED, EXPIRATION);
 
         Assertions.assertEquals(expectedString, VERIFICATION.toString());
     }
@@ -42,7 +43,7 @@ class TestSMSVerification {
 
     @Test
     void testSMSVerificationEqualsFalse() {
-        Assertions.assertNotEquals(VERIFICATION, new SMSVerification(2, PHONE, EXPIRATION, VERIFICATION_HASH));
+        Assertions.assertNotEquals(VERIFICATION, new SMSVerification(2, PHONE, CARRIER, EXPIRATION, VERIFICATION_HASH));
     }
 
     @Test
