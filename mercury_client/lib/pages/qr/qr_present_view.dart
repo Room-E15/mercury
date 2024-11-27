@@ -35,7 +35,7 @@ class QRPresentView extends StatelessWidget {
               padding: const EdgeInsetsDirectional.fromSTEB(16, 50, 16, 16),
               child: Center(
                 child: QrImageView(
-                  data: 'groupId:$groupId',
+                  data: groupId,
                   version: QrVersions.auto,
                   backgroundColor: Colors.white,
                   size: 300.0,

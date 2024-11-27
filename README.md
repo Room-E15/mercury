@@ -1,31 +1,36 @@
-### Project Mercury
+# Mercury Messenge
+A lightweight alert messaging app for checking if your group is safe
 
-## Tech Stack
+[![Mercury Video Demo](https://img.youtube.com/vi/KGcVvCi_w5Q/0.jpg)](https://www.youtube.com/watch?v=KGcVvCi_w5Q)
 
-# Frontend
-Dart - Frontend Lang
-Flutter - Cross Platform UI Framework
+# Tech Stack
 
-# Backend
-Java - Backend Lang
-Spring Boot - Backend Framework and Object Relational Mapping (ORM)
-Jakarta - Data Access Object (DAO) Layer
-Lombok - Java Boilerplate
-MySQL - Database Management System (DBMS)
-Unit Testing - ?
+## Frontend
+- Dart - Frontend Lang
+- Flutter - Cross Platform UI Framework
 
-# DevOps
-Git - Version Control
-GitHub Issues - Ticket Tracking
-GitHub Actions - Continuous Integration (CI/CD)
-Sonar Cloud - Code Quality
-Bruno - API Testing
-(TODO) Python + Selenium - Acceptance Testing
+## Backend
+- Java - Backend Lang
+- Spring Boot - Backend Framework and Object Relational Mapping (ORM)
+- Jakarta - Data Access Object (DAO) Layer
+- Lombok - Java Boilerplate
+- MySQL - Database Management System (DBMS)
+- SqlLite - Development DBMS
+- Maven - Build System
+- JUnit - Unit Testing
+- Mokito - 3rd Party Unit Testing
+- Jacoco - Generate Code Coverage Reports
 
-# Patterns
-Model View Controller architecture
+## DevOps
+- Git - Version Control
+- GitHub Issues - Ticket Tracking
+- GitHub Actions - Continuous Integration (CI/CD)
+- Sonar Cloud - Code Quality
+- Bruno - API Testing
 
-Async/Await Parallel Computing
-REST API???
-The Security one Caden mentioned
+### Patterns
+- Model View Controller architecture (MVC/ECB)
+- Async/Await Frontend Parallel Computing
+- Backend Microservice Based Architecture
+- RESTful API
 
