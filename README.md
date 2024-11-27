@@ -15,10 +15,10 @@ A lightweight alert messaging app for checking if your group is safe
 - Jakarta - Data Access Object (DAO) Layer
 - Lombok - Java Boilerplate
 - MySQL - Database Management System (DBMS)
-- SqlLite - Development DBMS
+- SQLite - Development DBMS
 - Maven - Build System
 - JUnit - Unit Testing
-- Mokito - 3rd Party Unit Testing
+- Mockito - 3rd Party Unit Testing
 - Jacoco - Generate Code Coverage Reports
 
 ## DevOps
