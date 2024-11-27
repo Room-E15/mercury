@@ -1,15 +1,15 @@
-### Mercury Messenge
+# Mercury Messenge
 A lightweight alert messaging app for checking if your group is safe
 
 [![Mercury Video Demo](https://img.youtube.com/vi/KGcVvCi_w5Q/0.jpg)](https://www.youtube.com/watch?v=KGcVvCi_w5Q)
 
 ## Tech Stack
 
-# Frontend
+#### Frontend
 Dart - Frontend Lang
 Flutter - Cross Platform UI Framework
 
-# Backend
+### Backend
 Java - Backend Lang
 Spring Boot - Backend Framework and Object Relational Mapping (ORM)
 Jakarta - Data Access Object (DAO) Layer
@@ -21,14 +21,14 @@ JUnit - Unit Testing
 Mokito - 3rd Party Unit Testing
 Jacoco - Generate Code Coverage Reports
 
-# DevOps
+### DevOps
 Git - Version Control
 GitHub Issues - Ticket Tracking
 GitHub Actions - Continuous Integration (CI/CD)
 Sonar Cloud - Code Quality
 Bruno - API Testing
 
-# Patterns
+### Patterns
 Model View Controller architecture (MVC/ECB)
 Async/Await Frontend Parallel Computing
 Backend Microservice Based Architecture
