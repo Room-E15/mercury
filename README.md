@@ -32,5 +32,5 @@ A lightweight alert messaging app for checking if your group is safe
 - Model View Controller architecture (MVC/ECB)
 - Async/Await Frontend Parallel Computing
 - Backend Microservice Based Architecture
-- RESTful API
+- CRUD REST API
 
