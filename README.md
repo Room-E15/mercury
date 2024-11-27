@@ -1,7 +1,6 @@
 ### Mercury Messenge
 A lightweight alert messaging app for checking if your group is safe
 
-[![Mercury Video Demo]()
 [![Mercury Video Demo](https://img.youtube.com/vi/KGcVvCi_w5Q/0.jpg)](https://www.youtube.com/watch?v=KGcVvCi_w5Q)
 
 ## Tech Stack
